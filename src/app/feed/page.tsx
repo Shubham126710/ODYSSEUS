@@ -246,6 +246,11 @@ export default function FeedPage() {
     fetchTrending();
     if (profile) {
       fetchFeeds();
+    } else {
+      // If no profile (not logged in), stop loading so we don't get stuck
+      // Ideally we should redirect to login, but let's just show empty state or mock data
+      setLoadingFeeds(false);
+      setInitialLoad(false);
     }
   }, [profile]);
 
