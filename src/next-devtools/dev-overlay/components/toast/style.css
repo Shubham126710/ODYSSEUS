@@ -1,0 +1,22 @@
+// Imports
+import ___CSS_LOADER_API_NO_SOURCEMAP_IMPORT___ from "../../../../../../../node_modules/.pnpm/css-loader@7.1.2_@rspack+core@1.6.0_@swc+helpers@0.5.15__webpack@5.98.0_@swc+core@1.11.24_@sw_3t67rhipccjkm2dfoeigtkqyke/node_modules/css-loader/dist/runtime/noSourceMaps.js";
+import ___CSS_LOADER_API_IMPORT___ from "../../../../../../../node_modules/.pnpm/css-loader@7.1.2_@rspack+core@1.6.0_@swc+helpers@0.5.15__webpack@5.98.0_@swc+core@1.11.24_@sw_3t67rhipccjkm2dfoeigtkqyke/node_modules/css-loader/dist/runtime/api.js";
+var ___CSS_LOADER_EXPORT___ = ___CSS_LOADER_API_IMPORT___(___CSS_LOADER_API_NO_SOURCEMAP_IMPORT___);
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `.nextjs-toast {
+  position: fixed;
+  z-index: var(--top-z-index);
+  max-width: 420px;
+  box-shadow: 0px 16px 32px rgba(0, 0, 0, 0.25);
+}
+
+.nextjs-toast-errors-parent {
+  padding: 16px;
+  border-radius: var(--rounded-4xl);
+  font-weight: 500;
+  color: var(--color-ansi-bright-white);
+  background-color: var(--color-ansi-red);
+}
+`, ""]);
+// Exports
+export default ___CSS_LOADER_EXPORT___;

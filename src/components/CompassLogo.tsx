@@ -1,19 +1,29 @@
 import React from 'react';
 
-export const CompassLogo = ({ className }: { className?: string }) => {
+export const CompassLogo = ({ className = "w-12 h-12" }: { className?: string }) => {
   return (
-    <svg
+    <svg 
+      viewBox="0 0 100 100" 
+      fill="none" 
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
       className={className}
+      aria-label="Odysseus Compass Logo"
     >
-      <circle cx="12" cy="12" r="10" />
-      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+      {/* Outer Circle "O" */}
+      <circle cx="50" cy="50" r="42" stroke="currentColor" strokeWidth="6" />
+      
+      {/* Compass Markings - Minimal */}
+      <path d="M50 15 V22" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path d="M50 78 V85" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path d="M15 50 H22" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path d="M78 50 H85" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      
+      {/* Needle - Pointing NE */}
+      <path d="M50 50 L70 30" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path d="M50 50 L30 70" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
+      
+      {/* Center Dot */}
+      <circle cx="50" cy="50" r="5" fill="currentColor" />
     </svg>
   );
 };
