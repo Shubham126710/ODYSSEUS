@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { StaticOrangeCompass } from './StaticOrangeCompass';
+import { StaticOrangeCompass } from '@/components/StaticOrangeCompass';
 
 export const FeedLoadingScreen = () => {
   return (
@@ -20,7 +20,7 @@ export const FeedLoadingScreen = () => {
         
         {/* Loading Text */}
         <div className="mt-8 md:mt-12 space-y-2 text-center">
-          <h2 className="font-serif text-2xl md:text-5xl font-bold tracking-widest animate-pulse">
+          <h2 className="font-serif text-2xl md:text-5xl font-bold tracking-widest animate-pulse whitespace-nowrap">
             CURATING FEED
           </h2>
           <p className="text-xs md:text-base font-mono uppercase tracking-[0.2em] md:tracking-[0.3em] opacity-80">

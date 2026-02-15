@@ -3,18 +3,18 @@ import { supabase } from '@/lib/supabaseClient';
 
 export function useSavedStories(userId: string | undefined) {
   const [savedStoryIds, setSavedStoryIds] = useState<Set<string>>(new Set());
+  const [savedStories, setSavedStories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchSavedStories = async () => {
-    if (!userId) return;
+    if (!userId) {
+      console.log('useSavedStories: No userId, skipping fetch');
+      return;
+    }
     setLoading(true);
     try {
+      console.log('useSavedStories: Fetching for user', userId);
       const { data: { session } } = await supabase.auth.getSession();
-      
-      // We can use the API or direct Supabase query. 
-      // Since we just need IDs/URLs to check existence, let's query directly for efficiency if possible, 
-      // or use the API if we want to keep logic encapsulated.
-      // Let's use the API for consistency with the auth header handling we just fixed.
       
       const res = await fetch(`/api/read-later?userId=${userId}`, {
         headers: {
@@ -22,14 +22,16 @@ export function useSavedStories(userId: string | undefined) {
         }
       });
       const data = await res.json();
+      console.log('useSavedStories: Fetch response', data);
       
       if (data.success) {
-        // Store both ID and URL to be safe, as RSS feeds might use either as unique identifier
+        setSavedStories(data.items);
         const ids = new Set<string>();
         data.items.forEach((item: any) => {
+          // Store the URL as the key, as that's what we use for uniqueness
           if (item.url) ids.add(item.url);
-          // We might also want to track by some other ID if available, but URL is usually the key for RSS items
         });
+        console.log('useSavedStories: Set IDs', Array.from(ids));
         setSavedStoryIds(ids);
       }
     } catch (e) {
@@ -40,28 +42,103 @@ export function useSavedStories(userId: string | undefined) {
   };
 
   const isSaved = (story: any) => {
-    return savedStoryIds.has(story.link) || savedStoryIds.has(story.id);
+    // We primarily track by URL
+    const urlToCheck = story.link || story.url || (story.id && String(story.id));
+    const isSaved = urlToCheck && savedStoryIds.has(String(urlToCheck));
+    // console.log('isSaved check:', { urlToCheck, isSaved, availableIds: Array.from(savedStoryIds) });
+    return isSaved;
   };
 
-  const addSavedStory = (story: any) => {
+  const addSavedStory = async (story: any) => {
+    const storyUrl = String(story.link || story.url || story.id);
+    console.log('useSavedStories: Adding story', storyUrl);
+    
+    // Optimistic update
     setSavedStoryIds(prev => {
       const newSet = new Set(prev);
-      newSet.add(story.link || story.id);
+      newSet.add(storyUrl);
       return newSet;
     });
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/read-later', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`
+        },
+        body: JSON.stringify({
+          userId,
+          url: storyUrl,
+          title: story.title,
+          excerpt: story.contentSnippet || story.excerpt,
+          image_url: story.enclosure?.url || story.imageUrl || story.image_url,
+          source_name: story.source || story.source_name,
+          content: story.content
+        })
+      });
+      
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to save');
+      }
+      
+      console.log('useSavedStories: Save successful');
+      fetchSavedStories();
+    } catch (e) {
+      console.error("Failed to save story", e);
+      // Revert optimistic update
+      setSavedStoryIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(storyUrl);
+        return newSet;
+      });
+      throw e; 
+    }
   };
 
-  const removeSavedStory = (story: any) => {
+  const removeSavedStory = async (story: any) => {
+    const storyUrl = String(story.link || story.url || story.id);
+    console.log('useSavedStories: Removing story', storyUrl);
+    
+    // Optimistic update
     setSavedStoryIds(prev => {
       const newSet = new Set(prev);
-      newSet.delete(story.link || story.id);
+      newSet.delete(storyUrl);
       return newSet;
     });
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const url = encodeURIComponent(storyUrl);
+      const res = await fetch(`/api/read-later?userId=${userId}&url=${url}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token || ''}`
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to remove');
+      }
+
+      fetchSavedStories();
+    } catch (e) {
+      console.error("Failed to remove story", e);
+      // Revert optimistic update
+      setSavedStoryIds(prev => {
+        const newSet = new Set(prev);
+        newSet.add(storyUrl);
+        return newSet;
+      });
+      throw e;
+    }
   };
 
   useEffect(() => {
     fetchSavedStories();
   }, [userId]);
 
-  return { savedStoryIds, isSaved, addSavedStory, removeSavedStory, refetch: fetchSavedStories, loading };
+  return { savedStoryIds, savedStories, isSaved, addSavedStory, removeSavedStory, refetch: fetchSavedStories, loading };
 }

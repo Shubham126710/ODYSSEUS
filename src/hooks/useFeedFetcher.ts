@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -15,6 +15,14 @@ export interface Story {
   content: string;
   author?: string;
 }
+
+// Client-side cache: survives re-renders & re-mounts (SPA navigation)
+const storyCache: { data: Story[] | null; timestamp: number; userId: string | null } = {
+  data: null,
+  timestamp: 0,
+  userId: null,
+};
+const CLIENT_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 
 // Helper to map feed titles to categories (fallback)
 const getCategoryForFeed = (source: string) => {
@@ -46,33 +54,51 @@ const calculateReadTime = (text: string, isSnippet: boolean = false) => {
   return `${minutes} min`;
 };
 
-export function useFeedFetcher(userId: string | undefined) {
+export function useFeedFetcher(userId: string | undefined, options?: { category?: string }) {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchFeeds = async () => {
-    if (!userId) return;
+  const fetchFeeds = async (bypassCache = false) => {
+    if (!userId) {
+      console.log('useFeedFetcher: No userId provided, skipping fetch');
+      setLoading(false);
+      return;
+    }
+    
+    // Check client-side cache first
+    if (!bypassCache && storyCache.data && storyCache.userId === userId && Date.now() - storyCache.timestamp < CLIENT_CACHE_TTL) {
+      console.log('useFeedFetcher: Using client cache');
+      const cached = options?.category 
+        ? storyCache.data.filter(s => s.category.toLowerCase() === options.category?.toLowerCase())
+        : storyCache.data;
+      setStories(cached);
+      setLoading(false);
+      return;
+    }
+    
+    console.log('useFeedFetcher: Starting fetch for user', userId);
     setLoading(true);
     setError(null);
     
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`/api/rss?userId=${userId}&t=${Date.now()}`, { 
-        cache: 'no-store',
+      const res = await fetch(`/api/rss?userId=${userId}`, { 
         headers: {
           'Authorization': `Bearer ${session?.access_token || ''}`
         }
       });
       const data = await res.json();
+      console.log('useFeedFetcher: API Response', data);
       
       if (data.success && data.items.length > 0) {
         const processedStories = data.items.map((item: any, index: number) => {
           // Better image extraction logic
-          let imageUrl = null;
+          // Use image from API if available, otherwise try to extract
+          let imageUrl = item.imageUrl || null;
 
           // 1. Check media:thumbnail (Common in Wired, Verge, etc)
-          if (item['media:thumbnail']) {
+          if (!imageUrl && item['media:thumbnail']) {
              if (Array.isArray(item['media:thumbnail'])) {
                 imageUrl = item['media:thumbnail'][0]?.['$']?.url || item['media:thumbnail'][0]?.url;
              } else {
@@ -113,18 +139,6 @@ export function useFeedFetcher(userId: string | undefined) {
              if (match) imageUrl = match[1];
           }
 
-          // Fallback for TechCrunch and others if no image found
-          if (!imageUrl) {
-             const sourceLower = (item.source || '').toLowerCase();
-             if (sourceLower.includes('techcrunch')) {
-                imageUrl = 'https://techcrunch.com/wp-content/uploads/2015/02/cropped-cropped-favicon-gradient.png?w=600';
-             } else if (sourceLower.includes('verge')) {
-                imageUrl = 'https://cdn.vox-cdn.com/uploads/chorus_asset/file/7395361/verge-social-share.jpg';
-             } else if (sourceLower.includes('wired')) {
-                imageUrl = 'https://www.wired.com/verso/static/wired/assets/logo-header.svg';
-             }
-          }
-
           // Clean excerpt
           const rawExcerpt = item.contentSnippet || item.content || item.summary || '';
           const cleanExcerpt = rawExcerpt.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...';
@@ -160,7 +174,14 @@ export function useFeedFetcher(userId: string | undefined) {
             author: item.creator || item.author || item.dc?.creator
           };
         });
-        setStories(processedStories);
+        const filteredStories = options?.category ? processedStories.filter((s:any) => s.category.toLowerCase() === options.category?.toLowerCase()) : processedStories;
+        
+        // Populate client cache with all stories
+        storyCache.data = processedStories;
+        storyCache.timestamp = Date.now();
+        storyCache.userId = userId;
+        
+        setStories(filteredStories);
       } else {
         setStories([]);
       }
@@ -174,7 +195,7 @@ export function useFeedFetcher(userId: string | undefined) {
 
   useEffect(() => {
     fetchFeeds();
-  }, [userId]);
+  }, [userId, options?.category]);
 
-  return { stories, loading, error, refetch: fetchFeeds };
+  return { stories, loading, error, refetch: () => fetchFeeds(true) };
 }

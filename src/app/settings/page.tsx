@@ -125,7 +125,7 @@ export default function SettingsPage() {
         }}
         initial="hidden"
         animate="show"
-        className="flex-grow max-w-3xl mx-auto px-4 md:px-8 py-12 w-full pt-32"
+        className="flex-grow max-w-3xl mx-auto px-4 md:px-8 py-12 w-full pt-24 md:pt-32"
       >
         <motion.div
           variants={{
@@ -133,7 +133,7 @@ export default function SettingsPage() {
             show: { opacity: 1, y: 0 }
           }}
         >
-          <h1 className="font-serif text-4xl font-bold mb-2">Settings</h1>
+          <h1 className="font-serif text-3xl md:text-4xl font-bold mb-2">Settings</h1>
           <p className="text-juice-green/60 mb-8">Manage your account preferences and reading goals.</p>
         </motion.div>
 
@@ -156,10 +156,10 @@ export default function SettingsPage() {
               hidden: { opacity: 0, y: 20 },
               show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50 } }
             }}
-            className="bg-juice-green text-juice-cream p-8 rounded-3xl shadow-xl"
+            className="bg-juice-green text-juice-cream p-5 md:p-8 rounded-2xl md:rounded-3xl shadow-xl"
           >
-            <h2 className="font-serif text-2xl font-bold mb-6 flex items-center gap-3">
-              <TargetIcon className="w-8 h-8 text-juice-orange" /> Reading Goal
+            <h2 className="font-serif text-xl md:text-2xl font-bold mb-4 md:mb-6 flex items-center gap-3">
+              <TargetIcon className="w-6 h-6 md:w-8 md:h-8 text-juice-orange" /> Reading Goal
             </h2>
             
             <div className="space-y-6">
@@ -192,10 +192,10 @@ export default function SettingsPage() {
               hidden: { opacity: 0, y: 20 },
               show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50 } }
             }}
-            className="bg-juice-green text-juice-cream p-8 rounded-3xl shadow-xl"
+            className="bg-juice-green text-juice-cream p-5 md:p-8 rounded-2xl md:rounded-3xl shadow-xl"
           >
-            <h2 className="font-serif text-2xl font-bold mb-6 flex items-center gap-3">
-              <BellIcon className="w-8 h-8 text-juice-orange" /> Notifications
+            <h2 className="font-serif text-xl md:text-2xl font-bold mb-4 md:mb-6 flex items-center gap-3">
+              <BellIcon className="w-6 h-6 md:w-8 md:h-8 text-juice-orange" /> Notifications
             </h2>
             
             <div className="space-y-4">
@@ -226,10 +226,10 @@ export default function SettingsPage() {
               hidden: { opacity: 0, y: 20 },
               show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50 } }
             }}
-            className="bg-juice-green text-juice-cream p-8 rounded-3xl shadow-xl"
+            className="bg-juice-green text-juice-cream p-5 md:p-8 rounded-2xl md:rounded-3xl shadow-xl"
           >
-            <h2 className="font-serif text-2xl font-bold mb-6 flex items-center gap-3">
-              <SlidersIcon className="w-8 h-8 text-juice-orange" /> Preferences
+            <h2 className="font-serif text-xl md:text-2xl font-bold mb-4 md:mb-6 flex items-center gap-3">
+              <SlidersIcon className="w-6 h-6 md:w-8 md:h-8 text-juice-orange" /> Preferences
             </h2>
             
             <div className="space-y-4">

@@ -5,6 +5,7 @@ import { AppHeader } from '@/components/AppHeader';
 import { Footer } from '@/components/Footer';
 import { useProfile } from '@/hooks/useProfile';
 import { useFeedFetcher } from '@/hooks/useFeedFetcher';
+import { useSavedStories } from '@/hooks/useSavedStories';
 import { supabase } from '@/lib/supabaseClient';
 import { MOCK_STORIES } from '@/lib/mockData';
 import Link from 'next/link';
@@ -20,18 +21,18 @@ const FeedLoadingScreen = () => {
       transition={{ duration: 0.8, ease: "easeInOut" }}
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-juice-orange text-juice-cream"
     >
-      <div className="relative flex flex-col items-center">
+      <div className="relative flex flex-col items-center px-4">
         {/* Rotating Compass */}
         <div className="animate-[spin_3s_ease-in-out_infinite]">
-          <StaticOrangeCompass className="w-32 h-32 md:w-48 md:h-48 drop-shadow-2xl" />
+          <StaticOrangeCompass className="w-24 h-24 md:w-48 md:h-48 drop-shadow-2xl" />
         </div>
         
         {/* Loading Text */}
-        <div className="mt-12 space-y-2 text-center">
-          <h2 className="font-serif text-3xl md:text-5xl font-bold tracking-widest animate-pulse">
+        <div className="mt-8 md:mt-12 space-y-2 text-center">
+          <h2 className="font-serif text-2xl md:text-5xl font-bold tracking-widest animate-pulse">
             CURATING FEED
           </h2>
-          <p className="text-sm md:text-base font-mono uppercase tracking-[0.3em] opacity-80">
+          <p className="text-xs md:text-base font-mono uppercase tracking-[0.2em] md:tracking-[0.3em] opacity-80">
             Gathering stories from across the web...
           </p>
         </div>
@@ -41,15 +42,16 @@ const FeedLoadingScreen = () => {
 };
 import { AddFeedModal } from '@/components/AddFeedModal';
 import { ReadingModal } from '@/components/ReadingModal';
+import { Toast } from '@/components/Toast';
 import { formatDistanceToNow } from 'date-fns';
 
 const TRENDING_HEADLINES = [
-  "The Future of Interface Design is Invisible",
-  "Sustainable Cities: A Blueprint for 2050",
-  "Why We Crave Analog in a Digital World",
-  "The Quiet Revolution of Rust Programming",
-  "SpaceX Launches New Mission to Mars",
-  "Minimalism is Back: The New Design Trend"
+  { title: "The Future of Interface Design is Invisible", link: "#", source: "Design" },
+  { title: "Sustainable Cities: A Blueprint for 2050", link: "#", source: "Future" },
+  { title: "Why We Crave Analog in a Digital World", link: "#", source: "Culture" },
+  { title: "The Quiet Revolution of Rust Programming", link: "#", source: "Tech" },
+  { title: "SpaceX Launches New Mission to Mars", link: "#", source: "Space" },
+  { title: "Minimalism is Back: The New Design Trend", link: "#", source: "Style" }
 ];
 
 const GREETINGS = [
@@ -70,25 +72,15 @@ const GREETINGS = [
 ];
 
 // Helper to map feed titles to categories (fallback)
-const getCategoryForFeed = (source: string) => {
-  const s = source.toLowerCase();
-  if (s.includes('verge') || s.includes('tech') || s.includes('wired') || s.includes('hacker')) return 'tech';
-  if (s.includes('design') || s.includes('smashing') || s.includes('ux')) return 'design';
-  if (s.includes('culture') || s.includes('atlantic') || s.includes('new yorker')) return 'culture';
-  if (s.includes('science') || s.includes('space') || s.includes('nature')) return 'science';
-  return 'general';
-};
+// Removed local helper in favor of hook logic
 
 // Helper to calculate read time
-const calculateReadTime = (text: string) => {
-  const wordsPerMinute = 130; // Slower reading speed for more generous estimates
-  const words = text.trim().split(/\s+/).length;
-  const minutes = Math.ceil(words / wordsPerMinute);
-  return `${minutes} min`;
-};
+// Removed local helper in favor of hook logic
 
 export default function FeedPage() {
-  const { profile } = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
+  const { stories, loading: loadingFeeds, refetch } = useFeedFetcher(profile?.id);
+  const { isSaved, addSavedStory, removeSavedStory } = useSavedStories(profile?.id);
   const [greeting, setGreeting] = useState({ line1: "GOOD", line2: "MORNING" });
   const [headerTheme, setHeaderTheme] = useState<'light' | 'dark' | 'orange'>('light');
   const { scrollYProgress } = useScroll();
@@ -96,13 +88,12 @@ export default function FeedPage() {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   // RSS & Feed State
-  const [stories, setStories] = useState<any[]>([]);
-  const [headlines, setHeadlines] = useState<string[]>(TRENDING_HEADLINES);
+  const [headlines, setHeadlines] = useState<Array<{title: string, link: string, source: string}>>(TRENDING_HEADLINES);
   const [isAddFeedOpen, setIsAddFeedOpen] = useState(false);
   const [readingArticle, setReadingArticle] = useState<any>(null);
-  const [loadingFeeds, setLoadingFeeds] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
+  const [toast, setToast] = useState({ message: '', isVisible: false });
 
   // Derived state for filtering
   const uniqueSources = Array.from(new Set(stories.map(s => s.source))).sort();
@@ -130,149 +121,53 @@ export default function FeedPage() {
     }
   };
 
-  const fetchFeeds = async () => {
-    if (!profile) return;
-    // Only show full screen loader on first load
-    if (stories.length === 0) setLoadingFeeds(true);
-    
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`/api/rss?userId=${profile.id}&t=${Date.now()}`, { 
-        cache: 'no-store',
-        headers: {
-          'Authorization': `Bearer ${session?.access_token || ''}`
-        }
-      });
-      const data = await res.json();
-      if (data.success && data.items.length > 0) {
-        // Transform RSS items to match story structure
-        const rssStories = data.items.map((item: any, index: number) => {
-          // Better image extraction logic
-          let imageUrl = null;
-
-          // 1. Check media:thumbnail (Common in Wired, Verge, etc)
-          // The backend now passes this through via customFields
-          if (item['media:thumbnail']) {
-             if (Array.isArray(item['media:thumbnail'])) {
-                // Get the largest one or the first one
-                imageUrl = item['media:thumbnail'][0]?.['$']?.url || item['media:thumbnail'][0]?.url;
-             } else {
-                imageUrl = item['media:thumbnail']?.['$']?.url || item['media:thumbnail']?.url;
-             }
-          }
-
-          // 2. Check media:content (Yahoo, Bing, etc)
-          if (!imageUrl && item['media:content']) {
-            if (Array.isArray(item['media:content'])) {
-               // Find one with type image
-               const media = item['media:content'].find((m: any) => m['$']?.type?.startsWith('image') || m.type?.startsWith('image'));
-               imageUrl = media?.['$']?.url || media?.url || item['media:content'][0]?.['$']?.url || item['media:content'][0]?.url;
-            } else {
-               imageUrl = item['media:content']?.['$']?.url || item['media:content']?.url;
-            }
-          }
-
-          // 3. Check standard enclosure
-          if (!imageUrl && item.enclosure && item.enclosure.type?.startsWith('image')) {
-            imageUrl = item.enclosure.url;
-          }
-          
-          // 4. Regex to find <img src="..."> in content
-          const imgRegex = /<img[^>]+src=["']([^"']+)["']/;
-          
-          if (!imageUrl && item.content) {
-            const match = item.content.match(imgRegex);
-            if (match) imageUrl = match[1];
-          }
-          
-          if (!imageUrl && item['content:encoded']) {
-            const match = item['content:encoded'].match(imgRegex);
-            if (match) imageUrl = match[1];
-          }
-
-          if (!imageUrl && item.description) {
-             const match = item.description.match(imgRegex);
-             if (match) imageUrl = match[1];
-          }
-
-          // Fallback for TechCrunch and others if no image found
-          if (!imageUrl) {
-             const sourceLower = (item.source || '').toLowerCase();
-             if (sourceLower.includes('techcrunch')) {
-                imageUrl = 'https://techcrunch.com/wp-content/uploads/2015/02/cropped-cropped-favicon-gradient.png?w=600'; // TechCrunch Logo/Placeholder
-             } else if (sourceLower.includes('verge')) {
-                imageUrl = 'https://cdn.vox-cdn.com/uploads/chorus_asset/file/7395361/verge-social-share.jpg';
-             } else if (sourceLower.includes('wired')) {
-                imageUrl = 'https://www.wired.com/verso/static/wired/assets/logo-header.svg'; // Or a better generic image
-             }
-          }
-
-          // Clean excerpt
-          const rawExcerpt = item.contentSnippet || item.content || item.summary || '';
-          const cleanExcerpt = rawExcerpt.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...';
-
-          // Calculate read time
-          const fullText = item.content || item['content:encoded'] || item.summary || '';
-          const readTime = calculateReadTime(fullText);
-
-          return {
-            id: item.guid || item.link || index,
-            title: item.title,
-            excerpt: cleanExcerpt,
-            source: item.source || 'RSS Feed',
-            readTime: readTime,
-            date: item.isoDate ? formatDistanceToNow(new Date(item.isoDate), { addSuffix: true }) : 'Just now',
-            category: getCategoryForFeed(item.source || ''),
-            imageUrl: imageUrl,
-            link: item.link,
-            content: item.content || item['content:encoded'] || item.description || item.summary
-          };
-        });
-        setStories(rssStories);
-      } else {
-        setStories([]);
-      }
-    } catch (error) {
-      console.error('Failed to fetch feeds', error);
-    } finally {
-      setLoadingFeeds(false);
-      // Extended delay to ensure images are starting to load and animations are ready
-      // This solves the "fetching info late" feeling by keeping the curtain down longer
-      setTimeout(() => setInitialLoad(false), 2000); 
+  // Handle initial load state
+  useEffect(() => {
+    if (!loadingFeeds && !profileLoading) {
+      const timer = setTimeout(() => setInitialLoad(false), 2000);
+      return () => clearTimeout(timer);
     }
-  };
+  }, [loadingFeeds, profileLoading]);
 
   useEffect(() => {
     fetchTrending();
-    if (profile) {
-      fetchFeeds();
-    } else {
-      // If no profile (not logged in), stop loading so we don't get stuck
-      // Ideally we should redirect to login, but let's just show empty state or mock data
-      setLoadingFeeds(false);
-      setInitialLoad(false);
-    }
-  }, [profile]);
+  }, []);
 
   const handleSaveForLater = async (story: any) => {
     if (!profile) return;
+    
     try {
-      await fetch('/api/read-later', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: profile.id,
-          url: story.link || story.id, // Fallback
-          title: story.title,
-          excerpt: story.excerpt,
-          image_url: story.imageUrl,
-          source_name: story.source,
-          content: story.content
-        })
-      });
-      alert('Saved for later!');
+      if (isSaved(story)) {
+        await removeSavedStory(story);
+        setToast({ message: 'Removed from saved stories', isVisible: true });
+      } else {
+        await addSavedStory(story);
+        setToast({ message: 'Saved for later!', isVisible: true });
+      }
     } catch (e) {
-      console.error(e);
+      console.error("Save action failed", e);
+      setToast({ message: 'Failed to update saved stories', isVisible: true });
+    }
+  };
+
+  const handleShare = async (story: any) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: story.title,
+          text: story.excerpt,
+          url: story.link,
+        });
+      } catch (error) {
+        console.log('Error sharing:', error);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(story.link);
+        setToast({ message: 'Link copied to clipboard!', isVisible: true });
+      } catch {
+        setToast({ message: 'Could not copy link', isVisible: true });
+      }
     }
   };
 
@@ -326,17 +221,14 @@ export default function FeedPage() {
     setGreeting(getGreeting());
   }, []);
 
-  const featuredStory = stories.length > 0 ? stories[0] : null;
-  const otherStories = stories.length > 0 ? stories.slice(1) : [];
+  const featuredStory = filteredStories.length > 0 ? filteredStories[0] : null;
+  const otherStories = filteredStories.length > 0 ? filteredStories.slice(1) : [];
 
   return (
-    <div 
-      onScroll={handleScroll}
-      className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-juice-cream font-sans selection:bg-juice-orange selection:text-white flex flex-col overflow-x-hidden"
-    >
+    <>
       {/* Full Screen Loading State */}
       <AnimatePresence>
-        {(loadingFeeds || initialLoad) && (
+        {(loadingFeeds || initialLoad || profileLoading) && (
           <FeedLoadingScreen />
         )}
       </AnimatePresence>
@@ -349,14 +241,20 @@ export default function FeedPage() {
         isOpen={isAddFeedOpen} 
         onClose={() => setIsAddFeedOpen(false)} 
         userId={profile?.id || ''}
-        onSuccess={fetchFeeds}
+        onSuccess={refetch}
       />
 
       <ReadingModal 
         isOpen={!!readingArticle} 
         onClose={() => setReadingArticle(null)} 
         article={readingArticle} 
+        onSave={handleSaveForLater}
       />
+
+      <div 
+        onScroll={handleScroll}
+        className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-juice-cream font-sans selection:bg-juice-orange selection:text-white flex flex-col overflow-x-hidden"
+      >
       
       {/* HERO SECTION - Cream */}
       <section className="relative h-screen snap-start flex flex-col items-center justify-center overflow-hidden shrink-0">
@@ -369,7 +267,7 @@ export default function FeedPage() {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 0.08, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="text-[15vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
+            className="text-[20vw] md:text-[15vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
           >
             {greeting.line1}
           </motion.h1>
@@ -377,7 +275,7 @@ export default function FeedPage() {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 0.08, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="text-[15vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
+            className="text-[20vw] md:text-[15vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
           >
             {greeting.line2}
           </motion.h1>
@@ -390,10 +288,10 @@ export default function FeedPage() {
           transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
           className="z-10 relative text-center mb-32"
         >
-          <div className="inline-block relative">
-            <h2 className="text-juice-green font-serif text-5xl md:text-7xl font-bold italic tracking-tight leading-tight">
+          <div className="inline-block relative px-4">
+            <h2 className="text-juice-green font-serif text-3xl sm:text-5xl md:text-7xl font-bold italic tracking-tight leading-tight">
               Ready to explore,<br/>
-              <span className="text-juice-orange not-italic underline decoration-4 decoration-juice-green/20 underline-offset-8">
+              <span className="text-juice-orange not-italic underline decoration-2 md:decoration-4 decoration-juice-green/20 underline-offset-4 md:underline-offset-8">
                 {profile?.first_name || 'Traveler'}?
               </span>
             </h2>
@@ -403,40 +301,53 @@ export default function FeedPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.6 }}
             transition={{ delay: 1.2 }}
-            className="mt-8 text-juice-green font-mono text-sm uppercase tracking-widest"
+            className="mt-6 md:mt-8 text-juice-green font-mono text-xs md:text-sm uppercase tracking-widest px-4"
           >
             Scroll to begin your journey
           </motion.p>
         </motion.div>
 
+
+
         {/* News Ticker Ribbon */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-juice-orange flex items-center z-30 border-t-4 border-juice-cream shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+        <div className="absolute bottom-0 left-0 right-0 h-12 md:h-20 bg-juice-orange flex items-center z-30 border-t-2 md:border-t-4 border-juice-cream shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           
-          {/* Static Label Section - Seamless Integration */}
-          <div className="h-full bg-juice-orange flex items-center pl-8 pr-4 z-40 relative">
-             <div className="bg-juice-cream px-5 py-2 rounded-full text-juice-orange font-black text-xs md:text-sm uppercase tracking-widest animate-pulse flex items-center gap-2 shadow-sm ring-2 ring-juice-orange ring-offset-2 ring-offset-juice-cream">
-               <span className="w-2 h-2 rounded-full bg-juice-orange animate-ping" />
-               Trending Now
+          {/* Static Label Section */}
+          <div className="h-full bg-juice-orange flex items-center pl-3 md:pl-8 pr-2 md:pr-4 z-40 relative">
+             <div className="bg-juice-cream px-2.5 md:px-5 py-1 md:py-2 rounded-full text-juice-orange font-black text-[8px] md:text-sm uppercase tracking-widest animate-pulse flex items-center gap-1.5 md:gap-2 shadow-sm ring-2 ring-juice-orange ring-offset-2 ring-offset-juice-cream">
+               <span className="w-1 h-1 md:w-2 md:h-2 rounded-full bg-juice-orange animate-ping" />
+               Trending
              </div>
           </div>
 
           {/* Scrolling Content Section */}
           <div className="flex-1 overflow-hidden relative h-full flex items-center bg-juice-orange">
              {/* Gradient Mask for smooth fade in from left */}
-             <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-juice-orange via-juice-orange/80 to-transparent z-10" />
-             <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-juice-orange to-transparent z-10" />
+             <div className="absolute left-0 top-0 bottom-0 w-12 md:w-24 bg-gradient-to-r from-juice-orange via-juice-orange/80 to-transparent z-10" />
+             <div className="absolute right-0 top-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-juice-orange to-transparent z-10" />
              
              <motion.div 
-                className="flex items-center gap-16 pl-4 w-max"
+                className="flex items-center gap-8 md:gap-16 pl-4 w-max"
                 animate={{ x: "-50%" }}
-                transition={{ repeat: Infinity, duration: 60, ease: "linear" }}
+                transition={{ repeat: Infinity, duration: 90, ease: "linear" }}
               >
                 {/* Duplicate list once to create seamless loop */}
                 {[...headlines, ...headlines].map((headline, i) => (
-                  <span key={i} className="text-lg md:text-xl font-bold uppercase tracking-wider flex items-center gap-6 text-juice-cream/90 hover:text-white transition-colors cursor-pointer whitespace-nowrap">
-                    {headline}
-                    <span className="w-1.5 h-1.5 rounded-full bg-juice-cream/50" />
-                  </span>
+                  <button 
+                    key={i} 
+                    onClick={() => setReadingArticle({
+                      title: headline.title,
+                      link: headline.link,
+                      source: headline.source,
+                      excerpt: '',
+                      date: 'Trending',
+                      readTime: '3 min'
+                    })}
+                    className="text-xs md:text-xl font-bold uppercase tracking-wider flex items-center gap-3 md:gap-6 text-juice-cream/90 hover:text-white hover:underline decoration-2 underline-offset-4 transition-all cursor-pointer whitespace-nowrap"
+                  >
+                    {headline.title}
+                    <span className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-juice-cream/50" />
+                  </button>
                 ))}
               </motion.div>
           </div>
@@ -444,15 +355,15 @@ export default function FeedPage() {
       </section>
 
       {/* FEATURED STORY - Green */}
-      <section className="h-screen snap-start bg-juice-green text-juice-cream flex items-center py-20 px-4 md:px-12 relative shrink-0 pt-32">
+      <section className="min-h-screen h-auto snap-start bg-juice-green text-juice-cream flex items-center py-10 md:py-16 px-4 md:px-12 relative shrink-0 pt-20 md:pt-24 pb-8 md:pb-12">
         {featuredStory ? (
-          <div className="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
+          <div className="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <motion.div 
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="space-y-8"
+              className="space-y-4 md:space-y-6"
             >
               <div className="flex items-center gap-4 text-juice-orange font-bold tracking-widest uppercase text-sm">
                 <span className="w-12 h-[1px] bg-juice-orange"></span>
@@ -462,11 +373,11 @@ export default function FeedPage() {
                 onClick={() => setReadingArticle(featuredStory)}
                 className="block group cursor-pointer"
               >
-                <h2 className="text-4xl md:text-6xl font-serif font-bold leading-tight group-hover:text-juice-orange transition-colors duration-300">
+                <h2 className="text-2xl md:text-5xl font-serif font-bold leading-tight group-hover:text-juice-orange transition-colors duration-300">
                   {featuredStory.title}
                 </h2>
               </div>
-              <p className="text-xl opacity-80 leading-relaxed max-w-xl line-clamp-3">
+              <p className="text-sm md:text-lg opacity-80 leading-relaxed max-w-xl line-clamp-3">
                 {featuredStory.excerpt}
               </p>
               <div className="flex items-center gap-6 text-sm font-mono opacity-60">
@@ -476,7 +387,7 @@ export default function FeedPage() {
               </div>
               <button 
                 onClick={() => setReadingArticle(featuredStory)}
-                className="mt-8 px-8 py-4 border border-juice-cream rounded-full font-bold uppercase tracking-widest hover:bg-juice-cream hover:text-juice-green transition-all duration-300"
+                className="mt-6 px-8 py-3 border border-juice-cream rounded-full font-bold uppercase tracking-widest hover:bg-juice-cream hover:text-juice-green transition-all duration-300"
               >
                 Read Story
               </button>
@@ -487,13 +398,19 @@ export default function FeedPage() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="relative aspect-[4/5] md:aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500"
+              className="relative aspect-[4/5] md:aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500 max-h-[50vh] md:max-h-none mx-auto w-full bg-juice-cream/10"
             >
-              <img 
-                src={featuredStory.imageUrl} 
-                alt={featuredStory.title} 
-                className="w-full h-full object-cover"
-              />
+              {featuredStory.imageUrl ? (
+                <img 
+                  src={featuredStory.imageUrl} 
+                  alt={featuredStory.title} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-juice-cream/5">
+                  <span className="text-9xl font-black text-juice-cream/20">{featuredStory.source.charAt(0)}</span>
+                </div>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-juice-green/80 to-transparent opacity-60" />
             </motion.div>
           </div>
@@ -514,15 +431,15 @@ export default function FeedPage() {
       </section>
 
       {/* THE FEED - Orange Background */}
-      <section className="h-screen snap-start bg-juice-orange flex flex-col justify-center shrink-0 relative overflow-hidden">
-        <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 flex flex-col h-full pt-32 pb-10">
+      <section className="min-h-screen snap-start bg-juice-orange flex flex-col justify-center shrink-0 relative overflow-hidden">
+        <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 flex flex-col h-full pt-16 md:pt-20 pb-6 md:pb-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-8 text-center text-juice-cream shrink-0"
+            className="mb-4 text-center text-juice-cream shrink-0"
           >
-            <h3 className="font-serif text-4xl md:text-6xl font-bold mb-2">The Collection</h3>
+            <h3 className="font-serif text-3xl md:text-5xl font-bold mb-2">The Collection</h3>
             <p className="opacity-80 text-lg">Curated for your curiosity.</p>
             
             {/* Source Filter */}
@@ -583,7 +500,7 @@ export default function FeedPage() {
                 </div>
               )}
 
-              {!loadingFeeds && filteredStories.map((story, index) => (
+              {!loadingFeeds && otherStories.map((story, index) => (
                 <motion.div
                   key={story.id}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -601,7 +518,7 @@ export default function FeedPage() {
                     onClick={() => setReadingArticle(story)}
                     className="cursor-pointer block h-full"
                   >
-                    <div className="w-[300px] md:w-[340px] bg-juice-cream rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-juice-green/5 flex flex-col h-auto min-h-[420px] relative overflow-hidden group">
+                    <div className="w-[80vw] max-w-[300px] md:max-w-[380px] bg-juice-cream rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-juice-green/5 flex flex-col h-[340px] md:h-[480px] relative overflow-hidden group hover:-translate-y-3 hover:rotate-1 hover:shadow-2xl transition-all duration-300">
                       
                       {/* Decorative Top Gradient */}
                       <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-juice-orange/20 to-juice-green/20" />
@@ -613,7 +530,7 @@ export default function FeedPage() {
                             {story.source.charAt(0)}
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-juice-green">{story.source}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-juice-green truncate max-w-[100px]">{story.source}</span>
                             <span className="text-[9px] font-bold text-juice-green/40 uppercase tracking-wide">{story.date}</span>
                           </div>
                         </div>
@@ -623,13 +540,13 @@ export default function FeedPage() {
                       </div>
 
                       {/* Body: Title */}
-                      <h3 className="font-serif text-xl md:text-2xl font-bold text-juice-green mb-4 leading-tight group-hover:text-juice-orange transition-colors duration-300 line-clamp-3">
+                      <h3 className="font-serif text-base md:text-2xl font-bold text-juice-green mb-2 md:mb-4 leading-tight group-hover:text-juice-orange transition-colors duration-300 line-clamp-2 md:line-clamp-3">
                         {story.title}
                       </h3>
 
                       {/* Image (Compact but Premium) */}
                       {story.imageUrl ? (
-                        <div className="w-full h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0">
+                        <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0">
                           <img 
                             src={story.imageUrl} 
                             alt={story.title} 
@@ -638,18 +555,18 @@ export default function FeedPage() {
                           <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-xl" />
                         </div>
                       ) : (
-                        <div className="w-full h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0 bg-juice-green/5 flex items-center justify-center">
+                        <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0 bg-juice-green/5 flex items-center justify-center">
                            <span className="text-4xl font-black text-juice-green/10">{story.source.charAt(0)}</span>
                         </div>
                       )}
 
                       {/* Excerpt (Short) */}
-                      <p className="text-juice-green/70 text-xs leading-relaxed line-clamp-3 mb-6 flex-grow font-medium">
+                      <p className="text-juice-green/70 text-xs leading-relaxed line-clamp-3 mb-4 md:mb-6 flex-grow font-medium hidden sm:block">
                         {story.excerpt}
                       </p>
 
                       {/* Footer: Actions */}
-                      <div className="flex items-center justify-between pt-6 border-t border-juice-green/10 mt-auto">
+                      <div className="flex items-center justify-between pt-4 md:pt-6 border-t border-juice-green/10 mt-auto">
                         <div className="flex items-center gap-2 text-juice-green/40">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                           <span className="text-xs font-bold uppercase tracking-wider">{story.readTime}</span>
@@ -657,10 +574,21 @@ export default function FeedPage() {
                         <div className="flex items-center gap-4">
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleSaveForLater(story); }}
-                            className="text-juice-green/40 hover:text-juice-orange transition-colors hover:scale-110 transform duration-200"
-                            title="Read Later"
+                            className={`transition-colors hover:scale-110 transform duration-200 ${isSaved(story) ? 'text-juice-orange' : 'text-juice-green/40 hover:text-juice-orange'}`}
+                            title={isSaved(story) ? "Saved" : "Read Later"}
                           >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                            {isSaved(story) ? (
+                              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                            ) : (
+                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                            )}
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleShare(story); }}
+                            className="text-juice-green/40 hover:text-juice-orange transition-colors hover:scale-110 transform duration-200"
+                            title="Share"
+                          >
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                           </button>
                           <button 
                             onClick={(e) => { e.stopPropagation(); setReadingArticle(story); }}
@@ -685,7 +613,7 @@ export default function FeedPage() {
               >
                 <button 
                   onClick={() => setIsAddFeedOpen(true)}
-                  className="w-[320px] md:w-[360px] h-full min-h-[480px] bg-juice-orange border-4 border-juice-cream rounded-3xl p-8 flex flex-col items-center justify-center text-juice-cream hover:bg-juice-cream hover:text-juice-orange hover:border-juice-orange transition-all duration-300 group shadow-xl"
+                  className="w-[80vw] max-w-[300px] md:max-w-[380px] h-[340px] md:h-[480px] bg-juice-orange border-4 border-juice-cream rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center text-juice-cream hover:bg-juice-cream hover:text-juice-orange hover:border-juice-orange transition-all duration-300 group shadow-xl hover:-translate-y-3 hover:rotate-1 hover:shadow-2xl"
                 >
                   <span className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">+</span>
                   <span className="font-black uppercase tracking-widest text-2xl">Add Source</span>
@@ -709,19 +637,13 @@ export default function FeedPage() {
       <div className="snap-start shrink-0">
         <Footer />
       </div>
-
-      <ReadingModal 
-        article={readingArticle} 
-        isOpen={!!readingArticle} 
-        onClose={() => setReadingArticle(null)} 
-      />
-
-      <AddFeedModal
-        isOpen={isAddFeedOpen}
-        onClose={() => setIsAddFeedOpen(false)}
-        userId={profile?.id || ''}
-        onSuccess={fetchFeeds}
-      />
     </div>
+    
+    <Toast 
+        message={toast.message} 
+        isVisible={toast.isVisible} 
+        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))} 
+      />
+    </>
   );
 }

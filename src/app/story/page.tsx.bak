@@ -78,32 +78,32 @@ export default function StoryPage() {
   const readTime = fullContent ? calculateReadTime(fullContent) : (searchParams.get('readTime') || '5 min');
 
   return (
-    <div className="fixed inset-0 bg-juice-cream flex flex-col z-[100] overflow-hidden">
-         {/* Card Container - Updated to be full screen without the floating border effect */}
+    <div className="fixed inset-0 bg-juice-green flex flex-col z-[100] overflow-hidden">
+        {/* Card Container mimicking the modal but full screenish */}
          <motion.div 
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="flex-1 w-full h-full bg-juice-cream shadow-2xl overflow-hidden flex flex-col relative"
-         >
+            className="flex-1 mt-0 md:mt-6 mx-0 md:mx-6 mb-0 md:mb-6 bg-juice-cream rounded-none md:rounded-3xl shadow-2xl overflow-hidden flex flex-col relative"
+          >
              {/* Header */}
-             <div className="flex items-center justify-between px-3 py-3 md:px-12 md:py-6 border-b border-juice-green/10 bg-juice-cream/90 backdrop-blur-md sticky top-0 z-20">
-                 <div className="flex items-center gap-2 md:gap-4 min-w-0">
+             <div className="flex items-center justify-between p-4 md:p-6 border-b border-juice-green/10 bg-juice-cream/90 backdrop-blur-md sticky top-0 z-20">
+                <div className="flex items-center gap-4">
                     <button 
                         onClick={() => router.back()}
-                        className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-2 -ml-1 rounded-full hover:bg-juice-green/5 text-juice-green transition-all group shrink-0"
+                        className="flex items-center gap-2 px-3 py-2 -ml-2 rounded-full hover:bg-juice-green/5 text-juice-green transition-all group"
                     >
-                        <ArrowLeft style={{ width: 18, height: 18 }} className="group-hover:-translate-x-1 transition-transform" />
-                        <span className="font-bold text-[10px] md:text-xs uppercase tracking-widest hidden sm:inline">Go Back</span>
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <span className="font-bold text-xs uppercase tracking-widest">Go Back</span>
                     </button>
-                    <div className="h-4 w-px bg-juice-green/10 hidden sm:block" />
-                    <span className="font-mono text-[9px] md:text-xs font-bold uppercase tracking-widest text-juice-green/60 pt-0.5 truncate">
+                    <div className="h-4 w-px bg-juice-green/10" />
+                    <span className="font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest text-juice-green/60 pt-0.5">
                         {source || 'Source'}
                     </span>
                     {isLoading && (
                         <span className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-juice-orange animate-pulse">
-                            <span style={{ width: 6, height: 6 }} className="bg-juice-orange rounded-full"></span>
+                            <span className="w-1.5 h-1.5 bg-juice-orange rounded-full"></span>
                             Fetching Story...
                         </span>
                     )}
@@ -113,21 +113,21 @@ export default function StoryPage() {
                     href={storyUrl || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-juice-green/20 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-juice-green hover:bg-juice-green hover:text-juice-cream transition-colors shrink-0 ml-2"
+                    className="px-4 py-2 rounded-full border border-juice-green/20 text-[10px] font-bold uppercase tracking-widest text-juice-green hover:bg-juice-green hover:text-juice-cream transition-colors"
                 >
-                    Original
+                    Visit Original
                 </a>
              </div>
 
              {/* Content Scroll Area */}
-             <div className="flex-1 overflow-y-auto w-full scroll-smooth">
-                 <div className="max-w-3xl mx-auto px-4 py-8 md:px-0 md:py-16 pb-20">
+             <div className="flex-1 overflow-y-auto p-6 md:p-12 lg:p-20 scroll-smooth">
+                 <div className="max-w-3xl mx-auto pb-20">
                     {/* Article Title Header */}
-                    <header className="mb-8 md:mb-10 text-center">
-                        <h1 className="font-serif text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-juice-green mb-4 md:mb-6 leading-tight">
+                    <header className="mb-10 text-center">
+                        <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-juice-green mb-6 leading-tight">
                             {title || 'Loading...'}
                         </h1>
-                        <div className="flex items-center justify-center gap-3 text-juice-green/60 font-mono text-[10px] uppercase tracking-widest">
+                        <div className="flex items-center justify-center gap-3 text-juice-green/50 font-mono text-[10px] uppercase tracking-widest">
                              <span>{date}</span>
                              <span>•</span>
                              <span>{readTime}</span>
@@ -136,8 +136,8 @@ export default function StoryPage() {
 
                     {/* Image */}
                     {initialImageUrl && (
-                        <div className="mb-10 rounded-2xl overflow-hidden shadow-lg aspect-video bg-juice-green/5 w-full">
-                             <img src={initialImageUrl} alt="" className="w-full h-full object-cover" />
+                        <div className="mb-10 rounded-2xl overflow-hidden shadow-lg aspect-video bg-juice-green/5">
+                            <img src={initialImageUrl} alt="" className="w-full h-full object-cover" />
                         </div>
                     )}
 
@@ -150,22 +150,12 @@ export default function StoryPage() {
                     )}
 
                     {/* Body */}
-                    <article className="prose prose-lg md:prose-xl mx-auto font-serif">
-                        <style jsx global>{`
-                            .prose { max-width: 65ch; margin: 0 auto; }
-                            .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { color: #5D8246 !important; font-weight: 700; margin-top: 2em; margin-bottom: 1em; line-height: 1.3; }
-                            .prose p { color: #5D8246 !important; font-weight: 400; margin-bottom: 1.5em; line-height: 1.8; font-size: 1rem; }
-                            @media (min-width: 640px) { .prose p { font-size: 1.125rem; } }
-                            .prose strong, .prose b { color: #3d5a2e !important; font-weight: 700; }
-                            .prose ul, .prose ol { color: #5D8246 !important; margin-bottom: 1.5em; padding-left: 1.5em; }
-                            .prose li { color: #5D8246 !important; margin-bottom: 0.5em; }
-                            .prose a { color: #FF6B4A !important; text-decoration: none; font-weight: 600; }
-                            .prose a:hover { text-decoration: underline; }
-                            .prose blockquote { color: #6b8f55 !important; border-left: 4px solid #FF6B4A !important; padding-left: 1em; margin-left: 0; font-style: italic; opacity: 0.9; }
-                            .prose img { margin: 2rem auto; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); max-width: 100%; height: auto; }
-                            .prose code { color: #5D8246 !important; background-color: rgba(93, 130, 70, 0.1); padding: 0.2em 0.4em; border-radius: 0.25em; font-size: 0.9em; }
-                            .prose pre { background-color: #f5f5dc !important; color: #5D8246 !important; padding: 1em; border-radius: 0.5rem; overflow-x: auto; border: 1px solid rgba(93, 130, 70, 0.15); }
-                        `}</style>
+                    <article className="prose prose-lg md:prose-xl prose-stone mx-auto 
+                        prose-headings:font-serif prose-headings:font-bold prose-headings:text-juice-green 
+                        prose-p:text-juice-green/90 prose-p:leading-relaxed prose-p:mb-6
+                        prose-a:text-juice-orange prose-a:no-underline hover:prose-a:underline
+                        prose-li:text-juice-green prose-strong:text-juice-green
+                        prose-img:mx-auto prose-img:block prose-img:rounded-2xl prose-img:shadow-sm">
                         {fullContent ? (
                             <div dangerouslySetInnerHTML={{ __html: cleanContent(fullContent) }} />
                         ) : (

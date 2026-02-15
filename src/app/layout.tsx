@@ -15,9 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Odysseus",
   description: "Your personal content compass",
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({

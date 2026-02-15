@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StaticOrangeCompass } from './StaticOrangeCompass';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter, usePathname } from 'next/navigation';
 import { useProfile } from '@/hooks/useProfile';
 import { CustomizeTabsModal } from './CustomizeTabsModal';
+import { SearchModal } from './SearchModal';
 
 // Icons
 const UserIcon = ({ className }: { className?: string }) => (
@@ -25,37 +26,9 @@ const LogOutIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
 );
 
-// Duolingo-style Fire Icon (Enhanced)
-const FireIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    <defs>
-      <linearGradient id="flameGradient" x1="50" y1="0" x2="50" y2="100" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#FF9600" />
-        <stop offset="100%" stopColor="#FF5000" />
-      </linearGradient>
-    </defs>
-    {/* Main Flame Body - 3 Prongs, Wide Base */}
-    <path 
-      d="M50 92C25 92 15 75 15 55C15 35 5 20 5 20C15 25 25 40 30 50C30 40 35 15 50 5C65 15 70 40 70 50C75 40 85 25 95 20C95 20 85 35 85 55C85 75 75 92 50 92Z" 
-      fill="url(#flameGradient)" 
-      stroke="#E64A19" 
-      strokeWidth="3" 
-      strokeLinejoin="round"
-    />
-    {/* Inner Core - Lighter */}
-    <path 
-      d="M50 82C35 82 28 70 28 55C28 45 22 35 22 35C28 38 35 48 38 55C38 48 42 32 50 25C58 32 62 48 62 55C65 48 72 38 78 35C78 35 72 45 72 55C72 70 65 82 50 82Z" 
-      fill="#FFC107" 
-    />
-    {/* Shine */}
-    <path 
-      d="M35 55Q35 45 40 40" 
-      stroke="white" 
-      strokeWidth="3" 
-      strokeLinecap="round" 
-      opacity="0.6"
-    />
-  </svg>
+// Fire Icon — clean Duolingo-style flame
+const FireIcon = ({ size = 20 }: { size?: number }) => (
+  <span style={{ fontSize: size, lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} role="img" aria-label="streak">🔥</span>
 );
 
 // Compact Circular Progress
@@ -80,6 +53,8 @@ const CompactCircularProgress = ({ value, max, size = 60, strokeWidth = 6 }: { v
 
 export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'orange' }) => {
   const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [tempGoal, setTempGoal] = useState(15);
   const [tabs, setTabs] = useState(['Tech', 'Design', 'Culture', 'Science']);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
@@ -87,13 +62,10 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   const pathname = usePathname();
   const { profile } = useProfile();
 
-  const isLight = theme === 'light';
-  const isOrange = theme === 'orange';
-  
-  const textColor = isLight ? 'text-juice-green' : 'text-juice-cream';
-  const bgColor = isLight ? 'bg-juice-cream/80' : isOrange ? 'bg-juice-orange/80' : 'bg-juice-green/80';
-  const borderColor = isLight ? 'border-juice-green/10' : 'border-juice-cream/10';
-  const navTextColor = isLight ? 'text-juice-green/60 hover:text-juice-green' : 'text-juice-cream/60 hover:text-juice-cream';
+  const textColor = 'text-juice-cream';
+  const bgColor = 'bg-juice-green';
+  const borderColor = 'border-juice-cream/10';
+  const navTextColor = 'text-juice-cream/60 hover:text-juice-cream';
 
   useEffect(() => {
     const saved = localStorage.getItem('nav_tabs');
@@ -123,13 +95,25 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
     }
   };
 
+  // Close stats dropdown when clicking outside
+  const statsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (isStatsOpen && statsRef.current && !statsRef.current.contains(e.target as Node)) {
+        setIsStatsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isStatsOpen]);
+
   return (
-    <header className={`sticky top-0 z-50 backdrop-blur-md border-b transition-colors duration-500 ${bgColor} ${borderColor}`}>
-      <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
+    <header className={`sticky top-0 z-50 border-b transition-colors duration-500 ${bgColor} ${borderColor}`}>
+      <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 md:h-20 flex items-center justify-between">
         
-        <Link href="/feed" className="flex items-center gap-3 group">
-          <StaticOrangeCompass className="w-8 h-8 group-hover:rotate-45 transition-transform duration-500" />
-          <span className={`font-serif text-xl font-bold tracking-wide transition-colors duration-500 ${textColor}`}>ODYSSEUS</span>
+        <Link href="/feed" className="flex items-center gap-2 md:gap-3 group">
+          <StaticOrangeCompass className="w-7 h-7 md:w-8 md:h-8 group-hover:rotate-45 transition-transform duration-500" />
+          <span className={`font-serif text-lg md:text-xl font-bold tracking-wide transition-colors duration-500 ${textColor}`}>ODYSSEUS</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
@@ -137,8 +121,8 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
             href="/feed" 
             className={`text-sm font-bold uppercase tracking-widest transition-colors ${
               pathname === '/feed' 
-                ? (isOrange ? 'text-juice-cream' : 'text-juice-orange') 
-                : (isOrange ? 'text-juice-cream/60 hover:text-juice-cream' : 'text-juice-green/60 hover:text-juice-green')
+                ? 'text-juice-cream' 
+                : 'text-juice-cream/60 hover:text-juice-cream'
             }`}
           >
             For You
@@ -151,7 +135,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 href={`/feed/${item.toLowerCase()}`}
                 className={`text-sm font-bold uppercase tracking-widest transition-colors duration-500 ${
                   isActive 
-                    ? 'text-juice-orange' 
+                    ? 'text-juice-cream'
                     : navTextColor
                 } hover:text-juice-orange`}
               >
@@ -168,50 +152,87 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           </button>
         </nav>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 md:gap-6">
           
+          {/* Streak button — visible on all screens */}
           {profile && (
-            <div className="relative">
+            <div className="relative" ref={statsRef}>
               <button 
                 onClick={() => setIsStatsOpen(!isStatsOpen)}
-                className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${isStatsOpen ? 'bg-juice-green text-juice-cream ring-4 ring-juice-green/20' : 'bg-juice-orange text-white hover:bg-juice-orange/90'}`}
+                className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full transition-all duration-300"
+                style={{
+                  backgroundColor: isStatsOpen ? '#5D8246' : '#FF6B4A',
+                  color: 'white',
+                  boxShadow: isStatsOpen ? '0 0 0 4px rgba(93,130,70,0.2)' : 'none',
+                }}
               >
-                <FireIcon className="w-5 h-5" />
-                <span className="font-bold text-sm">{profile.streak_count}</span>
+                <FireIcon size={16} />
+                <span className="font-bold text-xs md:text-sm">{profile.streak_count}</span>
               </button>
 
-              {/* Modern Stats Dropdown */}
-              <div className={`absolute right-0 top-full mt-4 w-80 bg-juice-orange/95 backdrop-blur-xl text-juice-cream rounded-3xl shadow-[0_20px_60px_-15px_rgba(255,107,0,0.5)] p-6 transform transition-all duration-300 origin-top-right z-50 border border-white/20 ring-1 ring-black/5 ${isStatsOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-2'}`}>
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-white/20 rounded-full">
-                      <FireIcon className="w-4 h-4" />
+              {/* Stats Dropdown — Responsive */}
+              <div 
+                className={`absolute right-0 top-full mt-3 rounded-2xl p-0 transform transition-all duration-200 origin-top-right z-50 overflow-hidden ${isStatsOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-2'}`}
+                style={{ 
+                  width: 'min(340px, calc(100vw - 32px))',
+                  backgroundColor: '#FEFDF5', 
+                  border: '1px solid rgba(93,130,70,0.1)',
+                  boxShadow: '0 25px 60px rgba(0,0,0,0.12)'
+                }}
+              >
+                {/* Header section */}
+                <div className="px-6 pt-6 pb-4" style={{ borderBottom: '1px solid rgba(93,130,70,0.08)' }}>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <FireIcon size={22} />
+                      <h3 className="font-serif text-lg font-bold" style={{ color: '#3d5a2e' }}>Reading Streak</h3>
                     </div>
-                    <h3 className="font-sans text-lg font-bold tracking-tight text-white">Daily Progress</h3>
+                    <Link href="/profile" onClick={() => setIsStatsOpen(false)} className="text-[10px] font-bold uppercase tracking-widest transition-colors" style={{ color: 'rgba(93,130,70,0.4)' }}>
+                      Profile →
+                    </Link>
                   </div>
-                  <Link href="/profile" className="text-[10px] font-black uppercase tracking-widest text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition-all">
-                    View Profile
-                  </Link>
+                  <p className="text-xs mt-1" style={{ color: 'rgba(93,130,70,0.45)' }}>
+                    {profile.streak_count > 0 ? `${profile.streak_count} day streak! Keep it going.` : 'Start reading to build your streak!'}
+                  </p>
                 </div>
 
-                <div className="flex items-center gap-6 mb-8 relative">
-                  {/* Glow effect behind progress */}
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[70px] h-[70px] bg-white/20 blur-2xl rounded-full pointer-events-none" />
-                  
-                  <CompactCircularProgress value={profile.minutes_read_today} max={tempGoal} size={70} strokeWidth={6} />
-                  <div className="flex-1 space-y-1">
-                    <p className="text-[10px] uppercase tracking-widest text-white/60 font-bold">Read Today</p>
-                    <div className="flex items-baseline gap-1">
-                      <p className="text-4xl font-black text-white tracking-tight">{profile.minutes_read_today}</p>
-                      <span className="text-sm text-white/60 font-bold">min</span>
+                {/* Progress Card */}
+                <div style={{ padding: '20px 24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: 20, borderRadius: 12, backgroundColor: '#5D8246' }}>
+                    <CompactCircularProgress value={profile.minutes_read_today} max={tempGoal} size={72} strokeWidth={6} />
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700, color: 'rgba(255,253,208,0.5)', marginBottom: 4 }}>Read Today</p>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                        <span style={{ fontSize: 36, fontWeight: 900, letterSpacing: '-0.02em', color: '#FFFDD0', lineHeight: 1 }}>{profile.minutes_read_today}</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,253,208,0.5)' }}>/ {tempGoal} min</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-4 bg-black/10 rounded-2xl p-4 border border-white/5">
-                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest">
-                    <span className="text-white/60">Daily Goal</span>
-                    <span className="text-white">{tempGoal} min</span>
+                {/* Stats Row */}
+                <div style={{ padding: '0 24px 20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                    <div style={{ textAlign: 'center', padding: '12px 8px', borderRadius: 12, backgroundColor: 'rgba(93,130,70,0.06)' }}>
+                      <p style={{ fontSize: 24, fontWeight: 900, color: '#3d5a2e', lineHeight: 1.2 }}>{profile.streak_count || 0}</p>
+                      <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(93,130,70,0.4)', marginTop: 4 }}>Day Streak</p>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: '12px 8px', borderRadius: 12, backgroundColor: 'rgba(93,130,70,0.06)' }}>
+                      <p style={{ fontSize: 24, fontWeight: 900, color: '#3d5a2e', lineHeight: 1.2 }}>{(profile as any).articles_read ?? 0}</p>
+                      <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(93,130,70,0.4)', marginTop: 4 }}>Articles</p>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: '12px 8px', borderRadius: 12, backgroundColor: 'rgba(93,130,70,0.06)' }}>
+                      <p style={{ fontSize: 24, fontWeight: 900, color: '#3d5a2e', lineHeight: 1.2 }}>{(profile as any).total_minutes_read ?? profile.minutes_read_today ?? 0}</p>
+                      <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(93,130,70,0.4)', marginTop: 4 }}>Total Min</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Goal Slider */}
+                <div style={{ padding: '16px 24px 24px', borderTop: '1px solid rgba(93,130,70,0.08)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(93,130,70,0.45)' }}>Daily Goal</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#5D8246' }}>{tempGoal} min</span>
                   </div>
                   <input 
                     type="range" 
@@ -220,20 +241,25 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                     step="5" 
                     value={tempGoal}
                     onChange={(e) => updateGoal(parseInt(e.target.value))}
-                    className="w-full h-2 bg-black/20 rounded-full appearance-none cursor-pointer accent-white hover:accent-juice-green transition-all"
+                    className="accent-juice-orange"
+                    style={{ width: '100%', height: 6, borderRadius: 999, appearance: 'none' as any, cursor: 'pointer', backgroundColor: 'rgba(93,130,70,0.1)' }}
                   />
                 </div>
               </div>
             </div>
           )}
 
-          <button className={`p-2 transition-colors ${isLight ? 'text-juice-green/60 hover:text-juice-orange' : 'text-juice-cream/60 hover:text-juice-cream'}`}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button 
+            onClick={() => setIsSearchOpen(true)}
+            className="p-2 transition-colors text-juice-cream/60 hover:text-juice-cream"
+          >
+            <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
           
-          <div className="relative group">
+          {/* Desktop profile dropdown */}
+          <div className="relative group hidden md:block">
             <button className="w-10 h-10 rounded-full bg-juice-green text-juice-cream flex items-center justify-center font-serif font-bold text-lg hover:bg-juice-orange transition-colors overflow-hidden ring-2 ring-transparent hover:ring-juice-orange">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
@@ -273,8 +299,63 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
               </div>
             </div>
           </div>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-juice-cream/60 hover:text-juice-cream transition-colors"
+            aria-label="Menu"
+          >
+            {isMobileMenuOpen ? (
+              <svg style={{ width: 22, height: 22 }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            ) : (
+              <svg style={{ width: 22, height: 22 }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            )}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu Drawer */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-juice-cream/10" style={{ backgroundColor: '#5D8246' }}>
+          <nav className="px-4 py-3 space-y-1">
+            <Link 
+              href="/feed" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`block px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors ${pathname === '/feed' ? 'text-juice-cream bg-white/10' : 'text-juice-cream/60'}`}
+            >
+              For You
+            </Link>
+            {tabs.map((item) => {
+              const isActive = pathname === `/feed/${item.toLowerCase()}`;
+              return (
+                <Link 
+                  key={item} 
+                  href={`/feed/${item.toLowerCase()}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`block px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors ${isActive ? 'text-juice-cream bg-white/10' : 'text-juice-cream/60'}`}
+                >
+                  {item}
+                </Link>
+              );
+            })}
+            <div className="h-px bg-juice-cream/10 my-2" />
+            <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-cream/60 rounded-xl">
+              <UserIcon className="w-4 h-4" /> Profile
+            </Link>
+            <Link href="/saved" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-cream/60 rounded-xl">
+              <BookmarkIcon className="w-4 h-4" /> Saved Stories
+            </Link>
+            <Link href="/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-cream/60 rounded-xl">
+              <SettingsIcon className="w-4 h-4" /> Settings
+            </Link>
+            <div className="h-px bg-juice-cream/10 my-2" />
+            <button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-300 rounded-xl w-full">
+              <LogOutIcon className="w-4 h-4" /> Sign Out
+            </button>
+          </nav>
+        </div>
+      )}
       <CustomizeTabsModal 
         isOpen={isCustomizeOpen} 
         onClose={() => setIsCustomizeOpen(false)} 
@@ -283,6 +364,10 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           setTabs(newTabs);
           localStorage.setItem('nav_tabs', JSON.stringify(newTabs));
         }} 
+      />
+      <SearchModal 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
       />
     </header>
   );

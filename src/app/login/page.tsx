@@ -139,7 +139,7 @@ export default function LoginPage() {
     <div className="min-h-screen w-full flex flex-col md:flex-row font-sans bg-juice-green text-juice-cream">
       
       {/* Left Panel - Visuals */}
-      <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-12 relative overflow-hidden border-b md:border-b-0 md:border-r border-juice-cream/10 bg-black/5">
+      <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-8 md:p-12 relative overflow-hidden border-b md:border-b-0 md:border-r border-juice-cream/10 bg-black/5 min-h-[40vh] md:min-h-0">
         
         {/* Subtle Background Elements */}
         <div className="absolute inset-0 opacity-5 pointer-events-none">
@@ -149,14 +149,14 @@ export default function LoginPage() {
 
         <div className={`relative z-10 flex flex-col items-center text-center space-y-8 transition-all duration-1000 transform ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
           <Link href="/" className="group">
-            <StaticOrangeCompass className="w-32 h-32 md:w-48 md:h-48 drop-shadow-2xl transition-transform duration-500 hover:scale-105" />
+            <StaticOrangeCompass className="w-20 h-20 md:w-48 md:h-48 drop-shadow-2xl transition-transform duration-500 hover:scale-105" />
           </Link>
           
-          <div className="space-y-4 max-w-md">
-            <h1 className="font-serif text-5xl md:text-6xl font-bold tracking-tight">
+          <div className="space-y-3 md:space-y-4 max-w-md">
+            <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight">
               {isLogin ? 'Welcome Back' : 'Join the Crew'}
             </h1>
-            <p className="text-lg md:text-xl font-medium opacity-70 leading-relaxed">
+            <p className="text-base md:text-lg lg:text-xl font-medium opacity-70 leading-relaxed">
               {isLogin 
                 ? 'The compass is set. Your stories are waiting.' 
                 : 'Chart a new course through the noise of the web.'}

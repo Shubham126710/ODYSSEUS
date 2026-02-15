@@ -1,737 +1,223 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { AppHeader } from '@/components/AppHeader';
-import { Footer } from '@/components/Footer';
-import { useProfile } from '@/hooks/useProfile';
-import { useFeedFetcher } from '@/hooks/useFeedFetcher';
-import { supabase } from '@/lib/supabaseClient';
-import { MOCK_STORIES } from '@/lib/mockData';
+import { InteractiveCompass } from "@/components/InteractiveCompass";
+import { Header } from "@/components/Header";
+import { SplashScreen } from "@/components/SplashScreen";
+import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import Link from 'next/link';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { InteractiveCompass } from '@/components/InteractiveCompass';
-import { StaticOrangeCompass } from '@/components/StaticOrangeCompass';
+import { useState, useEffect, useRef } from 'react';
 
-const FeedLoadingScreen = () => {
+export default function Home() {
+  const [showSplash, setShowSplash] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [headerTheme, setHeaderTheme] = useState<'light' | 'dark'>('light');
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleLogoClick = () => {
+    setShowSplash(true);
+  };
+
+  const handleScroll = () => {
+    if (containerRef.current) {
+      const scrollTop = containerRef.current.scrollTop;
+      const viewportHeight = containerRef.current.clientHeight;
+      
+      setShowScrollTop(scrollTop > 500);
+
+      // Calculate current section index to determine header theme
+      // Section 0: Hero (Green) -> Light Theme
+      // Section 1: Manifesto (Cream) -> Dark Theme
+      // Section 2: Features (Green) -> Light Theme
+      // Section 3: Sources (Orange) -> Light Theme
+      // Section 4: Contact (Green) -> Light Theme
+      const sectionIndex = Math.round(scrollTop / viewportHeight);
+      
+      if (sectionIndex === 1) {
+        setHeaderTheme('dark');
+      } else {
+        setHeaderTheme('light');
+      }
+    }
+  };
+
+  const scrollToTop = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-juice-orange text-juice-cream"
-    >
-      <div className="relative flex flex-col items-center">
-        {/* Rotating Compass */}
-        <div className="animate-[spin_3s_ease-in-out_infinite]">
-          <StaticOrangeCompass className="w-32 h-32 md:w-48 md:h-48 drop-shadow-2xl" />
-        </div>
+    <>
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      
+      <ScrollToTopButton isVisible={showScrollTop} onClick={scrollToTop} />
+
+      {/* Interactive Header */}
+      <Header onLogoClick={handleLogoClick} theme={headerTheme} />
+
+      <div 
+        ref={containerRef}
+        onScroll={handleScroll}
+        className="h-[100dvh] overflow-y-scroll snap-y snap-mandatory flex flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth"
+      >
+        {/* Hero Section */}
+        <main className="flex flex-col items-center justify-center relative w-full h-screen snap-start shrink-0">
         
-        {/* Loading Text */}
-        <div className="mt-12 space-y-2 text-center">
-          <h2 className="font-serif text-3xl md:text-5xl font-bold tracking-widest animate-pulse">
-            CURATING FEED
+        {/* Massive Typography - Watermark Style */}
+        <div className="flex flex-col items-center justify-center z-0 select-none opacity-20 pointer-events-none absolute inset-0">
+          <h1 className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+            ODYS
+          </h1>
+          <h1 className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+            SEUS
+          </h1>
+        </div>
+
+        {/* Central Compass */}
+        <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+          <InteractiveCompass className="w-[28vw] h-[28vw] min-w-[280px] min-h-[280px] text-secondary drop-shadow-2xl" />
+        </div>
+
+        {/* Subtext */}
+        <div className="absolute bottom-8 left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
+          <h2 className="text-xl md:text-2xl font-bold uppercase leading-tight mb-4 drop-shadow-sm text-foreground">
+            The news aggregator <br />
+            that loves to show off <br />
+            a thing or two.
           </h2>
-          <p className="text-sm md:text-base font-mono uppercase tracking-[0.3em] opacity-80">
-            Gathering stories from across the web...
+          <div className="flex items-center gap-4">
+             <p className="text-sm md:text-base font-bold opacity-90 uppercase tracking-wide text-foreground">Starting with your stories</p>
+          </div>
+        </div>
+
+        {/* Get Started Button - Centered Bottom */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30">
+            <Link href="/login">
+              <button className="px-8 py-3 bg-juice-orange text-juice-cream font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg">
+                Get Started
+              </button>
+            </Link>
+        </div>
+
+        {/* Footer Details */}
+        <div className="absolute bottom-6 right-6 md:bottom-8 md:right-8 text-xs md:text-sm font-mono opacity-60 uppercase tracking-widest text-right z-30 text-foreground">
+          Designed by <br />
+          Shubham Upadhyay . 2025
+        </div>
+
+      </main>
+
+      {/* Manifesto Section */}
+      <section id="manifesto" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-cream text-juice-green relative snap-start">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">The Manifesto</h2>
+          <p className="text-lg md:text-xl lg:text-3xl font-medium leading-relaxed max-w-3xl mx-auto">
+            We believe in a web that wanders. In a world of algorithmic feeds, we choose the scenic route. Odysseus is not just about where you&apos;re going, but how you get there.
           </p>
         </div>
-      </div>
-    </motion.div>
-  );
-};
-import { AddFeedModal } from '@/components/AddFeedModal';
-import { ReadingModal } from '@/components/ReadingModal';
-import { formatDistanceToNow } from 'date-fns';
+      </section>
 
-const TRENDING_HEADLINES = [
-  "The Future of Interface Design is Invisible",
-  "Sustainable Cities: A Blueprint for 2050",
-  "Why We Crave Analog in a Digital World",
-  "The Quiet Revolution of Rust Programming",
-  "SpaceX Launches New Mission to Mars",
-  "Minimalism is Back: The New Design Trend"
-];
-
-const GREETINGS = [
-  { line1: "GOOD", line2: "MORNING", type: "morning" },
-  { line1: "GOOD", line2: "AFTERNOON", type: "afternoon" },
-  { line1: "GOOD", line2: "EVENING", type: "evening" },
-  { line1: "GOOD", line2: "NIGHT", type: "night" },
-  { line1: "HAPPY", line2: "READING", type: "any" },
-  { line1: "WELCOME", line2: "BACK", type: "any" },
-  { line1: "GREAT TO", line2: "BE BACK", type: "any" },
-  { line1: "WELCOME", line2: "NIGHT OWL", type: "night" },
-  { line1: "TODAY'S", line2: "UPDATE", type: "any" },
-  { line1: "HOW", line2: "ARE YOU?", type: "any" },
-  { line1: "READY TO", line2: "EXPLORE?", type: "any" },
-  { line1: "YOUR", line2: "JOURNEY", type: "any" },
-  { line1: "RISE", line2: "AND SHINE", type: "morning" },
-  { line1: "LATE", line2: "READS", type: "night" },
-];
-
-// Helper to map feed titles to categories (fallback)
-const getCategoryForFeed = (source: string) => {
-  const s = source.toLowerCase();
-  if (s.includes('verge') || s.includes('tech') || s.includes('wired') || s.includes('hacker')) return 'tech';
-  if (s.includes('design') || s.includes('smashing') || s.includes('ux')) return 'design';
-  if (s.includes('culture') || s.includes('atlantic') || s.includes('new yorker')) return 'culture';
-  if (s.includes('science') || s.includes('space') || s.includes('nature')) return 'science';
-  return 'general';
-};
-
-// Helper to calculate read time
-const calculateReadTime = (text: string) => {
-  const wordsPerMinute = 130; // Slower reading speed for more generous estimates
-  const words = text.trim().split(/\s+/).length;
-  const minutes = Math.ceil(words / wordsPerMinute);
-  return `${minutes} min`;
-};
-
-export default function FeedPage() {
-  const { profile } = useProfile();
-  const [greeting, setGreeting] = useState({ line1: "GOOD", line2: "MORNING" });
-  const [headerTheme, setHeaderTheme] = useState<'light' | 'dark' | 'orange'>('light');
-  const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
-
-  // RSS & Feed State
-  const [stories, setStories] = useState<any[]>([]);
-  const [headlines, setHeadlines] = useState<string[]>(TRENDING_HEADLINES);
-  const [isAddFeedOpen, setIsAddFeedOpen] = useState(false);
-  const [readingArticle, setReadingArticle] = useState<any>(null);
-  const [loadingFeeds, setLoadingFeeds] = useState(true);
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [selectedSources, setSelectedSources] = useState<string[]>([]);
-
-  // Derived state for filtering
-  const uniqueSources = Array.from(new Set(stories.map(s => s.source))).sort();
-  const filteredStories = selectedSources.length > 0 
-    ? stories.filter(s => selectedSources.includes(s.source))
-    : stories;
-
-  const toggleSource = (source: string) => {
-    setSelectedSources(prev => 
-      prev.includes(source) 
-        ? prev.filter(s => s !== source)
-        : [...prev, source]
-    );
-  };
-
-  const fetchTrending = async () => {
-    try {
-      const res = await fetch('/api/rss?mode=trending');
-      const data = await res.json();
-      if (data.success && data.headlines.length > 0) {
-        setHeadlines(data.headlines);
-      }
-    } catch (e) {
-      console.error('Failed to fetch trending headlines');
-    }
-  };
-
-  const fetchFeeds = async () => {
-    if (!profile) return;
-    // Only show full screen loader on first load
-    if (stories.length === 0) setLoadingFeeds(true);
-    
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`/api/rss?userId=${profile.id}&t=${Date.now()}`, { 
-        cache: 'no-store',
-        headers: {
-          'Authorization': `Bearer ${session?.access_token || ''}`
-        }
-      });
-      const data = await res.json();
-      if (data.success && data.items.length > 0) {
-        // Transform RSS items to match story structure
-        const rssStories = data.items.map((item: any, index: number) => {
-          // Better image extraction logic
-          let imageUrl = null;
-
-          // 1. Check media:thumbnail (Common in Wired, Verge, etc)
-          // The backend now passes this through via customFields
-          if (item['media:thumbnail']) {
-             if (Array.isArray(item['media:thumbnail'])) {
-                // Get the largest one or the first one
-                imageUrl = item['media:thumbnail'][0]?.['$']?.url || item['media:thumbnail'][0]?.url;
-             } else {
-                imageUrl = item['media:thumbnail']?.['$']?.url || item['media:thumbnail']?.url;
-             }
-          }
-
-          // 2. Check media:content (Yahoo, Bing, etc)
-          if (!imageUrl && item['media:content']) {
-            if (Array.isArray(item['media:content'])) {
-               // Find one with type image
-               const media = item['media:content'].find((m: any) => m['$']?.type?.startsWith('image') || m.type?.startsWith('image'));
-               imageUrl = media?.['$']?.url || media?.url || item['media:content'][0]?.['$']?.url || item['media:content'][0]?.url;
-            } else {
-               imageUrl = item['media:content']?.['$']?.url || item['media:content']?.url;
-            }
-          }
-
-          // 3. Check standard enclosure
-          if (!imageUrl && item.enclosure && item.enclosure.type?.startsWith('image')) {
-            imageUrl = item.enclosure.url;
-          }
-          
-          // 4. Regex to find <img src="..."> in content
-          const imgRegex = /<img[^>]+src=["']([^"']+)["']/;
-          
-          if (!imageUrl && item.content) {
-            const match = item.content.match(imgRegex);
-            if (match) imageUrl = match[1];
-          }
-          
-          if (!imageUrl && item['content:encoded']) {
-            const match = item['content:encoded'].match(imgRegex);
-            if (match) imageUrl = match[1];
-          }
-
-          if (!imageUrl && item.description) {
-             const match = item.description.match(imgRegex);
-             if (match) imageUrl = match[1];
-          }
-
-          // Fallback for TechCrunch and others if no image found
-          if (!imageUrl) {
-             const sourceLower = (item.source || '').toLowerCase();
-             if (sourceLower.includes('techcrunch')) {
-                imageUrl = 'https://techcrunch.com/wp-content/uploads/2015/02/cropped-cropped-favicon-gradient.png?w=600'; // TechCrunch Logo/Placeholder
-             } else if (sourceLower.includes('verge')) {
-                imageUrl = 'https://cdn.vox-cdn.com/uploads/chorus_asset/file/7395361/verge-social-share.jpg';
-             } else if (sourceLower.includes('wired')) {
-                imageUrl = 'https://www.wired.com/verso/static/wired/assets/logo-header.svg'; // Or a better generic image
-             }
-          }
-
-          // Clean excerpt
-          const rawExcerpt = item.contentSnippet || item.content || item.summary || '';
-          const cleanExcerpt = rawExcerpt.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...';
-
-          // Calculate read time
-          const fullText = item.content || item['content:encoded'] || item.summary || '';
-          const readTime = calculateReadTime(fullText);
-
-          return {
-            id: item.guid || item.link || index,
-            title: item.title,
-            excerpt: cleanExcerpt,
-            source: item.source || 'RSS Feed',
-            readTime: readTime,
-            date: item.isoDate ? formatDistanceToNow(new Date(item.isoDate), { addSuffix: true }) : 'Just now',
-            category: getCategoryForFeed(item.source || ''),
-            imageUrl: imageUrl,
-            link: item.link,
-            content: item.content || item['content:encoded'] || item.description || item.summary
-          };
-        });
-        setStories(rssStories);
-      } else {
-        setStories([]);
-      }
-    } catch (error) {
-      console.error('Failed to fetch feeds', error);
-    } finally {
-      setLoadingFeeds(false);
-      // Extended delay to ensure images are starting to load and animations are ready
-      // This solves the "fetching info late" feeling by keeping the curtain down longer
-      setTimeout(() => setInitialLoad(false), 2000); 
-    }
-  };
-
-  useEffect(() => {
-    fetchTrending();
-    
-    // Force splash screen for at least 2.5 seconds to give that "app loading" feel
-    const splashTimer = setTimeout(() => {
-      if (!profile) {
-        setLoadingFeeds(false);
-        setInitialLoad(false);
-      }
-    }, 2500);
-
-    if (profile) {
-      fetchFeeds();
-    }
-
-    return () => clearTimeout(splashTimer);
-  }, [profile]);
-
-  const handleSaveForLater = async (story: any) => {
-    if (!profile) return;
-    try {
-      await fetch('/api/read-later', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: profile.id,
-          url: story.link || story.id, // Fallback
-          title: story.title,
-          excerpt: story.excerpt,
-          image_url: story.imageUrl,
-          source_name: story.source,
-          content: story.content
-        })
-      });
-      alert('Saved for later!');
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -400, behavior: 'smooth' });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 400, behavior: 'smooth' });
-    }
-  };
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const scrollTop = e.currentTarget.scrollTop;
-    const viewportHeight = e.currentTarget.clientHeight;
-    const sectionIndex = Math.round(scrollTop / viewportHeight);
-
-    // Section 0: Hero (Cream) -> Light Theme (Green Text)
-    // Section 1: Featured (Green) -> Dark Theme (Cream Text)
-    // Section 2: Feed (Orange) -> Orange Theme (Cream Text on Orange)
-    // Section 3: Footer (Green) -> Dark Theme (Cream Text)
-    
-    if (sectionIndex === 0) {
-      setHeaderTheme('light');
-    } else if (sectionIndex === 2) {
-      setHeaderTheme('orange');
-    } else {
-      setHeaderTheme('dark');
-    }
-  };
-
-  useEffect(() => {
-    const getGreeting = () => {
-      const now = new Date();
-      const hour = now.getHours();
-      let timeOfDay = 'night';
-      
-      if (hour >= 5 && hour < 12) timeOfDay = 'morning';
-      else if (hour >= 12 && hour < 17) timeOfDay = 'afternoon';
-      else if (hour >= 17 && hour < 22) timeOfDay = 'evening';
-
-      const validGreetings = GREETINGS.filter(g => g.type === 'any' || g.type === timeOfDay);
-      const randomGreeting = validGreetings[Math.floor(Math.random() * validGreetings.length)];
-      
-      return randomGreeting;
-    };
-
-    setGreeting(getGreeting());
-  }, []);
-
-  const featuredStory = stories.length > 0 ? stories[0] : null;
-  const otherStories = stories.length > 0 ? stories.slice(1) : [];
-
-  return (
-    <div 
-      onScroll={handleScroll}
-      className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-juice-cream font-sans selection:bg-juice-orange selection:text-white flex flex-col overflow-x-hidden"
-    >
-      {/* Full Screen Loading State */}
-      <AnimatePresence>
-        {(loadingFeeds || initialLoad) && (
-          <FeedLoadingScreen />
-        )}
-      </AnimatePresence>
-
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <AppHeader theme={headerTheme} />
-      </div>
-
-      <AddFeedModal 
-        isOpen={isAddFeedOpen} 
-        onClose={() => setIsAddFeedOpen(false)} 
-        userId={profile?.id || ''}
-        onSuccess={fetchFeeds}
-      />
-
-      <ReadingModal 
-        isOpen={!!readingArticle} 
-        onClose={() => setReadingArticle(null)} 
-        article={readingArticle} 
-      />
-      
-      {/* HERO SECTION - Cream */}
-      <section className="relative h-screen snap-start flex flex-col items-center justify-center overflow-hidden shrink-0">
-        {/* Background Typography */}
-        <motion.div 
-          style={{ y }}
-          className="absolute inset-0 flex flex-col items-center justify-center z-0 pointer-events-none select-none"
-        >
-          <motion.h1 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 0.08, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="text-[15vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
-          >
-            {greeting.line1}
-          </motion.h1>
-          <motion.h1 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 0.08, y: 0 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="text-[15vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
-          >
-            {greeting.line2}
-          </motion.h1>
-        </motion.div>
-
-        {/* Foreground Content */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
-          className="z-10 relative text-center mb-32 flex flex-col items-center"
-        >
-          <div className="mb-12">
-            <InteractiveCompass className="w-48 h-48 md:w-64 md:h-64" />
+      {/* Features Section */}
+      <section id="features" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start border-t border-juice-cream/10">
+        <div className="max-w-6xl mx-auto w-full">
+          <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight mb-8 md:mb-16 text-center">Features</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { title: "Curated Paths", desc: "Hand-picked narratives that weave through the noise." },
+              { title: "Global Compass", desc: "Navigate stories from every corner of the world." },
+              { title: "Zero Noise", desc: "No ads, no tracking, just pure unadulterated content." }
+            ].map((feature, i) => (
+              <div key={i} className="p-5 md:p-8 border border-juice-cream/30 rounded-2xl md:rounded-3xl hover:bg-juice-cream/5 transition-colors duration-300">
+                <h3 className="text-xl md:text-3xl font-bold mb-3 md:mb-4">{feature.title}</h3>
+                <p className="text-base md:text-lg opacity-80">{feature.desc}</p>
+              </div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          <div className="inline-block relative">
-            <h2 className="text-juice-green font-serif text-5xl md:text-7xl font-bold italic tracking-tight leading-tight">
-              Ready to explore,<br/>
-              <span className="text-juice-orange not-italic underline decoration-4 decoration-juice-green/20 underline-offset-8">
-                {profile?.first_name || 'Traveler'}?
-              </span>
-            </h2>
-          </div>
-          
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
-            transition={{ delay: 1.2 }}
-            className="mt-8 text-juice-green font-mono text-sm uppercase tracking-widest"
-          >
-            Scroll to begin your journey
-          </motion.p>
-        </motion.div>
-
-        {/* News Ticker Ribbon */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-juice-orange flex items-center z-30 border-t-4 border-juice-cream shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-          
-          {/* Static Label Section - Seamless Integration */}
-          <div className="h-full bg-juice-orange flex items-center pl-8 pr-4 z-40 relative">
-             <div className="bg-juice-cream px-5 py-2 rounded-full text-juice-orange font-black text-xs md:text-sm uppercase tracking-widest animate-pulse flex items-center gap-2 shadow-sm ring-2 ring-juice-orange ring-offset-2 ring-offset-juice-cream">
-               <span className="w-2 h-2 rounded-full bg-juice-orange animate-ping" />
-               Trending Now
-             </div>
-          </div>
-
-          {/* Scrolling Content Section */}
-          <div className="flex-1 overflow-hidden relative h-full flex items-center bg-juice-orange">
-             {/* Gradient Mask for smooth fade in from left */}
-             <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-juice-orange via-juice-orange/80 to-transparent z-10" />
-             <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-juice-orange to-transparent z-10" />
-             
-             <motion.div 
-                className="flex items-center gap-16 pl-4 w-max"
-                animate={{ x: "-50%" }}
-                transition={{ repeat: Infinity, duration: 60, ease: "linear" }}
-              >
-                {/* Duplicate list once to create seamless loop */}
-                {[...headlines, ...headlines].map((headline, i) => (
-                  <span key={i} className="text-lg md:text-xl font-bold uppercase tracking-wider flex items-center gap-6 text-juice-cream/90 hover:text-white transition-colors cursor-pointer whitespace-nowrap">
-                    {headline}
-                    <span className="w-1.5 h-1.5 rounded-full bg-juice-cream/50" />
+      {/* Sources Section (Formerly Community) */}
+      <section id="sources" className="min-h-screen w-full flex flex-col items-center justify-center bg-juice-orange text-juice-cream relative snap-start overflow-hidden">
+        <div className="max-w-6xl mx-auto w-full text-center z-10 px-4">
+          <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight mb-6 md:mb-8">Trusted Sources</h2>
+          <p className="text-xl md:text-2xl font-medium mb-16 max-w-2xl mx-auto opacity-90">
+            We aggregate stories from the world&apos;s most respected publications.
+          </p>
+        </div>
+        
+        {/* Marquee Container */}
+        <div className="w-full overflow-hidden py-12 bg-juice-cream/10 backdrop-blur-sm transform -rotate-2">
+          <div className="flex animate-marquee whitespace-nowrap">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex gap-16 mx-8 items-center">
+                {['The Verge', 'Wired', 'TechCrunch', 'NY Times', 'The Guardian', 'Bloomberg', 'Reuters', 'Ars Technica', 'Polygon', 'Vice'].map((source) => (
+                  <span key={source} className="text-2xl md:text-4xl lg:text-6xl font-black uppercase tracking-tighter opacity-80 hover:opacity-100 transition-opacity cursor-default">
+                    {source}
                   </span>
                 ))}
-              </motion.div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* FEATURED STORY - Green */}
-      <section className="h-screen snap-start bg-juice-green text-juice-cream flex items-center py-20 px-4 md:px-12 relative shrink-0 pt-32">
-        {featuredStory ? (
-          <div className="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
-              <div className="flex items-center gap-4 text-juice-orange font-bold tracking-widest uppercase text-sm">
-                <span className="w-12 h-[1px] bg-juice-orange"></span>
-                Top Story
-              </div>
-              <div 
-                onClick={() => setReadingArticle(featuredStory)}
-                className="block group cursor-pointer"
-              >
-                <h2 className="text-4xl md:text-6xl font-serif font-bold leading-tight group-hover:text-juice-orange transition-colors duration-300">
-                  {featuredStory.title}
-                </h2>
-              </div>
-              <p className="text-xl opacity-80 leading-relaxed max-w-xl line-clamp-3">
-                {featuredStory.excerpt}
-              </p>
-              <div className="flex items-center gap-6 text-sm font-mono opacity-60">
-                <span>{featuredStory.source}</span>
-                <span>•</span>
-                <span>{featuredStory.readTime}</span>
-              </div>
-              <button 
-                onClick={() => setReadingArticle(featuredStory)}
-                className="mt-8 px-8 py-4 border border-juice-cream rounded-full font-bold uppercase tracking-widest hover:bg-juice-cream hover:text-juice-green transition-all duration-300"
-              >
-                Read Story
-              </button>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative aspect-[4/5] md:aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500"
-            >
-              <img 
-                src={featuredStory.imageUrl} 
-                alt={featuredStory.title} 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-juice-green/80 to-transparent opacity-60" />
-            </motion.div>
+      {/* Contact Section */}
+      <section id="contact" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start border-t border-juice-cream/10">
+        <div className="max-w-4xl mx-auto text-center space-y-12">
+          <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">Get in Touch</h2>
+          
+          <div className="space-y-4 md:space-y-6">
+            <p className="text-xl md:text-2xl font-bold">Shubham Upadhyay</p>
+            <a href="mailto:shubham360upadhyay@gmail.com" className="text-xl md:text-3xl lg:text-5xl font-black hover:text-juice-orange transition-colors duration-300 block break-all">
+              shubham360upadhyay@gmail.com
+            </a>
           </div>
-        ) : (
-          <div className="max-w-7xl mx-auto w-full flex flex-col items-center justify-center text-center">
-            <h2 className="font-serif text-5xl md:text-6xl font-bold mb-6">Your Feed is Empty</h2>
-            <p className="text-xl opacity-80 mb-10 max-w-xl">
-              Add your favorite sources to start curating your personal reading journey.
-            </p>
-            <button 
-              onClick={() => setIsAddFeedOpen(true)}
-              className="px-8 py-4 bg-juice-cream text-juice-green rounded-full font-bold uppercase tracking-widest hover:bg-white transition-all duration-300"
-            >
-              Add Sources
-            </button>
+
+          {/* Social Links */}
+          <div className="flex flex-wrap justify-center gap-6 md:gap-8 pt-8">
+             {/* GitHub */}
+             <a href="https://github.com/Shubham126710" target="_blank" rel="noopener noreferrer" className="p-4 bg-juice-cream/10 rounded-full hover:bg-juice-cream hover:text-juice-green transition-all duration-300 group" aria-label="GitHub">
+               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+               </svg>
+             </a>
+             
+             {/* LinkedIn */}
+             <a href="https://www.linkedin.com/in/shubham-upadhyay-a12a9428b/" target="_blank" rel="noopener noreferrer" className="p-4 bg-juice-cream/10 rounded-full hover:bg-juice-cream hover:text-juice-green transition-all duration-300 group" aria-label="LinkedIn">
+               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                 <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clipRule="evenodd" />
+               </svg>
+             </a>
+
+             {/* Instagram */}
+             <a href="https://instagram.com/iamshubham_15" target="_blank" rel="noopener noreferrer" className="p-4 bg-juice-cream/10 rounded-full hover:bg-juice-cream hover:text-juice-green transition-all duration-300 group" aria-label="Instagram">
+               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                 <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.416 4.48c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
+               </svg>
+             </a>
+
+             {/* Twitter / X */}
+             <a href="https://twitter.com/iamshubham_15" target="_blank" rel="noopener noreferrer" className="p-4 bg-juice-cream/10 rounded-full hover:bg-juice-cream hover:text-juice-green transition-all duration-300 group" aria-label="Twitter">
+               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                 <path d="M13.6823 10.6218L20.2391 3H18.6854L12.9921 9.61788L8.44486 3H3.2002L10.0765 13.0074L3.2002 21H4.75404L10.7663 14.0113L15.5685 21H20.8131L13.6819 10.6218H13.6823ZM11.5541 13.0956L10.8574 12.0991L5.31391 4.16971H7.70053L12.1742 10.5689L12.8709 11.5655L18.6861 19.8835H16.2995L11.5541 13.096V13.0956Z" />
+               </svg>
+             </a>
+
+             {/* Threads */}
+             <a href="https://www.threads.net/@iamshubham_15" target="_blank" rel="noopener noreferrer" className="p-4 bg-juice-cream/10 rounded-full hover:bg-juice-cream hover:text-juice-green transition-all duration-300 group" aria-label="Threads">
+               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 192 192" aria-hidden="true">
+                 <path d="M141.537 88.9883C140.71 88.5919 139.87 88.2104 139.019 87.8451C137.537 60.5382 122.616 44.905 97.5619 44.745C97.4484 44.7443 97.3355 44.7443 97.222 44.7443C82.2364 44.7443 69.7731 51.1409 62.102 62.7807L75.881 72.2328C81.6116 63.5383 90.6052 61.6848 97.2286 61.6848C97.3051 61.6848 97.3819 61.6848 97.4576 61.6855C105.707 61.7381 111.932 64.1366 115.961 68.814C118.893 72.2193 120.854 76.925 121.825 82.8638C114.511 81.6207 106.601 81.2385 98.145 81.7233C74.3247 83.0954 59.0111 96.9879 60.0396 116.292C60.5615 126.084 65.4397 134.508 73.775 140.011C80.8224 144.663 89.899 146.938 99.3323 146.423C111.79 145.74 121.563 140.987 128.381 132.296C133.559 125.696 136.834 117.143 138.28 106.366C144.217 109.949 148.617 114.664 151.047 120.332C155.179 129.967 155.42 145.8 142.501 158.708C131.182 170.016 117.576 174.908 97.0135 175.059C74.2042 174.89 56.9538 167.575 45.7381 153.317C35.2355 139.966 29.8077 120.682 29.6052 96C29.8077 71.3178 35.2355 52.0336 45.7381 38.6827C56.9538 24.4249 74.2039 17.11 97.0132 16.9405C119.988 17.1113 137.539 24.4614 149.184 38.788C154.894 45.8136 159.199 54.6488 162.037 64.9503L178.184 60.6422C174.744 47.9622 169.331 37.0357 161.965 27.974C147.036 9.60668 125.202 0.195148 97.0695 0H96.9569C68.8816 0.19447 47.2921 9.6418 32.7883 28.0793C19.8819 44.4864 13.2244 67.3157 13.0007 95.9325L13 96L13.0007 96.0675C13.2244 124.684 19.8819 147.514 32.7883 163.921C47.2921 182.358 68.8816 191.806 96.9569 192H97.0695C122.03 191.827 139.624 185.292 154.118 170.811C173.081 151.866 172.51 128.119 166.26 113.541C161.776 103.087 153.227 94.5962 141.537 88.9883ZM98.4405 129.507C88.0005 130.095 77.1544 125.409 76.6196 115.372C76.2232 107.93 81.9158 99.626 99.0812 98.6368C101.047 98.5234 102.976 98.468 104.871 98.468C111.106 98.468 116.939 99.0737 122.242 100.233C120.264 124.935 108.662 128.946 98.4405 129.507Z" />
+               </svg>
+             </a>
           </div>
-        )}
-      </section>
 
-      {/* THE FEED - Orange Background */}
-      <section className="h-screen snap-start bg-juice-orange flex flex-col justify-center shrink-0 relative overflow-hidden">
-        <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 flex flex-col h-full pt-32 pb-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-8 text-center text-juice-cream shrink-0"
-          >
-            <h3 className="font-serif text-4xl md:text-6xl font-bold mb-2">The Collection</h3>
-            <p className="opacity-80 text-lg">Curated for your curiosity.</p>
-            
-            {/* Source Filter */}
-            {uniqueSources.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2 mt-6 max-w-3xl mx-auto">
-                {uniqueSources.map(source => (
-                  <button
-                    key={source}
-                    onClick={() => toggleSource(source)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all border ${
-                      selectedSources.includes(source)
-                        ? 'bg-juice-cream text-juice-orange border-juice-cream'
-                        : 'bg-transparent text-juice-cream/60 border-juice-cream/20 hover:border-juice-cream/60 hover:text-juice-cream'
-                    }`}
-                  >
-                    {source}
-                  </button>
-                ))}
-              </div>
-            )}
-          </motion.div>
-
-          {/* Horizontal Scroll Container */}
-          <div className="relative flex-grow flex items-center w-full">
-            
-            {/* Left Navigation Button */}
-            <button 
-              onClick={scrollLeft}
-              className="absolute left-2 md:left-4 z-20 w-12 h-12 rounded-full bg-juice-cream text-juice-orange flex items-center justify-center shadow-xl hover:scale-110 hover:bg-white transition-all hidden md:flex"
-              aria-label="Scroll Left"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-            </button>
-
-            <div 
-              ref={scrollContainerRef}
-              className="flex-grow flex items-center overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-8 px-4 md:px-12 gap-8 w-full"
-            >
-              {loadingFeeds && (
-                <div className="flex items-center justify-center w-full h-full min-h-[480px]">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-juice-cream"></div>
-                </div>
-              )}
-
-              {!loadingFeeds && filteredStories.length === 0 && (
-                <div className="flex flex-col items-center justify-center w-full h-full min-h-[480px] text-juice-cream">
-                  <p className="text-2xl font-serif mb-6">
-                    {stories.length === 0 ? "Your collection is empty." : "No stories match your filter."}
-                  </p>
-                  {stories.length === 0 && (
-                    <button 
-                      onClick={() => setIsAddFeedOpen(true)}
-                      className="px-8 py-4 bg-juice-cream text-juice-orange rounded-full font-bold uppercase tracking-widest hover:bg-white transition-colors shadow-lg"
-                    >
-                      Add Your First Source
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {!loadingFeeds && filteredStories.map((story, index) => (
-                <motion.div
-                  key={story.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ 
-                    delay: index * 0.05, 
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 20
-                  }}
-                  className="snap-center shrink-0 py-4"
-                >
-                  <div 
-                    onClick={() => setReadingArticle(story)}
-                    className="cursor-pointer block h-full"
-                  >
-                    <div className="w-[300px] md:w-[340px] bg-juice-cream rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-juice-green/5 flex flex-col h-auto min-h-[420px] relative overflow-hidden group">
-                      
-                      {/* Decorative Top Gradient */}
-                      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-juice-orange/20 to-juice-green/20" />
-
-                      {/* Header: Source & Date */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-juice-green/10 flex items-center justify-center text-juice-orange font-black text-xs">
-                            {story.source.charAt(0)}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-juice-green">{story.source}</span>
-                            <span className="text-[9px] font-bold text-juice-green/40 uppercase tracking-wide">{story.date}</span>
-                          </div>
-                        </div>
-                        <div className="px-2 py-1 rounded-full bg-juice-green/5 border border-juice-green/10 text-[9px] font-bold uppercase tracking-widest text-juice-green/60">
-                          {story.category}
-                        </div>
-                      </div>
-
-                      {/* Body: Title */}
-                      <h3 className="font-serif text-xl md:text-2xl font-bold text-juice-green mb-4 leading-tight group-hover:text-juice-orange transition-colors duration-300 line-clamp-3">
-                        {story.title}
-                      </h3>
-
-                      {/* Image (Compact but Premium) */}
-                      {story.imageUrl ? (
-                        <div className="w-full h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0">
-                          <img 
-                            src={story.imageUrl} 
-                            alt={story.title} 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-xl" />
-                        </div>
-                      ) : (
-                        <div className="w-full h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0 bg-juice-green/5 flex items-center justify-center">
-                           <span className="text-4xl font-black text-juice-green/10">{story.source.charAt(0)}</span>
-                        </div>
-                      )}
-
-                      {/* Excerpt (Short) */}
-                      <p className="text-juice-green/70 text-xs leading-relaxed line-clamp-3 mb-6 flex-grow font-medium">
-                        {story.excerpt}
-                      </p>
-
-                      {/* Footer: Actions */}
-                      <div className="flex items-center justify-between pt-6 border-t border-juice-green/10 mt-auto">
-                        <div className="flex items-center gap-2 text-juice-green/40">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                          <span className="text-xs font-bold uppercase tracking-wider">{story.readTime}</span>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); handleSaveForLater(story); }}
-                            className="text-juice-green/40 hover:text-juice-orange transition-colors hover:scale-110 transform duration-200"
-                            title="Read Later"
-                          >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                          </button>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setReadingArticle(story); }}
-                            className="text-juice-green/40 hover:text-juice-orange transition-colors hover:scale-110 transform duration-200"
-                            title="Read Now"
-                          >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-              
-              {/* Add Source / Load More Card */}
-              <motion.div 
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="snap-center shrink-0 py-4"
-              >
-                <button 
-                  onClick={() => setIsAddFeedOpen(true)}
-                  className="w-[320px] md:w-[360px] h-full min-h-[480px] bg-juice-orange border-4 border-juice-cream rounded-3xl p-8 flex flex-col items-center justify-center text-juice-cream hover:bg-juice-cream hover:text-juice-orange hover:border-juice-orange transition-all duration-300 group shadow-xl"
-                >
-                  <span className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">+</span>
-                  <span className="font-black uppercase tracking-widest text-2xl">Add Source</span>
-                  <span className="text-sm font-bold opacity-60 mt-2">Customize your feed</span>
-                </button>
-              </motion.div>
-            </div>
-
-            {/* Right Navigation Button */}
-            <button 
-              onClick={scrollRight}
-              className="absolute right-2 md:right-4 z-20 w-12 h-12 rounded-full bg-juice-cream text-juice-orange flex items-center justify-center shadow-xl hover:scale-110 hover:bg-white transition-all hidden md:flex"
-              aria-label="Scroll Right"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-            </button>
+          <div className="pt-12 opacity-60 font-mono text-sm uppercase tracking-widest">
+            Designed by Shubham Upadhyay . 2025
           </div>
         </div>
       </section>
 
-      <div className="snap-start shrink-0">
-        <Footer />
-      </div>
-
-      <ReadingModal 
-        article={readingArticle} 
-        isOpen={!!readingArticle} 
-        onClose={() => setReadingArticle(null)} 
-      />
-
-      <AddFeedModal
-        isOpen={isAddFeedOpen}
-        onClose={() => setIsAddFeedOpen(false)}
-        userId={profile?.id || ''}
-        onSuccess={fetchFeeds}
-      />
     </div>
+    </>
   );
 }

@@ -2,13 +2,13 @@ import React from 'react';
 
 export const Footer = () => {
   return (
-    <footer className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative border-t border-juice-cream/10">
-      <div className="max-w-4xl mx-auto text-center space-y-12">
-        <h2 className="font-serif text-6xl md:text-8xl font-bold tracking-tight">Get in Touch</h2>
+    <footer className="min-h-screen w-full flex flex-col items-center justify-center p-6 md:p-20 bg-juice-green text-juice-cream relative border-t border-juice-cream/10">
+      <div className="max-w-4xl mx-auto text-center space-y-8 md:space-y-12">
+        <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">Get in Touch</h2>
         
-        <div className="space-y-6">
-          <p className="text-2xl font-bold">Shubham Upadhyay</p>
-          <a href="mailto:shubham360upadhyay@gmail.com" className="text-3xl md:text-5xl font-black hover:text-juice-orange transition-colors duration-300 block break-all">
+        <div className="space-y-4 md:space-y-6">
+          <p className="text-xl md:text-2xl font-bold">Shubham Upadhyay</p>
+          <a href="mailto:shubham360upadhyay@gmail.com" className="text-xl md:text-3xl lg:text-5xl font-black hover:text-juice-orange transition-colors duration-300 block break-all">
             shubham360upadhyay@gmail.com
           </a>
         </div>
