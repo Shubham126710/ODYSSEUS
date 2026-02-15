@@ -7,7 +7,7 @@ interface StoryCardProps {
   source: string;
   date: string;
   readTime: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   category: string;
   onToggleSave?: () => void;
   isSaved?: boolean;

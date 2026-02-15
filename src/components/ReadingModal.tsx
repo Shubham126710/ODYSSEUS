@@ -15,10 +15,10 @@ const calculateReadTime = (text: string) => {
 interface ReadingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  article: any;
+  article: any; onSave?: (article: any) => void;
 }
 
-export const ReadingModal = ({ isOpen, onClose, article }: ReadingModalProps) => {
+export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalProps) => {
   const [fullContent, setFullContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState(false);
