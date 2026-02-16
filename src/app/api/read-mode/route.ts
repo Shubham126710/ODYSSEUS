@@ -14,24 +14,48 @@ export async function GET(request: Request) {
   }
 
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    // Try multiple user agents to bypass basic blocking
+    const userAgents = [
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+    ];
 
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'Cache-Control': 'no-cache',
-      },
-      signal: controller.signal,
-      redirect: 'follow',
-    });
+    let response: Response | null = null;
+    let lastError: any = null;
 
-    clearTimeout(timeout);
+    for (const agent of userAgents) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
 
-    if (!response.ok) {
-      console.error(`Fetch failed for ${url}: ${response.status} ${response.statusText}`);
-      return NextResponse.json({ success: false, error: `Failed to fetch article: ${response.status}` }, { status: 502 });
+        const res = await fetch(url, {
+          headers: {
+            'User-Agent': agent,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Cache-Control': 'no-cache',
+          },
+          signal: controller.signal,
+          redirect: 'follow',
+        });
+
+        clearTimeout(timeout);
+
+        if (res.ok) {
+          response = res;
+          break; // Success!
+        }
+      } catch (err) {
+        lastError = err;
+        // Continue to next agent
+      }
+    }
+
+    if (!response || !response.ok) {
+      const status = response ? response.status : 500;
+      console.error(`Fetch failed for ${url} with all agents. Status: ${status}`);
+      return NextResponse.json({ success: false, error: `Failed to fetch article: ${status}` }, { status: 502 });
     }
 
     const html = await response.text();
