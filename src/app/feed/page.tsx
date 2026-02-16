@@ -431,8 +431,8 @@ export default function FeedPage() {
       </section>
 
       {/* THE FEED - Orange Background */}
-      <section className="min-h-screen snap-start bg-juice-orange flex flex-col justify-center shrink-0 relative overflow-hidden">
-        <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 flex flex-col h-full pt-16 md:pt-20 pb-6 md:pb-10">
+      <section className="min-h-screen snap-start bg-juice-orange flex flex-col shrink-0 relative overflow-hidden">
+        <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 flex flex-col h-full pt-20 md:pt-28 pb-6 md:pb-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -595,7 +595,7 @@ export default function FeedPage() {
                             className="text-juice-green/40 hover:text-juice-orange transition-colors hover:scale-110 transform duration-200"
                             title="Read Now"
                           >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                           </button>
                         </div>
                       </div>
