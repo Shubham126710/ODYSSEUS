@@ -297,14 +297,24 @@ export default function FeedPage() {
             </h2>
           </div>
           
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
-            transition={{ delay: 1.2 }}
-            className="mt-6 md:mt-8 text-juice-green font-mono text-xs md:text-sm uppercase tracking-widest px-4"
-          >
-            Scroll to begin your journey
-          </motion.p>
+        </motion.div>
+
+        {/* Massive "SCROLL TO BEGIN" Watermark - Behind foreground content */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.06 }}
+          transition={{ delay: 1.2, duration: 1 }}
+          className="absolute inset-0 flex flex-col items-center justify-end pb-24 md:pb-32 z-[5] pointer-events-none select-none"
+        >
+          <p className="text-[12vw] md:text-[10vw] leading-[0.85] font-black tracking-tighter text-juice-green text-center uppercase mix-blend-multiply">
+            Scroll to
+          </p>
+          <p className="text-[12vw] md:text-[10vw] leading-[0.85] font-black tracking-tighter text-juice-green text-center uppercase mix-blend-multiply">
+            begin your
+          </p>
+          <p className="text-[12vw] md:text-[10vw] leading-[0.85] font-black tracking-tighter text-juice-green text-center uppercase mix-blend-multiply">
+            journey
+          </p>
         </motion.div>
 
 
