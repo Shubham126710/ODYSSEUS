@@ -261,13 +261,14 @@ export default function FeedPage() {
         {/* Background Typography */}
         <motion.div 
           style={{ y }}
-          className="absolute inset-0 flex flex-col items-center justify-center z-0 pointer-events-none select-none"
+          className="absolute inset-0 flex flex-col items-center justify-center z-0 pointer-events-none select-none overflow-hidden"
         >
           <motion.h1 
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 0.08, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="text-[80vw] md:text-[60vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
+            className="leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply whitespace-nowrap"
+            style={{ fontSize: 'clamp(10rem, 60vw, 60rem)' }}
           >
             {greeting.line1}
           </motion.h1>
@@ -275,7 +276,8 @@ export default function FeedPage() {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 0.08, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="text-[80vw] md:text-[60vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
+            className="leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply whitespace-nowrap"
+            style={{ fontSize: 'clamp(10rem, 60vw, 60rem)' }}
           >
             {greeting.line2}
           </motion.h1>
