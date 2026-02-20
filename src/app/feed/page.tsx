@@ -267,7 +267,7 @@ export default function FeedPage() {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 0.08, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="text-[20vw] md:text-[15vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
+            className="text-[35vw] md:text-[25vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
           >
             {greeting.line1}
           </motion.h1>
@@ -275,7 +275,7 @@ export default function FeedPage() {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 0.08, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="text-[20vw] md:text-[15vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
+            className="text-[35vw] md:text-[25vw] leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply"
           >
             {greeting.line2}
           </motion.h1>
