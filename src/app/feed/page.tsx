@@ -268,7 +268,7 @@ export default function FeedPage() {
             animate={{ opacity: 0.08, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
             className="leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply whitespace-nowrap"
-            style={{ fontSize: 'clamp(8rem, 40vw, 40rem)' }}
+            style={{ fontSize: 'clamp(6rem, 28vw, 28rem)' }}
           >
             {greeting.line1}
           </motion.h1>
@@ -277,7 +277,7 @@ export default function FeedPage() {
             animate={{ opacity: 0.08, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
             className="leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply whitespace-nowrap"
-            style={{ fontSize: 'clamp(8rem, 40vw, 40rem)' }}
+            style={{ fontSize: 'clamp(6rem, 28vw, 28rem)' }}
           >
             {greeting.line2}
           </motion.h1>
