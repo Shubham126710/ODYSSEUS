@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import DOMPurify from 'isomorphic-dompurify';
@@ -50,39 +50,34 @@ export default function StoryPage() {
   const source = searchParams.get('source');
   const date = searchParams.get('date');
   const initialImageUrl = searchParams.get('imageUrl');
-  const rssContent = searchParams.get('rssContent'); // RSS content fallback
+  const rssContent = searchParams.get('rssContent');
 
   const [fullContent, setFullContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [fetchError, setFetchError] = useState(false);
+  const [previewOnly, setPreviewOnly] = useState(false);
 
   useEffect(() => {
-    if (storyUrl) {
-      setIsLoading(true);
-      fetch(`/api/read-mode?url=${encodeURIComponent(storyUrl)}&t=${Date.now()}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success && data.article?.content) {
-                setFullContent(data.article.content);
-            } else {
-                // Fallback to RSS content if provided
-                if (rssContent && rssContent.length > 200) {
-                  setFullContent(rssContent);
-                } else {
-                  setFetchError(true);
-                }
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            if (rssContent && rssContent.length > 200) {
-              setFullContent(rssContent);
-            } else {
-              setFetchError(true);
-            }
-        })
-        .finally(() => setIsLoading(false));
-    }
+    if (!storyUrl) return;
+    setIsLoading(true);
+    fetch(`/api/read-mode?url=${encodeURIComponent(storyUrl)}&t=${Date.now()}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.article?.content) {
+          setFullContent(data.article.content);
+        } else if (rssContent && rssContent.replace(/<[^>]*>/g, '').trim().length > 200) {
+          setFullContent(rssContent);
+        } else {
+          setPreviewOnly(true);
+        }
+      })
+      .catch(() => {
+        if (rssContent && rssContent.replace(/<[^>]*>/g, '').trim().length > 200) {
+          setFullContent(rssContent);
+        } else {
+          setPreviewOnly(true);
+        }
+      })
+      .finally(() => setIsLoading(false));
   }, [storyUrl]);
 
   const readTime = fullContent ? calculateReadTime(fullContent) : (searchParams.get('readTime') || '5 min');
@@ -152,10 +147,27 @@ export default function StoryPage() {
                     )}
 
                     {/* Error State */}
-                    {fetchError && !isLoading && !fullContent && (
-                        <div className="p-6 bg-red-50 border border-red-100 rounded-2xl text-center mb-8">
-                             <p className="text-red-800 font-medium mb-2">Could not load the full article.</p>
-                             <a href={storyUrl || '#'} target="_blank" className="text-xs font-bold uppercase tracking-widest text-red-600 underline">Read on {source}</a>
+                    {previewOnly && !isLoading && (
+                        <div className="mb-10 rounded-2xl border border-juice-green/15 bg-juice-green/5 overflow-hidden">
+                          <div className="p-8 text-center space-y-4">
+                            <div className="w-12 h-12 rounded-full bg-juice-orange/10 flex items-center justify-center mx-auto">
+                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-juice-orange">
+                                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                              </svg>
+                            </div>
+                            <div>
+                              <p className="text-juice-green/60 text-sm mb-1">Full article on</p>
+                              <p className="text-juice-green font-bold text-lg">{source}</p>
+                            </div>
+                            <a
+                              href={storyUrl || '#'}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-block px-8 py-3.5 bg-juice-orange text-white font-bold text-sm uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg"
+                            >
+                              Read Full Article →
+                            </a>
+                          </div>
                         </div>
                     )}
 
