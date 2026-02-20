@@ -50,6 +50,7 @@ export default function StoryPage() {
   const source = searchParams.get('source');
   const date = searchParams.get('date');
   const initialImageUrl = searchParams.get('imageUrl');
+  const rssContent = searchParams.get('rssContent'); // RSS content fallback
 
   const [fullContent, setFullContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,12 +65,21 @@ export default function StoryPage() {
             if (data.success && data.article?.content) {
                 setFullContent(data.article.content);
             } else {
-                setFetchError(true);
+                // Fallback to RSS content if provided
+                if (rssContent && rssContent.length > 200) {
+                  setFullContent(rssContent);
+                } else {
+                  setFetchError(true);
+                }
             }
         })
         .catch((err) => {
             console.error(err);
-            setFetchError(true);
+            if (rssContent && rssContent.length > 200) {
+              setFullContent(rssContent);
+            } else {
+              setFetchError(true);
+            }
         })
         .finally(() => setIsLoading(false));
     }

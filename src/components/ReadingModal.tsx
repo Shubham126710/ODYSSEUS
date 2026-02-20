@@ -23,33 +23,42 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState(false);
 
-  const fetchContent = () => {
-    if (article?.link) {
-      setFullContent(null);
-      setFetchError(false);
-      setIsLoading(true);
-      
-      // Attempt to fetch full content
-      fetch(`/api/read-mode?url=${encodeURIComponent(article.link)}&t=${Date.now()}`, {
+  const fetchContent = async () => {
+    if (!article?.link) return;
+
+    setFullContent(null);
+    setFetchError(false);
+    setIsLoading(true);
+
+    try {
+      const res = await fetch(`/api/read-mode?url=${encodeURIComponent(article.link)}&t=${Date.now()}`, {
         cache: 'no-store',
-        headers: {
-          'Pragma': 'no-cache',
-          'Cache-Control': 'no-cache'
-        }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.article?.content) {
-            setFullContent(data.article.content);
-          } else {
-            setFetchError(true);
-          }
-        })
-        .catch(err => {
-          console.error('Failed to load full content', err);
+        headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' },
+      });
+      const data = await res.json();
+
+      if (data.success && data.article?.content) {
+        setFullContent(data.article.content);
+      } else {
+        // Fallback: use the richest RSS content available
+        const rssContent = article['content:encoded'] || article.contentEncoded || article.content;
+        if (rssContent && rssContent.length > 300) {
+          setFullContent(rssContent);
+        } else {
           setFetchError(true);
-        })
-        .finally(() => setIsLoading(false));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load full content', err);
+      // Fallback to RSS content on network errors too
+      const rssContent = article['content:encoded'] || article.contentEncoded || article.content;
+      if (rssContent && rssContent.length > 300) {
+        setFullContent(rssContent);
+      } else {
+        setFetchError(true);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 

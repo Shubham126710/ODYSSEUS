@@ -13,6 +13,7 @@ export interface Story {
   imageUrl: string | null;
   link: string;
   content: string;
+  contentEncoded?: string;
   author?: string;
 }
 
@@ -171,6 +172,7 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
             imageUrl: imageUrl,
             link: item.link,
             content: item.content || item['content:encoded'] || item.description || item.summary,
+            contentEncoded: item['content:encoded'] || item.contentEncoded || null,
             author: item.creator || item.author || item.dc?.creator
           };
         });
