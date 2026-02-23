@@ -1,6 +1,7 @@
 # Odysseus
 
 <div align="center">
+  <img src="public/logo.svg" alt="Odysseus Logo" width="128" />
   <h1 align="center">Odysseus</h1>
   <p align="center">
     <strong>A modern, full-stack RSS reader built for focus and curiosity.</strong>
