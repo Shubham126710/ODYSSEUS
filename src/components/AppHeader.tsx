@@ -62,10 +62,10 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   const pathname = usePathname();
   const { profile } = useProfile();
 
-  const textColor = 'text-juice-cream';
-  const bgColor = 'bg-juice-green';
-  const borderColor = 'border-juice-cream/10';
-  const navTextColor = 'text-juice-cream/60 hover:text-juice-cream';
+  const textColor = theme === 'orange' ? 'text-juice-cream' : 'text-juice-cream';
+  const bgColor = theme === 'orange' ? 'bg-juice-orange' : 'bg-juice-green';
+  const borderColor = theme === 'orange' ? 'border-juice-cream/10' : 'border-juice-cream/10';
+  const navTextColor = theme === 'orange' ? 'text-juice-cream/60 hover:text-juice-cream' : 'text-juice-cream/60 hover:text-juice-cream';
 
   useEffect(() => {
     const saved = localStorage.getItem('nav_tabs');
