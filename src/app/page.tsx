@@ -65,35 +65,35 @@ export default function Home() {
         
         {/* Massive Typography - Watermark Style */}
         <div className="flex flex-col items-center justify-center z-0 select-none opacity-20 pointer-events-none absolute inset-0">
-          <h1 className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+          <h1 className="text-[28vw] md:text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
             ODYS
           </h1>
-          <h1 className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+          <h1 className="text-[28vw] md:text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
             SEUS
           </h1>
         </div>
 
         {/* Central Compass */}
         <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-          <InteractiveCompass className="w-[28vw] h-[28vw] min-w-[280px] min-h-[280px] text-secondary drop-shadow-2xl" />
+          <InteractiveCompass className="w-[36vw] h-[36vw] min-w-[140px] min-h-[140px] md:w-[28vw] md:h-[28vw] md:min-w-[280px] md:min-h-[280px] text-secondary drop-shadow-2xl" />
         </div>
 
         {/* Subtext */}
-        <div className="absolute bottom-8 left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
-          <h2 className="text-xl md:text-2xl font-bold uppercase leading-tight mb-4 drop-shadow-sm text-foreground">
+        <div className="absolute bottom-28 left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
+          <h2 className="text-lg md:text-2xl font-bold uppercase leading-tight mb-4 drop-shadow-sm text-foreground">
             The news aggregator <br />
             that loves to show off <br />
             a thing or two.
           </h2>
           <div className="flex items-center gap-4">
-             <p className="text-sm md:text-base font-bold opacity-90 uppercase tracking-wide text-foreground">Starting with your stories</p>
+             <p className="text-xs md:text-base font-bold opacity-90 uppercase tracking-wide text-foreground">Starting with your stories</p>
           </div>
         </div>
 
         {/* Get Started Button - Centered Bottom */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30">
+        <div className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 z-30">
             <Link href="/login">
-              <button className="px-8 py-3 bg-juice-orange text-juice-cream font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg">
+              <button className="px-6 py-3 md:px-8 md:py-3 text-sm md:text-base bg-juice-orange text-juice-cream font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg whitespace-nowrap">
                 Get Started
               </button>
             </Link>
