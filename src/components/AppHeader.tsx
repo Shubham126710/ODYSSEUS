@@ -26,9 +26,9 @@ const LogOutIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
 );
 
-// Fire Icon — clean Duolingo-style flame
-const FireIcon = ({ size = 20 }: { size?: number }) => (
-  <span style={{ fontSize: size, lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} role="img" aria-label="streak">🔥</span>
+// Fire Icon — clean Duolingo-style flame using provided image
+const FireIcon = ({ className }: { className?: string }) => (
+  <img src="/fire-flame.png" alt="Streak" className={className || "w-5 h-5 object-contain"} />
 );
 
 // Compact Circular Progress
@@ -159,80 +159,98 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
             <div className="relative" ref={statsRef}>
               <button 
                 onClick={() => setIsStatsOpen(!isStatsOpen)}
-                className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full transition-all duration-300"
-                style={{
-                  backgroundColor: isStatsOpen ? '#5D8246' : '#FF6B4A',
-                  color: 'white',
-                  boxShadow: isStatsOpen ? '0 0 0 4px rgba(93,130,70,0.2)' : 'none',
-                }}
+                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full transition-all duration-300 shadow-sm ${
+                  isStatsOpen 
+                    ? 'bg-juice-green text-white ring-4 ring-juice-green/20' 
+                    : 'bg-juice-orange text-white hover:bg-orange-500 hover:scale-105 hover:shadow-md'
+                }`}
               >
-                <FireIcon size={16} />
+                <FireIcon className="w-4 h-4 md:w-5 md:h-5 object-contain drop-shadow-sm" />
                 <span className="font-bold text-xs md:text-sm">{profile.streak_count}</span>
               </button>
 
-              {/* Stats Dropdown — Responsive */}
+              {/* Stats Dropdown — Responsive & Gorgeous */}
               <div 
-                className={`absolute right-0 top-full mt-3 rounded-2xl p-0 transform transition-all duration-200 origin-top-right z-50 overflow-hidden ${isStatsOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-2'}`}
+                className={`absolute right-0 top-full mt-3 rounded-3xl p-0 transform transition-all duration-300 origin-top-right z-50 overflow-hidden ${isStatsOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4'}`}
                 style={{ 
-                  width: 'min(340px, calc(100vw - 32px))',
-                  backgroundColor: '#FEFDF5', 
-                  border: '1px solid rgba(93,130,70,0.1)',
-                  boxShadow: '0 25px 60px rgba(0,0,0,0.12)'
+                  width: 'min(360px, calc(100vw - 32px))',
+                  background: 'linear-gradient(145deg, #FEFDF5, #F5F3E7)',
+                  border: '1px solid rgba(93,130,70,0.15)',
+                  boxShadow: '0 30px 60px -10px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.5) inset'
                 }}
               >
                 {/* Header section */}
-                <div className="px-6 pt-6 pb-4" style={{ borderBottom: '1px solid rgba(93,130,70,0.08)' }}>
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <FireIcon size={22} />
-                      <h3 className="font-serif text-lg font-bold" style={{ color: '#3d5a2e' }}>Reading Streak</h3>
+                <div className="relative px-6 pt-6 pb-5 border-b border-juice-green/10 overflow-hidden">
+                  <div className="absolute top-0 right-0 -mr-8 -mt-8 opacity-5">
+                    <FireIcon className="w-32 h-32" />
+                  </div>
+                  <div className="relative z-10 flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-orange-100 rounded-xl">
+                        <FireIcon className="w-5 h-5 object-contain" />
+                      </div>
+                      <h3 className="font-serif text-xl font-bold text-juice-green">Reading Streak</h3>
                     </div>
-                    <Link href="/profile" onClick={() => setIsStatsOpen(false)} className="text-[10px] font-bold uppercase tracking-widest transition-colors" style={{ color: 'rgba(93,130,70,0.4)' }}>
-                      Profile →
+                    <Link href="/profile" onClick={() => setIsStatsOpen(false)} className="text-[10px] font-bold uppercase tracking-widest text-juice-green/40 hover:text-juice-orange transition-colors flex items-center gap-1">
+                      Profile <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
                     </Link>
                   </div>
-                  <p className="text-xs mt-1" style={{ color: 'rgba(93,130,70,0.45)' }}>
-                    {profile.streak_count > 0 ? `${profile.streak_count} day streak! Keep it going.` : 'Start reading to build your streak!'}
+                  <p className="text-sm text-juice-green/60 font-medium relative z-10">
+                    {profile.streak_count > 0 ? (
+                      <span>You're on a <strong className="text-juice-orange">{profile.streak_count} day</strong> streak! Keep the flame alive.</span>
+                    ) : 'Start reading today to ignite your streak!'}
                   </p>
                 </div>
 
                 {/* Progress Card */}
-                <div style={{ padding: '20px 24px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: 20, borderRadius: 12, backgroundColor: '#5D8246' }}>
-                    <CompactCircularProgress value={profile.minutes_read_today} max={tempGoal} size={72} strokeWidth={6} />
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700, color: 'rgba(255,253,208,0.5)', marginBottom: 4 }}>Read Today</p>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                        <span style={{ fontSize: 36, fontWeight: 900, letterSpacing: '-0.02em', color: '#FFFDD0', lineHeight: 1 }}>{profile.minutes_read_today}</span>
-                        <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,253,208,0.5)' }}>/ {tempGoal} min</span>
+                <div className="p-5">
+                  <div className="relative flex items-center gap-5 p-5 rounded-2xl bg-juice-green overflow-hidden shadow-inner group cursor-default">
+                    {/* Background decorative glow */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50"></div>
+                    <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-all duration-500"></div>
+
+                    <div className="relative z-10 shrink-0 filter drop-shadow-md">
+                      <CompactCircularProgress value={profile.minutes_read_today} max={tempGoal} size={76} strokeWidth={7} />
+                    </div>
+                    
+                    <div className="relative z-10 flex-1">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#FFFDD0]/60">Today's Progress</p>
+                        {profile.minutes_read_today >= tempGoal && (
+                          <span className="text-[10px] font-black uppercase tracking-widest text-juice-orange bg-white/10 px-2 py-0.5 rounded-full animate-pulse">Goal Met!</span>
+                        )}
+                      </div>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-4xl font-black tracking-tight text-[#FFFDD0] leading-none">{profile.minutes_read_today}</span>
+                        <span className="text-sm font-bold text-[#FFFDD0]/50">/ {tempGoal} min</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Stats Row */}
-                <div style={{ padding: '0 24px 20px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-                    <div style={{ textAlign: 'center', padding: '12px 8px', borderRadius: 12, backgroundColor: 'rgba(93,130,70,0.06)' }}>
-                      <p style={{ fontSize: 24, fontWeight: 900, color: '#3d5a2e', lineHeight: 1.2 }}>{profile.streak_count || 0}</p>
-                      <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(93,130,70,0.4)', marginTop: 4 }}>Day Streak</p>
+                <div className="px-5 pb-5">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/50 border border-juice-green/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                      <span className="text-2xl font-black text-juice-green mb-1">{profile.streak_count || 0}</span>
+                      <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-juice-green/40 text-center">Day Streak</span>
                     </div>
-                    <div style={{ textAlign: 'center', padding: '12px 8px', borderRadius: 12, backgroundColor: 'rgba(93,130,70,0.06)' }}>
-                      <p style={{ fontSize: 24, fontWeight: 900, color: '#3d5a2e', lineHeight: 1.2 }}>{(profile as any).articles_read ?? 0}</p>
-                      <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(93,130,70,0.4)', marginTop: 4 }}>Articles</p>
+                    <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/50 border border-juice-green/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                      <span className="text-2xl font-black text-juice-green mb-1">{(profile as any).articles_read ?? 0}</span>
+                      <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-juice-green/40 text-center">Articles</span>
                     </div>
-                    <div style={{ textAlign: 'center', padding: '12px 8px', borderRadius: 12, backgroundColor: 'rgba(93,130,70,0.06)' }}>
-                      <p style={{ fontSize: 24, fontWeight: 900, color: '#3d5a2e', lineHeight: 1.2 }}>{(profile as any).total_minutes_read ?? profile.minutes_read_today ?? 0}</p>
-                      <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(93,130,70,0.4)', marginTop: 4 }}>Total Min</p>
+                    <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/50 border border-juice-green/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                      <span className="text-2xl font-black text-juice-green mb-1">{(profile as any).total_minutes_read ?? profile.minutes_read_today ?? 0}</span>
+                      <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-juice-green/40 text-center">Total Min</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Goal Slider */}
-                <div style={{ padding: '16px 24px 24px', borderTop: '1px solid rgba(93,130,70,0.08)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(93,130,70,0.45)' }}>Daily Goal</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#5D8246' }}>{tempGoal} min</span>
+                <div className="px-6 py-5 bg-white/40 border-t border-juice-green/5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-juice-green/50">Daily Goal</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-juice-green bg-white shadow-sm px-2.5 py-1 rounded-full">{tempGoal} min</span>
                   </div>
                   <input 
                     type="range" 
@@ -241,9 +259,15 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                     step="5" 
                     value={tempGoal}
                     onChange={(e) => updateGoal(parseInt(e.target.value))}
-                    className="accent-juice-orange"
-                    style={{ width: '100%', height: 6, borderRadius: 999, appearance: 'none' as any, cursor: 'pointer', backgroundColor: 'rgba(93,130,70,0.1)' }}
+                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-juice-orange bg-juice-green/10"
+                    style={{ 
+                      background: `linear-gradient(to right, #FF6B4A 0%, #FF6B4A ${(tempGoal-5)/55*100}%, rgba(93,130,70,0.1) ${(tempGoal-5)/55*100}%, rgba(93,130,70,0.1) 100%)`
+                    }}
                   />
+                  <div className="flex justify-between text-[8px] font-bold text-juice-green/30 mt-2 uppercase">
+                    <span>5m</span>
+                    <span>60m</span>
+                  </div>
                 </div>
               </div>
             </div>

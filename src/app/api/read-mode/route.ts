@@ -99,7 +99,24 @@ async function fetchDirect(url: string): Promise<string | null> {
         }
       }
     } catch { /* try next */ }
-  }
+  return null;
+}
+
+/** Proxy fetch — bypasses IP blocks using a public proxy. */
+async function fetchViaProxy(url: string): Promise<string | null> {
+  try {
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(proxyUrl, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.contents && data.contents.length > 500) {
+        return data.contents;
+      }
+    }
+  } catch { /* ignore */ }
   return null;
 }
 
@@ -222,7 +239,12 @@ export async function GET(request: Request) {
     const waybackHtml = await fetchViaWayback(url);
 
     // 3. Direct fetch (works for blogs / sites that don't block cloud IPs)
-    const html = waybackHtml || await fetchDirect(url);
+    let html = waybackHtml || await fetchDirect(url);
+
+    // 4. Proxy fetch fallback if direct fails
+    if (!html) {
+      html = await fetchViaProxy(url);
+    }
 
     if (!html) {
       return NextResponse.json({ success: false, error: 'Could not retrieve article' }, { status: 502 });

@@ -285,20 +285,23 @@ export default function FeedPage() {
 
         {/* Foreground Content */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
-          className="z-10 relative text-center mb-32"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 1, type: "spring", stiffness: 100 }}
+          className="z-10 relative flex flex-col items-center justify-center text-center mb-32"
         >
-          <div className="inline-block relative px-4">
-            <h2 className="text-juice-green font-serif text-3xl sm:text-5xl md:text-7xl font-bold italic tracking-tight leading-tight">
+          <div className="relative px-8 py-10 md:px-16 md:py-14 rounded-[3rem] bg-white/20 backdrop-blur-xl border border-white/40 shadow-[0_30px_60px_-15px_rgba(93,130,70,0.15)] group hover:bg-white/30 transition-colors duration-500">
+            <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-white/40 to-transparent opacity-50 pointer-events-none"></div>
+            <h2 className="relative z-10 text-juice-green font-serif text-4xl sm:text-6xl md:text-8xl font-black italic tracking-tight leading-tight mix-blend-color-burn">
               Ready to explore,<br/>
-              <span className="text-juice-orange not-italic underline decoration-2 md:decoration-4 decoration-juice-green/20 underline-offset-4 md:underline-offset-8">
+              <span className="inline-block text-juice-orange not-italic mt-2 relative">
                 {profile?.first_name || 'Traveler'}?
+                <svg className="absolute w-full h-4 -bottom-1 left-0 text-juice-orange/30 group-hover:text-juice-orange/50 transition-colors duration-500" viewBox="0 0 100 20" preserveAspectRatio="none">
+                  <path d="M0 10 Q50 20 100 10" fill="transparent" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
+                </svg>
               </span>
             </h2>
           </div>
-          
         </motion.div>
 
         {/* Massive "SCROLL TO BEGIN" Watermark - Behind foreground content */}
@@ -529,85 +532,77 @@ export default function FeedPage() {
                   <div 
                     onClick={() => setReadingArticle(story)}
                     className="cursor-pointer block h-full"
-                  >
-                    <div className="w-[80vw] max-w-[300px] md:max-w-[380px] bg-juice-cream rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-juice-green/5 flex flex-col h-[340px] md:h-[480px] relative overflow-hidden group hover:-translate-y-3 hover:rotate-1 hover:shadow-2xl transition-all duration-300">
+                                      <div className="w-[85vw] max-w-[320px] md:max-w-[420px] bg-[#FEFDF5] rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-7 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] border border-white/50 flex flex-col h-[380px] md:h-[520px] relative overflow-hidden group hover:-translate-y-4 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] transition-all duration-500 ease-out cursor-pointer">
                       
-                      {/* Decorative Top Gradient */}
-                      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-juice-orange/20 to-juice-green/20" />
+                      {/* Decorative Background Glow */}
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-juice-orange/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 group-hover:bg-juice-orange/10 transition-colors duration-500"></div>
 
                       {/* Header: Source & Date */}
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="relative z-10 flex items-center justify-between mb-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-juice-green/10 flex items-center justify-center text-juice-orange font-black text-xs">
+                          <div className="w-10 h-10 rounded-full bg-white shadow-sm border border-juice-green/5 flex items-center justify-center text-juice-orange font-black text-sm group-hover:scale-110 transition-transform duration-500">
                             {story.source.charAt(0)}
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-juice-green truncate max-w-[100px]">{story.source}</span>
-                            <span className="text-[9px] font-bold text-juice-green/40 uppercase tracking-wide">{story.date}</span>
+                            <span className="text-xs font-black uppercase tracking-widest text-juice-green truncate max-w-[120px]">{story.source}</span>
+                            <span className="text-[10px] font-bold text-juice-green/40 uppercase tracking-wide">{story.date}</span>
                           </div>
                         </div>
-                        <div className="px-2 py-1 rounded-full bg-juice-green/5 border border-juice-green/10 text-[9px] font-bold uppercase tracking-widest text-juice-green/60">
+                        <div className="px-3 py-1.5 rounded-full bg-juice-green/5 border border-juice-green/10 text-[10px] font-bold uppercase tracking-widest text-juice-green/60 backdrop-blur-sm">
                           {story.category}
                         </div>
                       </div>
 
-                      {/* Body: Title */}
-                      <h3 className="font-serif text-base md:text-2xl font-bold text-juice-green mb-2 md:mb-4 leading-tight group-hover:text-juice-orange transition-colors duration-300 line-clamp-2 md:line-clamp-3">
-                        {story.title}
-                      </h3>
-
-                      {/* Image (Compact but Premium) */}
+                      {/* Image (Premium & Immersive) */}
                       {story.imageUrl ? (
-                        <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0">
+                        <div className="relative z-10 w-full h-36 md:h-48 rounded-2xl overflow-hidden mb-5 shrink-0 shadow-sm border border-black/5">
                           <img 
                             src={story.imageUrl} 
                             alt={story.title} 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                           />
-                          <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-xl" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         </div>
                       ) : (
-                        <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0 bg-juice-green/5 flex items-center justify-center">
-                           <span className="text-4xl font-black text-juice-green/10">{story.source.charAt(0)}</span>
+                        <div className="relative z-10 w-full h-36 md:h-48 rounded-2xl overflow-hidden mb-5 shrink-0 bg-gradient-to-br from-juice-green/5 to-juice-green/10 flex items-center justify-center border border-black/5">
+                           <span className="text-6xl font-black text-juice-green/10">{story.source.charAt(0)}</span>
                         </div>
                       )}
 
+                      {/* Body: Title */}
+                      <h3 className="relative z-10 font-serif text-lg md:text-2xl font-bold text-juice-green mb-3 leading-tight group-hover:text-juice-orange transition-colors duration-300 line-clamp-3">
+                        {story.title}
+                      </h3>
+
                       {/* Excerpt (Short) */}
-                      <p className="text-juice-green/70 text-xs leading-relaxed line-clamp-3 mb-4 md:mb-6 flex-grow font-medium hidden sm:block">
+                      <p className="relative z-10 text-juice-green/60 text-sm leading-relaxed line-clamp-2 md:line-clamp-3 mb-4 flex-grow font-medium hidden sm:block">
                         {story.excerpt}
                       </p>
 
                       {/* Footer: Actions */}
-                      <div className="flex items-center justify-between pt-4 md:pt-6 border-t border-juice-green/10 mt-auto">
-                        <div className="flex items-center gap-2 text-juice-green/40">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                          <span className="text-xs font-bold uppercase tracking-wider">{story.readTime}</span>
+                      <div className="relative z-10 flex items-center justify-between pt-5 border-t border-juice-green/10 mt-auto bg-white/50 -mx-5 -mb-5 px-5 pb-5 backdrop-blur-sm">
+                        <div className="flex items-center gap-2 text-juice-green/50 bg-white px-3 py-1.5 rounded-full shadow-sm border border-black/5">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          <span className="text-[10px] font-bold uppercase tracking-wider">{story.readTime}</span>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleSaveForLater(story); }}
-                            className={`transition-colors hover:scale-110 transform duration-200 ${isSaved(story) ? 'text-juice-orange' : 'text-juice-green/40 hover:text-juice-orange'}`}
+                            className={`p-2.5 rounded-full transition-all transform duration-300 \${isSaved(story) ? 'bg-juice-orange/10 text-juice-orange scale-110' : 'bg-white hover:bg-juice-orange/10 text-juice-green/40 hover:text-juice-orange shadow-sm border border-black/5'}`}
                             title={isSaved(story) ? "Saved" : "Read Later"}
                           >
                             {isSaved(story) ? (
-                              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                             ) : (
-                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                             )}
                           </button>
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleShare(story); }}
-                            className="text-juice-green/40 hover:text-juice-orange transition-colors hover:scale-110 transform duration-200"
+                            className="p-2.5 rounded-full bg-white hover:bg-juice-orange/10 text-juice-green/40 hover:text-juice-orange transition-all duration-300 shadow-sm border border-black/5"
                             title="Share"
                           >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                          </button>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setReadingArticle(story); }}
-                            className="text-juice-green/40 hover:text-juice-orange transition-colors hover:scale-110 transform duration-200"
-                            title="Read Now"
-                          >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                           </button>
                         </div>
                       </div>
