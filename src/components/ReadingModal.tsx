@@ -9,6 +9,36 @@ const calculateReadTime = (text: string) => {
   return `${Math.ceil(words / 130)} min`;
 };
 
+/** Lightweight markdown → HTML for client-side parsing. */
+function markdownToHtml(md: string): string {
+  return md
+    .replace(/^#{6}\s(.+)$/gm, '<h6>$1</h6>')
+    .replace(/^#{5}\s(.+)$/gm, '<h5>$1</h5>')
+    .replace(/^#{4}\s(.+)$/gm, '<h4>$1</h4>')
+    .replace(/^###\s(.+)$/gm, '<h3>$1</h3>')
+    .replace(/^##\s(.+)$/gm, '<h2>$1</h2>')
+    .replace(/^#\s(.+)$/gm, '<h1>$1</h1>')
+    .replace(/^(.+)\n={3,}$/gm, '<h1>$1</h1>')
+    .replace(/^(.+)\n-{3,}$/gm, '<h2>$1</h2>')
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
+    .replace(/^>\s(.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/^---+$/gm, '<hr>')
+    .split(/\n{2,}/)
+    .map(block => {
+      block = block.trim();
+      if (!block) return '';
+      if (/^<(h[1-6]|ul|ol|li|blockquote|hr|img|figure|div)/.test(block)) return block;
+      return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
 interface ReadingModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -38,13 +68,59 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     setIsLoading(true);
 
     try {
+      // CREATIVE SOLUTION: Try client-side fetch via Jina AI first to bypass Vercel server IP blocking
+      const jinaRes = await fetch(`https://r.jina.ai/${encodeURIComponent(article.link)}`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (jinaRes.ok) {
+        const jinaData = await jinaRes.json();
+        if (jinaData.code === 200 && jinaData.data?.content && jinaData.data.content.length > 500) {
+          setFullContent(markdownToHtml(jinaData.data.content));
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch { /* fall through */ }
+
+    try {
+      // CREATIVE SOLUTION 2: Try client-side proxy to bypass server IP block
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(article.link)}`;
+      const res = await fetch(proxyUrl);
+      if (res.ok) {
+        const html = await res.text();
+        if (html.length > 1000) {
+          // Dynamic import of Readability to avoid bundle size bloat
+          const { Readability } = await import('@mozilla/readability');
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          
+          // Cleanup common annoying elements before parsing
+          const removeSelectors = ['script', 'style', 'nav', 'footer', 'aside', '.ads', '.cookie-banner'];
+          removeSelectors.forEach(sel => {
+            doc.querySelectorAll(sel).forEach(el => el.remove());
+          });
+
+          const reader = new Readability(doc, { keepClasses: false });
+          const parsed = reader.parse();
+          
+          if (parsed && parsed.content && parsed.content.length > 500) {
+            setFullContent(parsed.content);
+            setIsLoading(false);
+            return;
+          }
+        }
+      }
+    } catch { /* fall through */ }
+
+    try {
+      // Fallback 3: Our server API (which might be blocked by the site or Jina rate limits)
       const res = await fetch(`/api/read-mode?url=${encodeURIComponent(article.link)}&t=${Date.now()}`, {
         cache: 'no-store',
         headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' },
       });
       const data = await res.json();
 
-      if (data.success && data.article?.content) {
+      if (data.success && data.article?.content && data.article.content.length > 500) {
         setFullContent(data.article.content);
         setIsLoading(false);
         return;
