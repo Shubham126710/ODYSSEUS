@@ -170,7 +170,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
               </button>
               {/* Stats Dropdown — Compact & Minimal */}
               <div 
-                className={`absolute right-0 top-full mt-3 rounded-3xl p-5 transform transition-all duration-300 origin-top-right z-50 overflow-hidden bg-[#FEFDF5] border border-juice-green/20 shadow-2xl ${isStatsOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4'}`}
+                className={`absolute right-0 top-full mt-3 rounded-3xl p-5 transform transition-all duration-300 origin-top-right z-50 overflow-hidden bg-juice-cream border border-juice-green/20 shadow-2xl ${isStatsOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4'}`}
                 style={{ width: '280px' }}
               >
                 {/* Header */}

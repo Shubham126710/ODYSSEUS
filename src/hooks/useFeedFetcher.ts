@@ -118,8 +118,13 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
           }
 
           // 3. Check standard enclosure
-          if (!imageUrl && item.enclosure && item.enclosure.type?.startsWith('image')) {
-            imageUrl = item.enclosure.url;
+          if (!imageUrl && item.enclosure && item.enclosure.url) {
+            // Some feeds have image enclosures without strict type starting with 'image'
+            const type = item.enclosure.type || '';
+            const url = item.enclosure.url.toLowerCase();
+            if (type.startsWith('image') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.png') || url.endsWith('.gif') || url.endsWith('.webp') || !type) {
+              imageUrl = item.enclosure.url;
+            }
           }
           
           // 4. Regex to find <img src="..."> in content
@@ -173,7 +178,8 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
             link: item.link,
             content: item.content || item['content:encoded'] || item.description || item.summary,
             contentEncoded: item['content:encoded'] || item.contentEncoded || null,
-            author: item.creator || item.author || item.dc?.creator
+            author: item.creator || item.author || item.dc?.creator,
+            enclosure: item.enclosure || null
           };
         });
         const filteredStories = options?.category ? processedStories.filter((s:any) => s.category.toLowerCase() === options.category?.toLowerCase()) : processedStories;
