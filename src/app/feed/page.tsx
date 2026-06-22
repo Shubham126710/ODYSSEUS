@@ -556,10 +556,10 @@ export default function FeedPage() {
                       </h3>
 
                       {/* Image (Compact but Premium) */}
-                      {story.imageUrl ? (
-                        <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0">
+                      {(story.imageUrl || (story as any).enclosure?.url) ? (
+                        <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0 bg-[#FDFBF7]">
                           <img 
-                            src={story.imageUrl} 
+                            src={story.imageUrl || (story as any).enclosure?.url} 
                             alt={story.title} 
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />

@@ -11,6 +11,7 @@ import { StoryCard } from "@/components/StoryCard";
 import { AppHeader } from "@/components/AppHeader";
 import { Footer } from "@/components/Footer";
 import { Toast } from "@/components/Toast";
+import { ReadingModal } from "@/components/ReadingModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 
@@ -33,6 +34,7 @@ export default function CategoryFeedPage() {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [toast, setToast] = useState({ message: '', isVisible: false });
+  const [activeArticle, setActiveArticle] = useState<any | null>(null);
 
   // Eliminate flicker by enforcing minimum loading time
   useEffect(() => {
@@ -230,14 +232,15 @@ export default function CategoryFeedPage() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <Link className="block h-full" href={`/story/${encodeURIComponent(String(story.id))}?url=${encodeURIComponent(story.link)}&title=${encodeURIComponent(story.title)}&source=${encodeURIComponent(story.source)}&date=${encodeURIComponent(story.date)}&imageUrl=${encodeURIComponent(story.imageUrl || '')}`}>
+                  <div className="block h-full cursor-pointer" onClick={() => setActiveArticle(story)}>
                     <StoryCard
                         {...story}
+                        imageUrl={story.imageUrl || (story as any).enclosure?.url}
                         isSaved={isSaved(story)}
                         onToggleSave={() => handleToggleSave(story)}
                         onShare={() => handleShare(story)}
                     />
-                  </Link>
+                  </div>
                 </motion.div>
                   ))}
             </AnimatePresence>
@@ -258,6 +261,13 @@ export default function CategoryFeedPage() {
       </main>
 
       <Footer />
+
+      <ReadingModal 
+        isOpen={!!activeArticle} 
+        onClose={() => setActiveArticle(null)} 
+        article={activeArticle} 
+        onSave={handleToggleSave}
+      />
 
       <Toast 
         message={toast.message} 
