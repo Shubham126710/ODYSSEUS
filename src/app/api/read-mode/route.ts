@@ -71,17 +71,18 @@ async function fetchViaWayback(url: string): Promise<string | null> {
 async function fetchDirect(url: string): Promise<string | null> {
   const headerSets: Record<string, string>[] = [
     {
+      'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'From': 'googlebot(at)googlebot.com',
+      'X-Forwarded-For': '66.249.66.1', // Googlebot IP
+    },
+    {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'en-US,en;q=0.9',
       'Accept-Encoding': 'identity',
       'Referer': 'https://www.google.com/',
       'Upgrade-Insecure-Requests': '1',
-    },
-    {
-      'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      'From': 'googlebot(at)googlebot.com',
     },
   ];
 
@@ -105,10 +106,24 @@ async function fetchDirect(url: string): Promise<string | null> {
 
 /** Proxy fetch — bypasses IP blocks using a public proxy. */
 async function fetchViaProxy(url: string): Promise<string | null> {
+  // Try corsproxy.io first (returns raw HTML)
+  try {
+    const corsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(corsProxyUrl, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (res.ok) {
+      const text = await res.text();
+      if (text && text.length > 500) return text;
+    }
+  } catch { /* ignore */ }
+
+  // Fallback to allorigins.win (returns JSON)
   try {
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 6000);
     const res = await fetch(proxyUrl, { signal: controller.signal });
     clearTimeout(timeout);
     if (res.ok) {

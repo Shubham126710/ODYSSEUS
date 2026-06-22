@@ -168,89 +168,39 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 <FireIcon className="w-4 h-4 md:w-5 md:h-5 object-contain drop-shadow-sm" />
                 <span className="font-bold text-xs md:text-sm">{profile.streak_count}</span>
               </button>
-
-              {/* Stats Dropdown — Responsive & Gorgeous */}
+              {/* Stats Dropdown — Compact & Minimal */}
               <div 
-                className={`absolute right-0 top-full mt-3 rounded-3xl p-0 transform transition-all duration-300 origin-top-right z-50 overflow-hidden ${isStatsOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4'}`}
-                style={{ 
-                  width: 'min(360px, calc(100vw - 32px))',
-                  background: 'linear-gradient(145deg, #FEFDF5, #F5F3E7)',
-                  border: '1px solid rgba(93,130,70,0.15)',
-                  boxShadow: '0 30px 60px -10px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.5) inset'
-                }}
+                className={`absolute right-0 top-full mt-3 rounded-2xl p-4 transform transition-all duration-300 origin-top-right z-50 overflow-hidden bg-[#FEFDF5] border border-juice-green/15 shadow-xl ${isStatsOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4'}`}
+                style={{ width: '280px' }}
               >
-                {/* Header section */}
-                <div className="relative px-6 pt-6 pb-5 border-b border-juice-green/10 overflow-hidden">
-                  <div className="absolute top-0 right-0 -mr-8 -mt-8 opacity-5">
-                    <FireIcon className="w-32 h-32" />
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4 border-b border-juice-green/10 pb-3">
+                  <div className="flex items-center gap-2">
+                    <FireIcon className="w-4 h-4 object-contain opacity-80" />
+                    <h3 className="font-serif text-sm font-bold text-juice-green">Reading Streak</h3>
                   </div>
-                  <div className="relative z-10 flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-orange-100 rounded-xl">
-                        <FireIcon className="w-5 h-5 object-contain" />
-                      </div>
-                      <h3 className="font-serif text-xl font-bold text-juice-green">Reading Streak</h3>
-                    </div>
-                    <Link href="/profile" onClick={() => setIsStatsOpen(false)} className="text-[10px] font-bold uppercase tracking-widest text-juice-green/40 hover:text-juice-orange transition-colors flex items-center gap-1">
-                      Profile <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
-                    </Link>
-                  </div>
-                  <p className="text-sm text-juice-green/60 font-medium relative z-10">
-                    {profile.streak_count > 0 ? (
-                      <span>You're on a <strong className="text-juice-orange">{profile.streak_count} day</strong> streak! Keep the flame alive.</span>
-                    ) : 'Start reading today to ignite your streak!'}
-                  </p>
+                  <Link href="/profile" onClick={() => setIsStatsOpen(false)} className="text-[9px] font-bold uppercase tracking-widest text-juice-green/40 hover:text-juice-orange transition-colors flex items-center gap-1">
+                    Profile <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                  </Link>
                 </div>
 
-                {/* Progress Card */}
-                <div className="p-5">
-                  <div className="relative flex items-center gap-5 p-5 rounded-2xl bg-juice-green overflow-hidden shadow-inner group cursor-default">
-                    {/* Background decorative glow */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50"></div>
-                    <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-all duration-500"></div>
-
-                    <div className="relative z-10 shrink-0 filter drop-shadow-md">
-                      <CompactCircularProgress value={profile.minutes_read_today} max={tempGoal} size={76} strokeWidth={7} />
-                    </div>
-                    
-                    <div className="relative z-10 flex-1">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#FFFDD0]/60">Today's Progress</p>
-                        {profile.minutes_read_today >= tempGoal && (
-                          <span className="text-[10px] font-black uppercase tracking-widest text-juice-orange bg-white/10 px-2 py-0.5 rounded-full animate-pulse">Goal Met!</span>
-                        )}
-                      </div>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="text-4xl font-black tracking-tight text-[#FFFDD0] leading-none">{profile.minutes_read_today}</span>
-                        <span className="text-sm font-bold text-[#FFFDD0]/50">/ {tempGoal} min</span>
-                      </div>
-                    </div>
+                {/* Main Stats */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="flex flex-col items-center p-3 bg-juice-green/5 rounded-xl">
+                    <span className="text-xl font-black text-juice-orange mb-1">{profile.streak_count || 0}</span>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-juice-green/60">Day Streak</span>
                   </div>
-                </div>
-
-                {/* Stats Row */}
-                <div className="px-5 pb-5">
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/50 border border-juice-green/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-                      <span className="text-2xl font-black text-juice-green mb-1">{profile.streak_count || 0}</span>
-                      <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-juice-green/40 text-center">Day Streak</span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/50 border border-juice-green/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-                      <span className="text-2xl font-black text-juice-green mb-1">{(profile as any).articles_read ?? 0}</span>
-                      <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-juice-green/40 text-center">Articles</span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/50 border border-juice-green/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-                      <span className="text-2xl font-black text-juice-green mb-1">{(profile as any).total_minutes_read ?? profile.minutes_read_today ?? 0}</span>
-                      <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-juice-green/40 text-center">Total Min</span>
-                    </div>
+                  <div className="flex flex-col items-center p-3 bg-juice-green/5 rounded-xl">
+                    <span className="text-xl font-black text-juice-green mb-1">{profile.minutes_read_today}</span>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-juice-green/60">Min Today</span>
                   </div>
                 </div>
 
                 {/* Goal Slider */}
-                <div className="px-6 py-5 bg-white/40 border-t border-juice-green/5">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-juice-green/50">Daily Goal</span>
-                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-juice-green bg-white shadow-sm px-2.5 py-1 rounded-full">{tempGoal} min</span>
+                <div className="pt-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-juice-green/50">Daily Goal</span>
+                    <span className="text-[9px] font-bold text-juice-green">{tempGoal} min</span>
                   </div>
                   <input 
                     type="range" 
@@ -259,12 +209,12 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                     step="5" 
                     value={tempGoal}
                     onChange={(e) => updateGoal(parseInt(e.target.value))}
-                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-juice-orange bg-juice-green/10"
+                    className="w-full h-1 rounded-full appearance-none cursor-pointer bg-juice-green/10"
                     style={{ 
                       background: `linear-gradient(to right, #FF6B4A 0%, #FF6B4A ${(tempGoal-5)/55*100}%, rgba(93,130,70,0.1) ${(tempGoal-5)/55*100}%, rgba(93,130,70,0.1) 100%)`
                     }}
                   />
-                  <div className="flex justify-between text-[8px] font-bold text-juice-green/30 mt-2 uppercase">
+                  <div className="flex justify-between text-[8px] font-bold text-juice-green/30 mt-1 uppercase">
                     <span>5m</span>
                     <span>60m</span>
                   </div>

@@ -6,7 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 const AVAILABLE_CATEGORIES = [
   'Tech', 'Design', 'Culture', 'Science', 'Business', 
   'Politics', 'Health', 'Sports', 'Entertainment', 
-  'Travel', 'Food', 'Style'
+  'Travel', 'Food', 'Style', 'Finance', 'Startups',
+  'Gaming', 'Art', 'Music', 'History', 'Programming',
+  'Photography', 'Productivity', 'News'
 ];
 
 interface CustomizeTabsModalProps {

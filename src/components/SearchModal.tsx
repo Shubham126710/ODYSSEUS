@@ -15,15 +15,19 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { profile } = useProfile();
-  const { stories } = useFeedFetcher(profile?.id);
+  const { stories, loading } = useFeedFetcher(profile?.id);
 
   // Filter stories by search query
-  const results = query.trim().length > 1
+  const q = query.toLowerCase().trim();
+  const results = q.length > 1
     ? stories.filter(s =>
-        s.title.toLowerCase().includes(query.toLowerCase()) ||
-        s.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-        s.source.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 10)
+        s.title.toLowerCase().includes(q) ||
+        s.excerpt.toLowerCase().includes(q) ||
+        s.source.toLowerCase().includes(q) ||
+        (s.author && s.author.toLowerCase().includes(q)) ||
+        s.category.toLowerCase().includes(q) ||
+        (s.content && s.content.toLowerCase().includes(q))
+      ).slice(0, 15)
     : [];
 
   // Focus input on open
