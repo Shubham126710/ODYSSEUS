@@ -145,14 +145,14 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
             <div className="absolute top-0 left-0 right-0 h-1 z-50 bg-black/5">
               <div 
                 className="h-full transition-all duration-150" 
-                style={{ width: \`\${scrollProgress}%\`, backgroundColor: currentTheme.accent }}
+                style={{ width: `${scrollProgress}%`, backgroundColor: currentTheme.accent }}
               />
             </div>
 
             {/* Header / Toolbar */}
             <div 
               className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 z-10 shrink-0 transition-colors duration-500"
-              style={{ backgroundColor: currentTheme.bg, borderBottom: \`1px solid \${currentTheme.border}\` }}
+              style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${currentTheme.border}` }}
             >
               <div className="flex items-center gap-3 min-w-0">
                 <button onClick={() => { stopSpeaking(); onClose(); }} className="p-2 rounded-full hover:bg-black/5 transition-colors shrink-0">
@@ -192,9 +192,9 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
                 {/* Theme Toggle */}
                 <div className="flex items-center gap-1 bg-black/5 p-1 rounded-full">
-                  <button onClick={() => setTheme('light')} className={\`w-6 h-6 rounded-full border border-black/10 transition-transform \${theme === 'light' ? 'scale-110 ring-2 ring-offset-1 ring-gray-400' : 'hover:scale-105'}\`} style={{ backgroundColor: '#ffffff' }} />
-                  <button onClick={() => setTheme('sepia')} className={\`w-6 h-6 rounded-full border border-black/10 transition-transform \${theme === 'sepia' ? 'scale-110 ring-2 ring-offset-1 ring-[#b46014]' : 'hover:scale-105'}\`} style={{ backgroundColor: '#f4ecd8' }} />
-                  <button onClick={() => setTheme('dark')} className={\`w-6 h-6 rounded-full border border-white/10 transition-transform \${theme === 'dark' ? 'scale-110 ring-2 ring-offset-1 ring-gray-500' : 'hover:scale-105'}\`} style={{ backgroundColor: '#0f1117' }} />
+                  <button onClick={() => setTheme('light')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'light' ? 'scale-110 ring-2 ring-offset-1 ring-gray-400' : 'hover:scale-105'}`} style={{ backgroundColor: '#ffffff' }} />
+                  <button onClick={() => setTheme('sepia')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'sepia' ? 'scale-110 ring-2 ring-offset-1 ring-[#b46014]' : 'hover:scale-105'}`} style={{ backgroundColor: '#f4ecd8' }} />
+                  <button onClick={() => setTheme('dark')} className={`w-6 h-6 rounded-full border border-white/10 transition-transform ${theme === 'dark' ? 'scale-110 ring-2 ring-offset-1 ring-gray-500' : 'hover:scale-105'}`} style={{ backgroundColor: '#0f1117' }} />
                 </div>
 
                 <div className="w-px h-5 mx-1" style={{ backgroundColor: currentTheme.border }} />
@@ -222,7 +222,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                     <span>{article.date}</span>
                     {readTime && (<><span>•</span><span>{readTime} read</span></>)}
                   </div>
-                  <h1 className="font-serif font-bold leading-tight mb-5" style={{ fontSize: \`\${fontSize * 2.2}px\` }}>
+                  <h1 className="font-serif font-bold leading-tight mb-5" style={{ fontSize: `${fontSize * 2.2}px` }}>
                     {article.title}
                   </h1>
                   {article.author && (
@@ -232,7 +232,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
                 {/* Hero image */}
                 {(article.imageUrl || article.enclosure?.url) && (
-                  <figure className="mb-12 rounded-2xl overflow-hidden shadow-xl" style={{ border: \`1px solid \${currentTheme.border}\` }}>
+                  <figure className="mb-12 rounded-2xl overflow-hidden shadow-xl" style={{ border: `1px solid ${currentTheme.border}` }}>
                     <img src={article.imageUrl || article.enclosure?.url} alt="" className="w-full h-auto max-h-[500px] object-cover" />
                   </figure>
                 )}
@@ -241,19 +241,19 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                 {isLoading ? (
                   <div className="space-y-5 animate-pulse opacity-40 mt-8">
                     {[100, 90, 80, 95, 70, 85].map((w, i) => (
-                      <div key={i} className="h-4 rounded" style={{ width: \`\${w}%\`, backgroundColor: currentTheme.text }} />
+                      <div key={i} className="h-4 rounded" style={{ width: `${w}%`, backgroundColor: currentTheme.text }} />
                     ))}
                   </div>
                 ) : previewOnly ? (
                   <div className="space-y-8 mt-8">
                     {bodyContent && (
-                      <p className="font-serif opacity-80" style={{ fontSize: \`\${fontSize}px\`, lineHeight: 1.8 }}>
+                      <p className="font-serif opacity-80" style={{ fontSize: `${fontSize}px`, lineHeight: 1.8 }}>
                         {bodyContent.replace(/<[^>]*>/g, '').trim()}
                       </p>
                     )}
-                    <div className="rounded-2xl overflow-hidden shadow-lg" style={{ border: \`1px solid \${currentTheme.border}\`, backgroundColor: currentTheme.header }}>
+                    <div className="rounded-2xl overflow-hidden shadow-lg" style={{ border: `1px solid ${currentTheme.border}`, backgroundColor: currentTheme.header }}>
                       <div className="p-8 text-center space-y-5">
-                        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto" style={{ backgroundColor: \`\${currentTheme.accent}20\` }}>
+                        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto" style={{ backgroundColor: `${currentTheme.accent}20` }}>
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: currentTheme.accent }}>
                             <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
                             <polyline points="15 3 21 3 21 9" />
@@ -272,7 +272,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                   </div>
                 ) : (
                   <>
-                    <style jsx global>{\`
+                    <style jsx global>{`
                       .rm-prose { font-family: Georgia, 'Times New Roman', serif; }
                       .rm-prose h1,.rm-prose h2,.rm-prose h3,.rm-prose h4 { font-weight: 700; margin: 2em 0 1em; line-height: 1.3; color: inherit; }
                       .rm-prose h1 { font-size: 1.8em; }
@@ -281,28 +281,28 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                       .rm-prose p { margin-bottom: 1.5em; line-height: 1.9; }
                       .rm-prose strong,.rm-prose b { font-weight: 700; color: inherit; }
                       .rm-prose em,.rm-prose i { font-style: italic; }
-                      .rm-prose a { color: \${currentTheme.accent}; text-decoration: none; font-weight: 600; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
-                      .rm-prose a:hover { border-color: \${currentTheme.accent}; }
-                      .rm-prose blockquote { border-left: 4px solid \${currentTheme.accent}; padding-left: 1.5em; margin: 2em 0; font-style: italic; opacity: 0.85; }
+                      .rm-prose a { color: ${currentTheme.accent}; text-decoration: none; font-weight: 600; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+                      .rm-prose a:hover { border-color: ${currentTheme.accent}; }
+                      .rm-prose blockquote { border-left: 4px solid ${currentTheme.accent}; padding-left: 1.5em; margin: 2em 0; font-style: italic; opacity: 0.85; }
                       .rm-prose ul,.rm-prose ol { padding-left: 1.5em; margin-bottom: 1.5em; line-height: 1.8; }
                       .rm-prose li { margin-bottom: 0.5em; }
                       .rm-prose img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 2.5rem auto; display: block; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
                       .rm-prose figure { margin: 2.5rem 0; }
                       .rm-prose figcaption { text-align: center; font-size: 0.85em; opacity: 0.7; margin-top: 0.75rem; font-style: italic; font-family: system-ui, sans-serif; }
-                      .rm-prose hr { border: none; border-top: 1px solid \${currentTheme.border}; margin: 2.5rem 0; }
-                      .rm-prose code { background: \${currentTheme.header}; padding: 0.2em 0.4em; border-radius: 0.25em; font-size: 0.85em; font-family: ui-monospace, monospace; border: 1px solid \${currentTheme.border}; }
-                      .rm-prose pre { background: \${currentTheme.header}; border: 1px solid \${currentTheme.border}; padding: 1.25em; border-radius: 0.75rem; overflow-x: auto; margin: 1.5em 0; }
+                      .rm-prose hr { border: none; border-top: 1px solid ${currentTheme.border}; margin: 2.5rem 0; }
+                      .rm-prose code { background: ${currentTheme.header}; padding: 0.2em 0.4em; border-radius: 0.25em; font-size: 0.85em; font-family: ui-monospace, monospace; border: 1px solid ${currentTheme.border}; }
+                      .rm-prose pre { background: ${currentTheme.header}; border: 1px solid ${currentTheme.border}; padding: 1.25em; border-radius: 0.75rem; overflow-x: auto; margin: 1.5em 0; }
                       .rm-prose pre code { background: transparent; border: none; padding: 0; }
-                    \`}</style>
+                    `}</style>
 
                     <div
                       className="rm-prose transition-all duration-300"
-                      style={{ fontSize: \`\${fontSize}px\` }}
+                      style={{ fontSize: `${fontSize}px` }}
                       dangerouslySetInnerHTML={{ __html: sanitized }}
                     />
 
                     {!fullContent && bodyContent.length < 600 && (
-                      <div className="mt-12 pt-8 flex flex-col items-center gap-4 text-center" style={{ borderTop: \`1px solid \${currentTheme.border}\` }}>
+                      <div className="mt-12 pt-8 flex flex-col items-center gap-4 text-center" style={{ borderTop: `1px solid ${currentTheme.border}` }}>
                         <p className="text-sm opacity-60">Continue reading on {article.source}</p>
                         <a href={article.link} target="_blank" rel="noopener noreferrer" className="px-7 py-3 text-white font-bold text-sm uppercase tracking-widest rounded-full hover:scale-105 transition-transform" style={{ backgroundColor: currentTheme.accent }}>
                           Read Full Article →

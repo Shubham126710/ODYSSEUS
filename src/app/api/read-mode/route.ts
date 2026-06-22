@@ -99,6 +99,7 @@ async function fetchDirect(url: string): Promise<string | null> {
         }
       }
     } catch { /* try next */ }
+  }
   return null;
 }
 

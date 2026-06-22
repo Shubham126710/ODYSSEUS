@@ -532,6 +532,7 @@ export default function FeedPage() {
                   <div 
                     onClick={() => setReadingArticle(story)}
                     className="cursor-pointer block h-full"
+                  >
                                       <div className="w-[85vw] max-w-[320px] md:max-w-[420px] bg-[#FEFDF5] rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-7 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] border border-white/50 flex flex-col h-[380px] md:h-[520px] relative overflow-hidden group hover:-translate-y-4 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] transition-all duration-500 ease-out cursor-pointer">
                       
                       {/* Decorative Background Glow */}
