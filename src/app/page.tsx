@@ -55,10 +55,27 @@ export default function Home() {
       {/* Interactive Header */}
       <Header onLogoClick={handleLogoClick} theme={headerTheme} />
 
+      {/* Mobile Fallback Overlay */}
+      <div className="md:hidden fixed inset-0 z-[9999] bg-juice-green flex flex-col items-center justify-center p-8 text-center text-juice-cream">
+        <div className="mb-8">
+          <h1 className="text-5xl font-black tracking-tighter opacity-20 mb-[-20px]">ODYS</h1>
+          <h1 className="text-5xl font-black tracking-tighter opacity-20">SEUS</h1>
+        </div>
+        <h2 className="font-serif text-3xl font-bold mb-4">Desktop Recommended</h2>
+        <p className="text-base opacity-80 mb-8 max-w-sm">
+          Odysseus features interactive elements and massive typography that are best experienced on a larger screen.
+        </p>
+        <Link href="/login">
+           <button className="px-6 py-3 bg-juice-orange text-juice-cream text-xs font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg">
+             Go to Login Anyway
+           </button>
+        </Link>
+      </div>
+
       <div 
         ref={containerRef}
         onScroll={handleScroll}
-        className="h-[100dvh] overflow-y-scroll snap-y snap-mandatory flex flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth"
+        className="hidden md:flex h-[100dvh] overflow-y-scroll snap-y snap-mandatory flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth"
       >
         {/* Hero Section */}
         <main className="flex flex-col items-center justify-center relative w-full h-[100dvh] snap-start shrink-0 overflow-hidden">
@@ -75,7 +92,7 @@ export default function Home() {
 
         {/* Central Compass */}
         <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-          <InteractiveCompass className="w-[50vw] h-[50vw] min-w-[200px] min-h-[200px] md:w-[28vw] md:h-[28vw] md:min-w-[280px] md:min-h-[280px] text-secondary drop-shadow-2xl" />
+          <InteractiveCompass className="w-[36vw] h-[36vw] min-w-[350px] min-h-[350px] text-secondary drop-shadow-2xl" />
         </div>
 
         {/* Subtext */}
