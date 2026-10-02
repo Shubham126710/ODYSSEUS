@@ -78,7 +78,7 @@ export default function Home() {
         className="hidden md:flex h-[100dvh] overflow-y-scroll snap-y snap-mandatory flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth"
       >
         {/* Hero Section */}
-        <main className="flex flex-col items-center justify-center relative w-full h-[100dvh] snap-start shrink-0 overflow-hidden">
+        <main className="flex flex-col items-center justify-center relative w-full h-screen snap-start shrink-0">
         
         {/* Massive Typography - Watermark Style */}
         <div className="flex flex-col items-center justify-center z-0 select-none opacity-20 pointer-events-none absolute inset-0">
@@ -91,19 +91,12 @@ export default function Home() {
         </div>
 
         {/* Central Compass */}
-        <div 
-          className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
-          style={{ 
-            top: '50%',
-            width: 'clamp(340px, 34vw, 750px)', 
-            height: 'clamp(340px, 34vw, 750px)' 
-          }}
-        >
-          <InteractiveCompass className="w-full h-full text-secondary drop-shadow-2xl" />
+        <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+          <InteractiveCompass className="w-[28vw] h-[28vw] min-w-[280px] min-h-[280px] text-secondary drop-shadow-2xl" />
         </div>
 
         {/* Subtext */}
-        <div className="absolute bottom-[100px] left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
+        <div className="absolute bottom-8 left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
           <h2 className="text-xl md:text-2xl font-bold uppercase leading-tight mb-4 drop-shadow-sm text-foreground">
             The news aggregator <br />
             that loves to show off <br />
@@ -115,9 +108,9 @@ export default function Home() {
         </div>
 
         {/* Get Started Button - Centered Bottom */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 md:bottom-12 z-30">
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30">
             <Link href="/login">
-              <button className="px-8 py-3 bg-juice-orange text-juice-cream font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg whitespace-nowrap">
+              <button className="px-8 py-3 bg-juice-orange text-juice-cream font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg">
                 Get Started
               </button>
             </Link>
