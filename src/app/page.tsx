@@ -95,8 +95,8 @@ export default function Home() {
           className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
           style={{ 
             top: '50%',
-            width: 'clamp(300px, 30vw, 700px)', 
-            height: 'clamp(300px, 30vw, 700px)' 
+            width: 'clamp(340px, 34vw, 750px)', 
+            height: 'clamp(340px, 34vw, 750px)' 
           }}
         >
           <InteractiveCompass className="w-full h-full text-secondary drop-shadow-2xl" />
