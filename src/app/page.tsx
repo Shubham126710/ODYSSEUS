@@ -91,8 +91,15 @@ export default function Home() {
         </div>
 
         {/* Central Compass */}
-        <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-          <InteractiveCompass className="w-[55vw] h-[55vw] min-w-[550px] min-h-[550px] text-secondary drop-shadow-2xl" />
+        <div 
+          className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
+          style={{ 
+            top: '42%',
+            width: 'clamp(550px, 55vw, 1200px)', 
+            height: 'clamp(550px, 55vw, 1200px)' 
+          }}
+        >
+          <InteractiveCompass className="w-full h-full text-secondary drop-shadow-2xl" />
         </div>
 
         {/* Subtext */}
