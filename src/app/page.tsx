@@ -65,35 +65,35 @@ export default function Home() {
         
         {/* Massive Typography - Watermark Style */}
         <div className="flex flex-col items-center justify-center z-0 select-none opacity-20 pointer-events-none absolute inset-0">
-          <h1 className="text-[25vw] md:text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+          <h1 className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
             ODYS
           </h1>
-          <h1 className="text-[25vw] md:text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+          <h1 className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
             SEUS
           </h1>
         </div>
 
         {/* Central Compass */}
-        <div className="absolute top-[45%] md:top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+        <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <InteractiveCompass className="w-[50vw] h-[50vw] min-w-[200px] min-h-[200px] md:w-[28vw] md:h-[28vw] md:min-w-[280px] md:min-h-[280px] text-secondary drop-shadow-2xl" />
         </div>
 
         {/* Subtext */}
-        <div className="absolute bottom-[100px] md:bottom-12 left-1/2 -translate-x-1/2 md:translate-x-0 text-center md:text-left md:left-12 z-30 w-[90vw] md:max-w-sm">
-          <h2 className="text-lg md:text-2xl font-bold uppercase leading-tight mb-2 md:mb-4 drop-shadow-sm text-foreground">
+        <div className="absolute bottom-[100px] left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
+          <h2 className="text-xl md:text-2xl font-bold uppercase leading-tight mb-4 drop-shadow-sm text-foreground">
             The news aggregator <br />
             that loves to show off <br />
             a thing or two.
           </h2>
-          <div className="flex items-center justify-center md:justify-start gap-4">
-             <p className="text-[10px] md:text-base font-bold opacity-90 uppercase tracking-wide text-foreground">Starting with your stories</p>
+          <div className="flex items-center gap-4">
+             <p className="text-sm md:text-base font-bold opacity-90 uppercase tracking-wide text-foreground">Starting with your stories</p>
           </div>
         </div>
 
         {/* Get Started Button - Centered Bottom */}
-        <div className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 z-30">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 md:bottom-12 z-30">
             <Link href="/login">
-              <button className="px-6 py-2 md:px-8 md:py-3 bg-juice-orange text-juice-cream text-sm md:text-base font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg whitespace-nowrap">
+              <button className="px-8 py-3 bg-juice-orange text-juice-cream font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg whitespace-nowrap">
                 Get Started
               </button>
             </Link>
