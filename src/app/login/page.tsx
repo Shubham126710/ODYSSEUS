@@ -489,6 +489,10 @@ export default function LoginPage() {
       `}</style>
 
       <div className={isSignUp ? "container sign-up-mode" : "container"}>
+        {/* Return Home Button */}
+        <Link href="/" className="absolute top-6 left-6 md:top-8 md:left-8 z-50 px-4 py-2 bg-juice-cream/20 backdrop-blur-md text-juice-green border border-juice-green/20 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-juice-orange hover:text-juice-cream hover:border-juice-orange transition-colors shadow-sm flex items-center gap-2">
+          ← Return Home
+        </Link>
         <div className="forms-container">
           <div className="signin-signup">
             
