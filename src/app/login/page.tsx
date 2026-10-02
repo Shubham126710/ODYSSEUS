@@ -6,9 +6,10 @@ import { useRouter } from 'next/navigation';
 import { StaticOrangeCompass } from "@/components/StaticOrangeCompass";
 import { AvatarSelection } from "@/components/AvatarSelection";
 import { supabase } from "@/lib/supabaseClient";
+import { Mail, Lock, User, Facebook, Twitter, Linkedin, Github } from "lucide-react";
 
 export default function LoginPage() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
@@ -32,10 +33,7 @@ export default function LoginPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 100);
-    return () => clearTimeout(timer);
+    setMounted(true);
   }, []);
 
   // Debounce username check
@@ -55,10 +53,8 @@ export default function LoginPage() {
           .single();
 
         if (error && error.code === 'PGRST116') {
-          // No rows found, username is available
           setUsernameAvailable(true);
         } else if (data) {
-          // Row found, username is taken
           setUsernameAvailable(false);
         }
       } catch (err) {
@@ -69,15 +65,15 @@ export default function LoginPage() {
     };
 
     const timeoutId = setTimeout(() => {
-      if (!isLogin && username) {
+      if (isSignUp && username) {
         checkUsername();
       }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [username, isLogin]);
+  }, [username, isSignUp]);
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setMessage(null);
@@ -90,37 +86,14 @@ export default function LoginPage() {
         });
         if (error) throw error;
         setMessage('Password reset link sent to your email.');
-      } else if (isLogin) {
+      } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
         router.push('/feed');
-      } else {
-        // Registration
-        if (usernameAvailable === false) {
-          throw new Error("Username is already taken.");
-        }
-
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              first_name: firstName,
-              last_name: lastName,
-              username: username,
-              gender: gender,
-              dob: dob,
-              avatar_url: selectedAvatar // Storing the ID of the preset
-            },
-          },
-        });
-        if (error) throw error;
-        setMessage('Check your email for the confirmation link!');
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -128,220 +101,611 @@ export default function LoginPage() {
     }
   };
 
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
-    setIsForgotPassword(false);
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError(null);
     setMessage(null);
+    setLoading(true);
+
+    try {
+      if (usernameAvailable === false) {
+        throw new Error("Username is already taken.");
+      }
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            username: username,
+            gender: gender,
+            dob: dob,
+            avatar_url: selectedAvatar
+          },
+        },
+      });
+      if (error) throw error;
+      setMessage('Check your email for the confirmation link!');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  if (!mounted) return null;
+
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row font-sans bg-juice-green text-juice-cream">
-      
-      {/* Left Panel - Visuals */}
-      <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-8 md:p-12 relative overflow-hidden border-b md:border-b-0 md:border-r border-juice-cream/10 bg-black/5 min-h-[40vh] md:min-h-0">
+    <div className="auth-switch">
+      <style>{`
+        .auth-switch,
+        .auth-switch * {
+          box-sizing: border-box;
+        }
+
+        .auth-switch {
+          font-family: var(--font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+          background: var(--juice-green);
+          min-height: 100vh;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 20px;
+        }
+
+        .container {
+          position: relative;
+          width: 100%;
+          max-width: 1000px;
+          min-height: 750px;
+          background: var(--juice-cream, white);
+          border-radius: 20px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+          overflow: hidden;
+        }
+
+        .forms-container {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+        }
+
+        .signin-signup {
+          position: absolute;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          left: 75%;
+          width: 50%;
+          transition: 1s 0.7s ease-in-out;
+          display: grid;
+          grid-template-columns: 1fr;
+          z-index: 5;
+        }
+
+        form {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          padding: 0 3rem;
+          transition: all 0.2s 0.7s;
+          overflow: hidden;
+          grid-column: 1 / 2;
+          grid-row: 1 / 2;
+        }
+
+        form.sign-up-form {
+          opacity: 0;
+          z-index: 1;
+        }
+
+        form.sign-in-form {
+          z-index: 2;
+        }
+
+        .title {
+          font-size: 2.2rem;
+          color: var(--juice-green, #444);
+          margin-bottom: 10px;
+          font-weight: 700;
+        }
+
+        .input-field {
+          max-width: 380px;
+          width: 100%;
+          background-color: rgba(93, 130, 70, 0.1);
+          margin: 6px 0;
+          height: 50px;
+          border-radius: 50px;
+          display: grid;
+          grid-template-columns: 15% 85%;
+          padding: 0 0.4rem;
+          position: relative;
+          transition: 0.3s;
+        }
+
+        .input-field.flex-row-input {
+          display: flex;
+          gap: 10px;
+          background: none;
+          padding: 0;
+          margin: 6px 0;
+        }
+
+        .input-field.flex-row-input > div {
+          flex: 1;
+          background-color: rgba(93, 130, 70, 0.1);
+          border-radius: 50px;
+          display: flex;
+          align-items: center;
+          padding: 0 1rem;
+        }
+
+        .input-field.flex-row-input input, .input-field.flex-row-input select {
+          width: 100%;
+          background: none;
+          border: none;
+          outline: none;
+          color: var(--juice-green, #333);
+        }
+
+        .input-field:focus-within {
+          background-color: rgba(93, 130, 70, 0.15);
+          box-shadow: 0 0 0 2px var(--juice-orange, #667eea);
+        }
         
-        {/* Subtle Background Elements */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none">
-           <div className="absolute top-10 left-10 w-96 h-96 rounded-full border border-juice-cream" />
-           <div className="absolute bottom-10 right-10 w-[500px] h-[500px] rounded-full border border-juice-cream" />
-        </div>
+        .input-field.flex-row-input > div:focus-within {
+          background-color: rgba(93, 130, 70, 0.15);
+          box-shadow: 0 0 0 2px var(--juice-orange, #667eea);
+        }
 
-        <div className={`relative z-10 flex flex-col items-center text-center space-y-8 transition-all duration-1000 transform ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-          <Link href="/" className="group">
-            <StaticOrangeCompass className="w-20 h-20 md:w-48 md:h-48 drop-shadow-2xl transition-transform duration-500 hover:scale-105" />
-          </Link>
-          
-          <div className="space-y-3 md:space-y-4 max-w-md">
-            <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-              {isLogin ? 'Welcome Back' : 'Join the Crew'}
-            </h1>
-            <p className="text-base md:text-lg lg:text-xl font-medium opacity-70 leading-relaxed">
-              {isLogin 
-                ? 'The compass is set. Your stories are waiting.' 
-                : 'Chart a new course through the noise of the web.'}
-            </p>
-          </div>
-        </div>
+        .input-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--juice-green, #666);
+          transition: 0.5s;
+        }
 
-        {/* Mobile Back Button */}
-        <Link href="/" className="absolute top-6 left-6 md:hidden text-xs font-bold uppercase tracking-widest border-b border-juice-cream/30 pb-1 opacity-60">
-          ← Back
-        </Link>
-      </div>
+        .input-field input, .input-field select {
+          background: none;
+          outline: none;
+          border: none;
+          line-height: 1;
+          font-weight: 500;
+          font-size: 0.9rem;
+          color: var(--juice-green, #333);
+          width: 100%;
+        }
 
-      {/* Right Panel - Form */}
-      <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 md:p-12 relative">
-        
-        {/* Desktop Back Button */}
-        <Link href="/" className="hidden md:block absolute top-10 right-10 text-xs font-bold uppercase tracking-[0.2em] opacity-40 hover:opacity-100 transition-opacity hover:text-juice-orange">
-          ← Return Home
-        </Link>
+        .input-field input::placeholder, .input-field select:invalid {
+          color: rgba(93, 130, 70, 0.6);
+          font-weight: 400;
+        }
 
-        <div className={`w-full max-w-sm transition-all duration-1000 delay-150 transform ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-          
-          {/* Form Header */}
-          <div className="text-center md:text-left mb-8">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold">
-              {isForgotPassword ? 'Reset Password' : (isLogin ? 'Sign In' : 'Register')}
-            </h2>
-            <p className="opacity-60 text-sm font-medium uppercase tracking-widest mt-2">
-              {isForgotPassword ? 'Recover your access' : (isLogin ? 'Enter your coordinates' : 'Begin your odyssey')}
-            </p>
-          </div>
+        .btn {
+          width: 150px;
+          background-color: var(--juice-orange, #667eea);
+          border: none;
+          outline: none;
+          height: 49px;
+          border-radius: 49px;
+          color: var(--juice-cream, #fff);
+          text-transform: uppercase;
+          font-weight: 600;
+          margin: 10px 0;
+          cursor: pointer;
+          transition: 0.5s;
+          font-size: 0.9rem;
+        }
 
-          {/* Form Fields */}
-          <form className="space-y-4" onSubmit={handleAuth}>
-            {error && (
-              <div className="p-3 bg-red-500/20 border border-red-500/50 rounded text-sm text-red-200 text-center">
-                {error}
-              </div>
-            )}
-            {message && (
-              <div className="p-3 bg-green-500/20 border border-green-500/50 rounded text-sm text-green-200 text-center">
-                {message}
-              </div>
-            )}
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(255, 107, 74, 0.4);
+        }
 
-            {!isLogin && !isForgotPassword && (
-              <>
-                {/* Avatar Selection */}
-                <div className="flex justify-center pb-2">
-                  <AvatarSelection selectedAvatar={selectedAvatar} onSelect={setSelectedAvatar} />
-                </div>
+        .panels-container {
+          position: absolute;
+          height: 100%;
+          width: 100%;
+          top: 0;
+          left: 0;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+        }
 
-                {/* Name Fields - Compact Row */}
-                <div className="flex gap-3">
-                  <div className="space-y-1 group w-1/2">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-juice-cream/60 ml-1">First Name</label>
-                    <input 
-                      type="text" 
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full bg-juice-cream/5 border-b border-juice-cream/30 px-3 py-2 text-base text-juice-cream placeholder:text-juice-cream/40 focus:outline-none focus:border-juice-orange transition-all rounded-t-sm"
-                      placeholder="Odysseus"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1 group w-1/2">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-juice-cream/60 ml-1">Last Name</label>
-                    <input 
-                      type="text" 
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className="w-full bg-juice-cream/5 border-b border-juice-cream/30 px-3 py-2 text-base text-juice-cream placeholder:text-juice-cream/40 focus:outline-none focus:border-juice-orange transition-all rounded-t-sm"
-                      placeholder="Explorer"
-                      required
-                    />
-                  </div>
-                </div>
+        .panel {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          justify-content: space-around;
+          text-align: center;
+          z-index: 6;
+        }
 
-                {/* Username */}
-                <div className="space-y-1 group relative">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-juice-cream/60 ml-1">Username</label>
-                  <input 
-                    type="text" 
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className={`w-full bg-juice-cream/5 border-b px-3 py-2 text-base text-juice-cream placeholder:text-juice-cream/40 focus:outline-none transition-all rounded-t-sm ${
-                      usernameAvailable === false ? 'border-red-500' : (usernameAvailable === true ? 'border-green-500' : 'border-juice-cream/30 focus:border-juice-orange')
-                    }`}
-                    placeholder="odysseus_1"
-                    required
-                  />
-                  {checkingUsername && (
-                    <span className="absolute right-2 top-8 text-xs text-juice-cream/50">Checking...</span>
-                  )}
-                  {usernameAvailable === false && !checkingUsername && (
-                    <span className="absolute right-2 top-8 text-xs text-red-400">Taken</span>
-                  )}
-                </div>
+        .left-panel {
+          pointer-events: all;
+          padding: 3rem 17% 2rem 12%;
+        }
 
-                {/* Gender & DOB - Compact Row */}
-                <div className="flex gap-3">
-                  <div className="space-y-1 group w-1/2">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-juice-cream/60 ml-1">Gender</label>
-                    <select 
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                      className="w-full bg-juice-cream/5 border-b border-juice-cream/30 px-3 py-2 text-base text-juice-cream focus:outline-none focus:border-juice-orange transition-all rounded-t-sm appearance-none"
-                      required
-                    >
-                      <option value="" className="bg-juice-green text-juice-cream">Select</option>
-                      <option value="male" className="bg-juice-green text-juice-cream">Male</option>
-                      <option value="female" className="bg-juice-green text-juice-cream">Female</option>
-                      <option value="other" className="bg-juice-green text-juice-cream">Other</option>
-                      <option value="prefer_not_to_say" className="bg-juice-green text-juice-cream">Prefer not to say</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1 group w-1/2">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-juice-cream/60 ml-1">Date of Birth</label>
-                    <input 
-                      type="date" 
-                      value={dob}
-                      onChange={(e) => setDob(e.target.value)}
-                      className="w-full bg-juice-cream/5 border-b border-juice-cream/30 px-3 py-2 text-base text-juice-cream placeholder:text-juice-cream/40 focus:outline-none focus:border-juice-orange transition-all rounded-t-sm"
-                      required
-                    />
-                  </div>
-                </div>
-              </>
-            )}
+        .right-panel {
+          pointer-events: none;
+          padding: 3rem 12% 2rem 17%;
+        }
+
+        .panel .content {
+          color: var(--juice-cream, #fff);
+          transition: transform 0.9s ease-in-out;
+          transition-delay: 0.6s;
+        }
+
+        .panel h3 {
+          font-weight: 600;
+          line-height: 1;
+          font-size: 1.5rem;
+          margin-bottom: 10px;
+        }
+
+        .panel p {
+          font-size: 0.95rem;
+          padding: 0.7rem 0;
+        }
+
+        .btn.transparent {
+          margin: 0;
+          background: none;
+          border: 2px solid var(--juice-cream, #fff);
+          width: 130px;
+          height: 41px;
+          font-weight: 600;
+          font-size: 0.8rem;
+          color: var(--juice-cream, #fff);
+        }
+
+        .btn.transparent:hover {
+          background: rgba(255, 253, 208, 0.1);
+          transform: translateY(-2px);
+        }
+
+        .right-panel .content {
+          transform: translateX(800px);
+        }
+
+        .container.sign-up-mode:before {
+          transform: translate(100%, -50%);
+          right: 52%;
+        }
+
+        .container.sign-up-mode .left-panel .content {
+          transform: translateX(-800px);
+        }
+
+        .container.sign-up-mode .signin-signup {
+          left: 25%;
+        }
+
+        .container.sign-up-mode form.sign-up-form {
+          opacity: 1;
+          z-index: 2;
+        }
+
+        .container.sign-up-mode form.sign-in-form {
+          opacity: 0;
+          z-index: 1;
+        }
+
+        .container.sign-up-mode .right-panel .content {
+          transform: translateX(0%);
+        }
+
+        .container.sign-up-mode .left-panel {
+          pointer-events: none;
+        }
+
+        .container.sign-up-mode .right-panel {
+          pointer-events: all;
+        }
+
+        .container:before {
+          content: "";
+          position: absolute;
+          height: 2000px;
+          width: 2000px;
+          top: -10%;
+          right: 48%;
+          transform: translateY(-50%);
+          background: var(--juice-orange);
+          transition: 1.8s ease-in-out;
+          border-radius: 50%;
+          z-index: 6;
+        }
+
+        .social-text {
+          padding: 0.7rem 0;
+          font-size: 1rem;
+          color: var(--juice-green, #666);
+        }
+
+        .social-media {
+          display: flex;
+          justify-content: center;
+          gap: 15px;
+        }
+
+        .social-icon {
+          height: 46px;
+          width: 46px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border: 1px solid var(--juice-green, #ddd);
+          border-radius: 50%;
+          color: var(--juice-green, #667eea);
+          transition: 0.3s;
+          cursor: pointer;
+        }
+
+        .social-icon:hover {
+          border-color: var(--juice-orange, #764ba2);
+          color: var(--juice-orange, #764ba2);
+          transform: translateY(-3px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 870px) {
+          .container {
+            min-height: 900px;
+            height: 100vh;
+          }
+          .signin-signup {
+            width: 100%;
+            top: 95%;
+            transform: translate(-50%, -100%);
+            transition: 1s 0.8s ease-in-out;
+          }
+          .signin-signup,
+          .container.sign-up-mode .signin-signup {
+            left: 50%;
+          }
+          .panels-container {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr 2fr 1fr;
+          }
+          .panel {
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+            padding: 2.5rem 8%;
+            grid-column: 1 / 2;
+          }
+          .right-panel {
+            grid-row: 3 / 4;
+          }
+          .left-panel {
+            grid-row: 1 / 2;
+          }
+          .panel .content {
+            padding-right: 15%;
+            transition: transform 0.9s ease-in-out;
+            transition-delay: 0.8s;
+          }
+          .panel h3 {
+            font-size: 1.2rem;
+          }
+          .panel p {
+            font-size: 0.7rem;
+            padding: 0.5rem 0;
+          }
+          .btn.transparent {
+            width: 110px;
+            height: 35px;
+            font-size: 0.7rem;
+          }
+          .container:before {
+            width: 1500px;
+            height: 1500px;
+            transform: translateX(-50%);
+            left: 30%;
+            bottom: 68%;
+            right: initial;
+            top: initial;
+            transition: 2s ease-in-out;
+          }
+          .container.sign-up-mode:before {
+            transform: translate(-50%, 100%);
+            bottom: 32%;
+            right: initial;
+          }
+          .container.sign-up-mode .left-panel .content {
+            transform: translateY(-300px);
+          }
+          .container.sign-up-mode .right-panel .content {
+            transform: translateY(0px);
+          }
+          .right-panel .content {
+            transform: translateY(300px);
+          }
+          .container.sign-up-mode .signin-signup {
+            top: 5%;
+            transform: translate(-50%, 0);
+          }
+        }
+
+        @media (max-width: 570px) {
+          form {
+            padding: 0 1.5rem;
+          }
+          .panel .content {
+            padding: 0.5rem 1rem;
+          }
+        }
+      `}</style>
+
+      <div className={isSignUp ? "container sign-up-mode" : "container"}>
+        <div className="forms-container">
+          <div className="signin-signup">
             
-            <div className="space-y-1 group">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-juice-cream/60 ml-1">Email Address</label>
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-juice-cream/5 border-b border-juice-cream/30 px-3 py-2 text-base text-juice-cream placeholder:text-juice-cream/40 focus:outline-none focus:border-juice-orange transition-all rounded-t-sm"
-                placeholder="hello@odysseus.com"
-                required
-              />
-            </div>
-
-            {!isForgotPassword && (
-              <div className="space-y-1 group">
-                <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-juice-cream/60 ml-1">Password</label>
-                  {isLogin && (
-                    <button 
-                      type="button"
-                      onClick={() => setIsForgotPassword(true)}
-                      className="text-[10px] font-bold uppercase tracking-widest text-juice-cream/40 hover:text-juice-orange transition-colors"
-                    >
-                      Forgot?
-                    </button>
-                  )}
+            {/* SIGN IN FORM */}
+            <form className="sign-in-form" onSubmit={handleSignIn}>
+              <Link href="/" className="mb-4">
+                <StaticOrangeCompass className="w-16 h-16 drop-shadow-lg" />
+              </Link>
+              <h2 className="title">Sign in</h2>
+              <p className="text-juice-green/60 text-xs font-bold uppercase tracking-[0.2em] mb-4">Enter your coordinates</p>
+              
+              {error && (
+                <div className="mb-4 p-2 bg-red-500/10 border border-red-500/50 rounded text-xs text-red-500 text-center w-full max-w-[380px]">
+                  {error}
                 </div>
+              )}
+              {message && (
+                <div className="mb-4 p-2 bg-green-500/10 border border-green-500/50 rounded text-xs text-green-600 text-center w-full max-w-[380px]">
+                  {message}
+                </div>
+              )}
+
+              <div className="input-field">
+                <div className="input-icon"><Mail size={18} /></div>
                 <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-juice-cream/5 border-b border-juice-cream/30 px-3 py-2 text-base text-juice-cream placeholder:text-juice-cream/40 focus:outline-none focus:border-juice-orange transition-all rounded-t-sm"
-                  placeholder="••••••••"
-                  required
-                  minLength={6}
+                  type="email" 
+                  placeholder="Email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required 
                 />
               </div>
-            )}
+              
+              {!isForgotPassword && (
+                <div className="input-field relative">
+                  <div className="input-icon"><Lock size={18} /></div>
+                  <input 
+                    type="password" 
+                    placeholder="Password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required 
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setIsForgotPassword(true)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase tracking-widest text-juice-green/50 hover:text-juice-orange"
+                  >
+                    Forgot?
+                  </button>
+                </div>
+              )}
 
-            <button 
-              disabled={loading || (!isLogin && !isForgotPassword && usernameAvailable === false)}
-              className="w-full bg-juice-orange text-juice-cream font-bold text-sm py-3 rounded-full uppercase tracking-[0.2em] hover:bg-white hover:text-juice-green transition-all shadow-2xl hover:shadow-juice-orange/50 mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Processing...' : (isForgotPassword ? 'Send Reset Link' : (isLogin ? 'Sign In' : 'Create Account'))}
-            </button>
-          </form>
+              <button disabled={loading} type="submit" className="btn solid">
+                {loading ? 'Processing...' : (isForgotPassword ? 'Reset' : 'Login')}
+              </button>
+              
+              {isForgotPassword && (
+                <button type="button" onClick={() => setIsForgotPassword(false)} className="text-xs text-juice-green/60 hover:text-juice-orange mt-2">
+                  Back to login
+                </button>
+              )}
 
-          {/* Toggle */}
-          <div className="text-center pt-4">
-            <button 
-              onClick={toggleMode}
-              className="text-xs font-bold uppercase tracking-widest text-juice-cream/60 hover:text-juice-orange transition-colors"
-            >
-              {isLogin ? "New here? Create an account" : "Already have an account? Sign In"}
-            </button>
+              <p className="social-text">Or sign in with social platforms</p>
+              <div className="social-media">
+                <a href="#" className="social-icon"><Facebook size={20} /></a>
+                <a href="#" className="social-icon"><Twitter size={20} /></a>
+                <a href="#" className="social-icon"><Linkedin size={20} /></a>
+                <a href="#" className="social-icon"><Github size={20} /></a>
+              </div>
+            </form>
+
+            {/* SIGN UP FORM */}
+            <form className="sign-up-form" onSubmit={handleSignUp}>
+              <h2 className="title text-[1.8rem] mb-2">Sign up</h2>
+              
+              {error && (
+                <div className="mb-2 p-2 bg-red-500/10 border border-red-500/50 rounded text-xs text-red-500 text-center w-full max-w-[380px]">
+                  {error}
+                </div>
+              )}
+
+              <div className="w-full max-w-[380px] mb-2 flex justify-center">
+                <AvatarSelection selectedAvatar={selectedAvatar} onSelect={setSelectedAvatar} />
+              </div>
+
+              <div className="input-field flex-row-input max-w-[380px]">
+                <div>
+                  <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                </div>
+                <div>
+                  <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                </div>
+              </div>
+
+              <div className="input-field max-w-[380px]">
+                <div className="input-icon"><User size={18} /></div>
+                <input 
+                  type="text" 
+                  placeholder="Username" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className={usernameAvailable === false ? 'text-red-500' : ''}
+                  required 
+                />
+                {checkingUsername && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-juice-green/50">...</span>}
+              </div>
+
+              <div className="input-field flex-row-input max-w-[380px]">
+                <div>
+                  <select value={gender} onChange={(e) => setGender(e.target.value)} required>
+                    <option value="" disabled hidden>Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
+                  </select>
+                </div>
+                <div>
+                  <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required />
+                </div>
+              </div>
+
+              <div className="input-field max-w-[380px]">
+                <div className="input-icon"><Mail size={18} /></div>
+                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              </div>
+
+              <div className="input-field max-w-[380px]">
+                <div className="input-icon"><Lock size={18} /></div>
+                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              </div>
+
+              <button disabled={loading || usernameAvailable === false} type="submit" className="btn mt-2 mb-2">
+                {loading ? 'Processing...' : 'Sign up'}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className="panels-container">
+          <div className="panel left-panel">
+            <div className="content">
+              <h3>New here?</h3>
+              <p>Join us today and discover a world of possibilities. Create your account in seconds!</p>
+              <button type="button" className="btn transparent" onClick={() => setIsSignUp(true)}>
+                Sign up
+              </button>
+            </div>
+          </div>
+
+          <div className="panel right-panel">
+            <div className="content">
+              <h3>One of us?</h3>
+              <p>Welcome back! Sign in to continue your journey with us.</p>
+              <button type="button" className="btn transparent" onClick={() => setIsSignUp(false)}>
+                Sign in
+              </button>
+            </div>
           </div>
         </div>
       </div>
