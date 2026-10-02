@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { StaticOrangeCompass } from "@/components/StaticOrangeCompass";
 import { AvatarSelection } from "@/components/AvatarSelection";
 import { supabase } from "@/lib/supabaseClient";
-import { Mail, Lock, User, Facebook, Twitter, Linkedin, Github } from "lucide-react";
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -149,21 +148,22 @@ export default function LoginPage() {
           font-family: var(--font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
           background: var(--juice-green);
           min-height: 100vh;
-          width: 100%;
+          width: 100vw;
           display: flex;
           justify-content: center;
           align-items: center;
-          padding: 20px;
+          padding: 0;
+          margin: 0;
         }
 
         .container {
           position: relative;
-          width: 100%;
-          max-width: 1000px;
-          min-height: 750px;
+          width: 100vw;
+          height: 100vh;
+          max-width: 100%;
+          min-height: 100vh;
           background: var(--juice-cream, white);
-          border-radius: 20px;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+          border-radius: 0;
           overflow: hidden;
         }
 
@@ -208,68 +208,39 @@ export default function LoginPage() {
           z-index: 2;
         }
 
-        .title {
-          font-size: 2.2rem;
-          color: var(--juice-green, #444);
-          margin-bottom: 10px;
+        .input-group {
+          max-width: 380px;
+          width: 100%;
+          margin: 8px 0;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .input-group label {
+          font-size: 10px;
           font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.2em;
+          color: rgba(93, 130, 70, 0.6);
+          margin-bottom: 2px;
+          margin-left: 2px;
         }
 
         .input-field {
-          max-width: 380px;
           width: 100%;
-          background-color: rgba(93, 130, 70, 0.1);
-          margin: 6px 0;
-          height: 50px;
-          border-radius: 50px;
-          display: grid;
-          grid-template-columns: 15% 85%;
+          background-color: transparent;
+          border-bottom: 1px solid rgba(93, 130, 70, 0.3);
+          height: 40px;
+          display: flex;
+          align-items: center;
           padding: 0 0.4rem;
-          position: relative;
           transition: 0.3s;
         }
 
-        .input-field.flex-row-input {
-          display: flex;
-          gap: 10px;
-          background: none;
-          padding: 0;
-          margin: 6px 0;
-        }
-
-        .input-field.flex-row-input > div {
-          flex: 1;
-          background-color: rgba(93, 130, 70, 0.1);
-          border-radius: 50px;
-          display: flex;
-          align-items: center;
-          padding: 0 1rem;
-        }
-
-        .input-field.flex-row-input input, .input-field.flex-row-input select {
-          width: 100%;
-          background: none;
-          border: none;
-          outline: none;
-          color: var(--juice-green, #333);
-        }
-
         .input-field:focus-within {
-          background-color: rgba(93, 130, 70, 0.15);
-          box-shadow: 0 0 0 2px var(--juice-orange, #667eea);
-        }
-        
-        .input-field.flex-row-input > div:focus-within {
-          background-color: rgba(93, 130, 70, 0.15);
-          box-shadow: 0 0 0 2px var(--juice-orange, #667eea);
-        }
-
-        .input-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--juice-green, #666);
-          transition: 0.5s;
+          border-bottom: 2px solid var(--juice-orange, #667eea);
         }
 
         .input-field input, .input-field select {
@@ -278,18 +249,19 @@ export default function LoginPage() {
           border: none;
           line-height: 1;
           font-weight: 500;
-          font-size: 0.9rem;
+          font-size: 1rem;
           color: var(--juice-green, #333);
           width: 100%;
         }
 
         .input-field input::placeholder, .input-field select:invalid {
-          color: rgba(93, 130, 70, 0.6);
+          color: rgba(93, 130, 70, 0.4);
           font-weight: 400;
         }
 
         .btn {
-          width: 150px;
+          width: 100%;
+          max-width: 380px;
           background-color: var(--juice-orange, #667eea);
           border: none;
           outline: none;
@@ -297,14 +269,18 @@ export default function LoginPage() {
           border-radius: 49px;
           color: var(--juice-cream, #fff);
           text-transform: uppercase;
-          font-weight: 600;
-          margin: 10px 0;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+          margin: 20px 0 10px 0;
           cursor: pointer;
           transition: 0.5s;
-          font-size: 0.9rem;
+          font-size: 0.8rem;
+          box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
         .btn:hover {
+          background-color: #fff;
+          color: var(--juice-green);
           transform: translateY(-2px);
           box-shadow: 0 5px 15px rgba(255, 107, 74, 0.4);
         }
@@ -322,54 +298,65 @@ export default function LoginPage() {
         .panel {
           display: flex;
           flex-direction: column;
-          align-items: flex-end;
-          justify-content: space-around;
+          align-items: center;
+          justify-content: center;
           text-align: center;
           z-index: 6;
         }
 
         .left-panel {
           pointer-events: all;
-          padding: 3rem 17% 2rem 12%;
+          padding: 3rem 12% 2rem 12%;
         }
 
         .right-panel {
           pointer-events: none;
-          padding: 3rem 12% 2rem 17%;
+          padding: 3rem 12% 2rem 12%;
         }
 
         .panel .content {
           color: var(--juice-cream, #fff);
           transition: transform 0.9s ease-in-out;
           transition-delay: 0.6s;
+          max-width: 400px;
         }
 
         .panel h3 {
-          font-weight: 600;
+          font-family: var(--font-serif, serif);
+          font-weight: 700;
           line-height: 1;
-          font-size: 1.5rem;
-          margin-bottom: 10px;
+          font-size: 3rem;
+          margin-bottom: 20px;
         }
 
         .panel p {
-          font-size: 0.95rem;
+          font-size: 1.1rem;
           padding: 0.7rem 0;
+          opacity: 0.8;
+          font-weight: 500;
         }
 
         .btn.transparent {
-          margin: 0;
+          margin: 20px auto 0 auto;
           background: none;
-          border: 2px solid var(--juice-cream, #fff);
-          width: 130px;
-          height: 41px;
-          font-weight: 600;
-          font-size: 0.8rem;
+          border: none;
+          border-bottom: 1px solid rgba(255, 253, 208, 0.5);
+          border-radius: 0;
+          width: max-content;
+          padding: 0 0 5px 0;
+          height: auto;
+          font-weight: 700;
+          font-size: 0.7rem;
+          letter-spacing: 0.2em;
           color: var(--juice-cream, #fff);
+          box-shadow: none;
         }
 
         .btn.transparent:hover {
-          background: rgba(255, 253, 208, 0.1);
-          transform: translateY(-2px);
+          background: none;
+          color: var(--juice-orange);
+          border-bottom-color: var(--juice-orange);
+          transform: translateY(0);
         }
 
         .right-panel .content {
@@ -414,8 +401,8 @@ export default function LoginPage() {
         .container:before {
           content: "";
           position: absolute;
-          height: 2000px;
-          width: 2000px;
+          height: 3500px;
+          width: 3500px;
           top: -10%;
           right: 48%;
           transform: translateY(-50%);
@@ -425,48 +412,17 @@ export default function LoginPage() {
           z-index: 6;
         }
 
-        .social-text {
-          padding: 0.7rem 0;
-          font-size: 1rem;
-          color: var(--juice-green, #666);
-        }
-
-        .social-media {
-          display: flex;
-          justify-content: center;
-          gap: 15px;
-        }
-
-        .social-icon {
-          height: 46px;
-          width: 46px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          border: 1px solid var(--juice-green, #ddd);
-          border-radius: 50%;
-          color: var(--juice-green, #667eea);
-          transition: 0.3s;
-          cursor: pointer;
-        }
-
-        .social-icon:hover {
-          border-color: var(--juice-orange, #764ba2);
-          color: var(--juice-orange, #764ba2);
-          transform: translateY(-3px);
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
         @media (max-width: 870px) {
           .container {
-            min-height: 900px;
-            height: 100vh;
+            min-height: 100vh;
+            height: auto;
           }
           .signin-signup {
             width: 100%;
             top: 95%;
             transform: translate(-50%, -100%);
             transition: 1s 0.8s ease-in-out;
+            padding-bottom: 50px;
           }
           .signin-signup,
           .container.sign-up-mode .signin-signup {
@@ -495,20 +451,15 @@ export default function LoginPage() {
             transition-delay: 0.8s;
           }
           .panel h3 {
-            font-size: 1.2rem;
+            font-size: 2rem;
           }
           .panel p {
-            font-size: 0.7rem;
+            font-size: 0.9rem;
             padding: 0.5rem 0;
           }
-          .btn.transparent {
-            width: 110px;
-            height: 35px;
-            font-size: 0.7rem;
-          }
           .container:before {
-            width: 1500px;
-            height: 1500px;
+            width: 2500px;
+            height: 2500px;
             transform: translateX(-50%);
             left: 30%;
             bottom: 68%;
@@ -535,15 +486,6 @@ export default function LoginPage() {
             transform: translate(-50%, 0);
           }
         }
-
-        @media (max-width: 570px) {
-          form {
-            padding: 0 1.5rem;
-          }
-          .panel .content {
-            padding: 0.5rem 1rem;
-          }
-        }
       `}</style>
 
       <div className={isSignUp ? "container sign-up-mode" : "container"}>
@@ -552,11 +494,11 @@ export default function LoginPage() {
             
             {/* SIGN IN FORM */}
             <form className="sign-in-form" onSubmit={handleSignIn}>
-              <Link href="/" className="mb-4">
+              <Link href="/" className="mb-6">
                 <StaticOrangeCompass className="w-16 h-16 drop-shadow-lg" />
               </Link>
-              <h2 className="title">Sign in</h2>
-              <p className="text-juice-green/60 text-xs font-bold uppercase tracking-[0.2em] mb-4">Enter your coordinates</p>
+              <h2 className="font-serif text-4xl md:text-5xl font-bold text-juice-green mb-2">Sign In</h2>
+              <p className="text-juice-green/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-6">Enter your coordinates</p>
               
               {error && (
                 <div className="mb-4 p-2 bg-red-500/10 border border-red-500/50 rounded text-xs text-red-500 text-center w-full max-w-[380px]">
@@ -569,59 +511,58 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <div className="input-field">
-                <div className="input-icon"><Mail size={18} /></div>
-                <input 
-                  type="email" 
-                  placeholder="Email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required 
-                />
+              <div className="input-group">
+                <label>Email Address</label>
+                <div className="input-field">
+                  <input 
+                    type="email" 
+                    placeholder="hello@odysseus.com" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required 
+                  />
+                </div>
               </div>
               
               {!isForgotPassword && (
-                <div className="input-field relative">
-                  <div className="input-icon"><Lock size={18} /></div>
-                  <input 
-                    type="password" 
-                    placeholder="Password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required 
-                  />
-                  <button 
-                    type="button"
-                    onClick={() => setIsForgotPassword(true)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase tracking-widest text-juice-green/50 hover:text-juice-orange"
-                  >
-                    Forgot?
-                  </button>
+                <div className="input-group">
+                  <div className="flex justify-between w-full">
+                    <label>Password</label>
+                    <button 
+                      type="button"
+                      onClick={() => setIsForgotPassword(true)}
+                      className="text-[9px] font-bold uppercase tracking-widest text-juice-green/40 hover:text-juice-orange"
+                    >
+                      Forgot?
+                    </button>
+                  </div>
+                  <div className="input-field">
+                    <input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required 
+                    />
+                  </div>
                 </div>
               )}
 
-              <button disabled={loading} type="submit" className="btn solid">
-                {loading ? 'Processing...' : (isForgotPassword ? 'Reset' : 'Login')}
+              <button disabled={loading} type="submit" className="btn">
+                {loading ? 'Processing...' : (isForgotPassword ? 'Reset Link' : 'Sign In')}
               </button>
               
               {isForgotPassword && (
-                <button type="button" onClick={() => setIsForgotPassword(false)} className="text-xs text-juice-green/60 hover:text-juice-orange mt-2">
-                  Back to login
+                <button type="button" onClick={() => setIsForgotPassword(false)} className="text-[10px] font-bold uppercase tracking-widest text-juice-green/60 hover:text-juice-orange mt-4">
+                  ← Back to login
                 </button>
               )}
-
-              <p className="social-text">Or sign in with social platforms</p>
-              <div className="social-media">
-                <a href="#" className="social-icon"><Facebook size={20} /></a>
-                <a href="#" className="social-icon"><Twitter size={20} /></a>
-                <a href="#" className="social-icon"><Linkedin size={20} /></a>
-                <a href="#" className="social-icon"><Github size={20} /></a>
-              </div>
             </form>
 
             {/* SIGN UP FORM */}
             <form className="sign-up-form" onSubmit={handleSignUp}>
-              <h2 className="title text-[1.8rem] mb-2">Sign up</h2>
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-juice-green mb-2">Register</h2>
+              <p className="text-juice-green/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">Begin your odyssey</p>
               
               {error && (
                 <div className="mb-2 p-2 bg-red-500/10 border border-red-500/50 rounded text-xs text-red-500 text-center w-full max-w-[380px]">
@@ -633,55 +574,73 @@ export default function LoginPage() {
                 <AvatarSelection selectedAvatar={selectedAvatar} onSelect={setSelectedAvatar} />
               </div>
 
-              <div className="input-field flex-row-input max-w-[380px]">
-                <div>
-                  <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+              <div className="flex gap-4 w-full max-w-[380px]">
+                <div className="input-group w-1/2">
+                  <label>First Name</label>
+                  <div className="input-field">
+                    <input type="text" placeholder="Odysseus" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                  </div>
                 </div>
-                <div>
-                  <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-                </div>
-              </div>
-
-              <div className="input-field max-w-[380px]">
-                <div className="input-icon"><User size={18} /></div>
-                <input 
-                  type="text" 
-                  placeholder="Username" 
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className={usernameAvailable === false ? 'text-red-500' : ''}
-                  required 
-                />
-                {checkingUsername && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-juice-green/50">...</span>}
-              </div>
-
-              <div className="input-field flex-row-input max-w-[380px]">
-                <div>
-                  <select value={gender} onChange={(e) => setGender(e.target.value)} required>
-                    <option value="" disabled hidden>Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                    <option value="prefer_not_to_say">Prefer not to say</option>
-                  </select>
-                </div>
-                <div>
-                  <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required />
+                <div className="input-group w-1/2">
+                  <label>Last Name</label>
+                  <div className="input-field">
+                    <input type="text" placeholder="Explorer" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                  </div>
                 </div>
               </div>
 
-              <div className="input-field max-w-[380px]">
-                <div className="input-icon"><Mail size={18} /></div>
-                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <div className="input-group">
+                <label>Username</label>
+                <div className={`input-field ${usernameAvailable === false ? 'border-red-500' : ''}`}>
+                  <input 
+                    type="text" 
+                    placeholder="odysseus_1" 
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required 
+                  />
+                  {checkingUsername && <span className="absolute right-2 text-[10px] text-juice-green/50">...</span>}
+                  {usernameAvailable === false && !checkingUsername && <span className="absolute right-2 text-[10px] text-red-500">Taken</span>}
+                </div>
               </div>
 
-              <div className="input-field max-w-[380px]">
-                <div className="input-icon"><Lock size={18} /></div>
-                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <div className="flex gap-4 w-full max-w-[380px]">
+                <div className="input-group w-1/2">
+                  <label>Gender</label>
+                  <div className="input-field">
+                    <select value={gender} onChange={(e) => setGender(e.target.value)} required>
+                      <option value="" disabled hidden>Select</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                      <option value="prefer_not_to_say">Prefer not to say</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="input-group w-1/2">
+                  <label>Date of Birth</label>
+                  <div className="input-field">
+                    <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required />
+                  </div>
+                </div>
               </div>
 
-              <button disabled={loading || usernameAvailable === false} type="submit" className="btn mt-2 mb-2">
-                {loading ? 'Processing...' : 'Sign up'}
+              <div className="input-group">
+                <label>Email Address</label>
+                <div className="input-field">
+                  <input type="email" placeholder="hello@odysseus.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label>Password</label>
+                <div className="input-field">
+                  <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+                </div>
+              </div>
+
+              <button disabled={loading || usernameAvailable === false} type="submit" className="btn">
+                {loading ? 'Processing...' : 'Create Account'}
               </button>
             </form>
           </div>
@@ -690,20 +649,20 @@ export default function LoginPage() {
         <div className="panels-container">
           <div className="panel left-panel">
             <div className="content">
-              <h3>New here?</h3>
-              <p>Join us today and discover a world of possibilities. Create your account in seconds!</p>
+              <h3>Join the Crew</h3>
+              <p>Chart a new course through the noise of the web.</p>
               <button type="button" className="btn transparent" onClick={() => setIsSignUp(true)}>
-                Sign up
+                NEW HERE? CREATE AN ACCOUNT
               </button>
             </div>
           </div>
 
           <div className="panel right-panel">
             <div className="content">
-              <h3>One of us?</h3>
-              <p>Welcome back! Sign in to continue your journey with us.</p>
+              <h3>Welcome Back</h3>
+              <p>The compass is set. Your stories are waiting.</p>
               <button type="button" className="btn transparent" onClick={() => setIsSignUp(false)}>
-                Sign in
+                ALREADY HAVE AN ACCOUNT? SIGN IN
               </button>
             </div>
           </div>
