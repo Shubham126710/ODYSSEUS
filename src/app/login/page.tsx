@@ -415,14 +415,22 @@ export default function LoginPage() {
         @media (max-width: 870px) {
           .container {
             min-height: 100vh;
-            height: auto;
+            height: 100vh;
+            overflow: hidden;
           }
           .signin-signup {
             width: 100%;
             top: 95%;
             transform: translate(-50%, -100%);
             transition: 1s 0.8s ease-in-out;
-            padding-bottom: 50px;
+            padding-bottom: 20px;
+            max-height: 75vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+          }
+          .signin-signup::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
           }
           .signin-signup,
           .container.sign-up-mode .signin-signup {
@@ -430,11 +438,11 @@ export default function LoginPage() {
           }
           .panels-container {
             grid-template-columns: 1fr;
-            grid-template-rows: 1fr 2fr 1fr;
+            grid-template-rows: 1fr 2.5fr 1fr;
           }
           .panel {
-            flex-direction: row;
-            justify-content: space-around;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
             padding: 2.5rem 8%;
             grid-column: 1 / 2;
@@ -446,20 +454,24 @@ export default function LoginPage() {
             grid-row: 1 / 2;
           }
           .panel .content {
-            padding-right: 15%;
+            padding-right: 0;
             transition: transform 0.9s ease-in-out;
             transition-delay: 0.8s;
           }
           .panel h3 {
-            font-size: 2rem;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
           }
           .panel p {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             padding: 0.5rem 0;
           }
+          .btn.transparent {
+            margin: 10px auto 0 auto;
+          }
           .container:before {
-            width: 2500px;
-            height: 2500px;
+            width: 1500px;
+            height: 1500px;
             transform: translateX(-50%);
             left: 30%;
             bottom: 68%;
@@ -484,6 +496,7 @@ export default function LoginPage() {
           .container.sign-up-mode .signin-signup {
             top: 5%;
             transform: translate(-50%, 0);
+            max-height: 75vh;
           }
         }
       `}</style>
@@ -578,14 +591,14 @@ export default function LoginPage() {
                 <AvatarSelection selectedAvatar={selectedAvatar} onSelect={setSelectedAvatar} />
               </div>
 
-              <div className="flex gap-4 w-full max-w-[380px]">
-                <div className="input-group w-1/2">
+              <div className="flex flex-col sm:flex-row gap-0 sm:gap-4 w-full max-w-[380px]">
+                <div className="input-group w-full sm:w-1/2">
                   <label>First Name</label>
                   <div className="input-field">
                     <input type="text" placeholder="Odysseus" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
                   </div>
                 </div>
-                <div className="input-group w-1/2">
+                <div className="input-group w-full sm:w-1/2">
                   <label>Last Name</label>
                   <div className="input-field">
                     <input type="text" placeholder="Explorer" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
@@ -608,8 +621,8 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="flex gap-4 w-full max-w-[380px]">
-                <div className="input-group w-1/2">
+              <div className="flex flex-col sm:flex-row gap-0 sm:gap-4 w-full max-w-[380px]">
+                <div className="input-group w-full sm:w-1/2">
                   <label>Gender</label>
                   <div className="input-field">
                     <select value={gender} onChange={(e) => setGender(e.target.value)} required>
@@ -621,7 +634,7 @@ export default function LoginPage() {
                     </select>
                   </div>
                 </div>
-                <div className="input-group w-1/2">
+                <div className="input-group w-full sm:w-1/2">
                   <label>Date of Birth</label>
                   <div className="input-field">
                     <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required />
