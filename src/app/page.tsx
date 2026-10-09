@@ -30,6 +30,13 @@ export default function Home() {
     // Register plugin just in case
     gsap.registerPlugin(ScrollTrigger);
 
+    // Set initial states immediately to prevent flashing while waiting for delay
+    gsap.set(heroTextRef1.current, { y: 100, opacity: 0, scale: 0.9 });
+    gsap.set(heroTextRef2.current, { y: -100, opacity: 0, scale: 0.9 });
+    // Use xPercent/yPercent for reliable centering with GSAP scale animations
+    gsap.set(compassContainerRef.current, { xPercent: -50, yPercent: -50, scale: 0, rotation: -180, opacity: 0 });
+    gsap.set(heroSubtextRef.current, { y: 50, opacity: 0 });
+
     // Hero animations
     const tl = gsap.timeline({ delay: 3.8 });
     
@@ -132,25 +139,25 @@ export default function Home() {
         className="hidden md:flex flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white"
       >
         {/* Hero Section */}
-        <main className="flex flex-col items-center justify-center relative w-full h-screen  shrink-0">
+        <main className="flex flex-col items-center justify-center relative w-full h-screen shrink-0">
         
         {/* Massive Typography - Watermark Style */}
         <div className="flex flex-col items-center justify-center z-0 select-none opacity-20 pointer-events-none absolute inset-0">
-          <h1 ref={heroTextRef1} className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center opacity-0 translate-y-[100px]">
+          <h1 ref={heroTextRef1} className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
             ODYS
           </h1>
-          <h1 ref={heroTextRef2} className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center opacity-0 translate-y-[-100px]">
+          <h1 ref={heroTextRef2} className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
             SEUS
           </h1>
         </div>
 
         {/* Central Compass */}
-        <div ref={compassContainerRef} className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 opacity-0 scale-50">
+        <div ref={compassContainerRef} className="absolute top-[42%] left-1/2 z-20">
           <InteractiveCompass className="w-[28vw] h-[28vw] min-w-[280px] min-h-[280px] text-secondary drop-shadow-2xl" />
         </div>
 
         {/* Subtext */}
-        <div ref={heroSubtextRef} className="absolute bottom-8 left-6 md:bottom-12 md:left-12 z-30 max-w-sm opacity-0 translate-y-[50px]">
+        <div ref={heroSubtextRef} className="absolute bottom-8 left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
           <h2 className="text-xl md:text-2xl font-bold uppercase leading-tight mb-4 drop-shadow-sm text-foreground">
             The news aggregator <br />
             that loves to show off <br />
