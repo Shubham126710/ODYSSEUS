@@ -1,36 +1,102 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
+import gsap from 'gsap';
 
 export const InteractiveCompass = ({ className = "w-64 h-64" }: { className?: string }) => {
-  const [rotation, setRotation] = useState(0);
   const compassRef = useRef<SVGSVGElement>(null);
+  const needleRef = useRef<SVGGElement>(null);
+  const centerRef = useRef<{ x: number; y: number } | null>(null);
+  const currentAngleRef = useRef(0);
+  const isSpinningRef = useRef(false);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const updateCenter = () => {
       if (!compassRef.current) return;
-
       const rect = compassRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
-      const deltaX = e.clientX - centerX;
-      const deltaY = e.clientY - centerY;
-
-      const angleRad = Math.atan2(deltaY, deltaX);
-      const angleDeg = angleRad * (180 / Math.PI);
-      
-      setRotation(angleDeg + 90);
+      centerRef.current = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    updateCenter();
+    window.addEventListener('resize', updateCenter);
+    window.addEventListener('scroll', updateCenter, { passive: true });
+
+    const handlePointerMove = (e: PointerEvent) => {
+      if (isSpinningRef.current || !needleRef.current) return;
+
+      if (!centerRef.current) {
+        updateCenter();
+        if (!centerRef.current) return;
+      }
+
+      const deltaX = e.clientX - centerRef.current.x;
+      const deltaY = e.clientY - centerRef.current.y;
+
+      const angleRad = Math.atan2(deltaY, deltaX);
+      const rawAngle = (angleRad * (180 / Math.PI)) + 90;
+
+      // Calculate shortest angular distance to prevent wild 360° reverse flips
+      let diff = (rawAngle - currentAngleRef.current) % 360;
+      if (diff < -180) diff += 360;
+      if (diff > 180) diff -= 360;
+
+      currentAngleRef.current += diff;
+
+      gsap.to(needleRef.current, {
+        rotation: currentAngleRef.current,
+        transformOrigin: "50px 50px",
+        duration: 0.12,
+        ease: "power1.out",
+        overwrite: "auto",
+      });
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', updateCenter);
+      window.removeEventListener('scroll', updateCenter);
+      window.removeEventListener('pointermove', handlePointerMove);
+    };
   }, []);
 
+  const handleCompassClick = () => {
+    if (!needleRef.current) return;
+    isSpinningRef.current = true;
+
+    // Add 2 full spins with momentum
+    currentAngleRef.current += 720;
+
+    gsap.to(needleRef.current, {
+      rotation: currentAngleRef.current,
+      transformOrigin: "50px 50px",
+      duration: 1.2,
+      ease: "power3.out",
+      overwrite: true,
+      onComplete: () => {
+        isSpinningRef.current = false;
+      },
+    });
+
+    if (compassRef.current) {
+      gsap.fromTo(
+        compassRef.current,
+        { scale: 0.94 },
+        { scale: 1, duration: 0.4, ease: "back.out(2)" }
+      );
+    }
+  };
+
   return (
-    <div className={`${className} relative flex items-center justify-center group cursor-pointer`}>
+    <div 
+      onClick={handleCompassClick}
+      className={`${className} relative flex items-center justify-center group cursor-pointer select-none`}
+    >
       {/* "Spin Me" Badge - Mimicking the "Spin the Ball" tag */}
-      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-juice-green text-juice-cream text-[10px] font-bold px-2 py-1 uppercase tracking-widest border border-juice-cream/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-juice-green text-juice-cream text-[10px] font-bold px-2 py-1 uppercase tracking-widest border border-juice-cream/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap shadow-md">
         Spin the Compass
       </div>
 
@@ -57,7 +123,10 @@ export const InteractiveCompass = ({ className = "w-64 h-64" }: { className?: st
         <circle cx="50" cy="50" r="45" className="stroke-juice-cream" strokeWidth="2" />
 
         {/* Rotating Needle Group */}
-        <g style={{ transform: `rotate(${rotation}deg)`, transformOrigin: '50px 50px', transition: 'transform 0.1s ease-out' }}>
+        <g 
+          ref={needleRef} 
+          style={{ transformOrigin: '50px 50px' }}
+        >
           {/* North Needle (Cream) */}
           <path d="M50 10 L58 50 L42 50 Z" className="fill-juice-cream" />
           
