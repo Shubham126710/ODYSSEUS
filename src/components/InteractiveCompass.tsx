@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import gsap from 'gsap';
 
 export const InteractiveCompass = ({ className = "w-64 h-64" }: { className?: string }) => {
   const compassRef = useRef<SVGSVGElement>(null);
   const needleRef = useRef<SVGGElement>(null);
   const centerRef = useRef<{ x: number; y: number } | null>(null);
   const currentAngleRef = useRef(0);
-  const isSpinningRef = useRef(false);
+  const targetAngleRef = useRef(0);
 
   useEffect(() => {
     const updateCenter = () => {
@@ -25,8 +24,6 @@ export const InteractiveCompass = ({ className = "w-64 h-64" }: { className?: st
     window.addEventListener('scroll', updateCenter, { passive: true });
 
     const handlePointerMove = (e: PointerEvent) => {
-      if (isSpinningRef.current || !needleRef.current) return;
-
       if (!centerRef.current) {
         updateCenter();
         if (!centerRef.current) return;
@@ -39,61 +36,45 @@ export const InteractiveCompass = ({ className = "w-64 h-64" }: { className?: st
       const rawAngle = (angleRad * (180 / Math.PI)) + 90;
 
       // Calculate shortest angular distance to prevent wild 360° reverse flips
-      let diff = (rawAngle - currentAngleRef.current) % 360;
+      let diff = (rawAngle - targetAngleRef.current) % 360;
       if (diff < -180) diff += 360;
       if (diff > 180) diff -= 360;
 
-      currentAngleRef.current += diff;
-
-      gsap.to(needleRef.current, {
-        rotation: currentAngleRef.current,
-        transformOrigin: "50px 50px",
-        duration: 0.12,
-        ease: "power1.out",
-        overwrite: "auto",
-      });
+      targetAngleRef.current += diff;
     };
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
+
+    let rafId: number;
+    const animate = () => {
+      const diff = targetAngleRef.current - currentAngleRef.current;
+      if (Math.abs(diff) > 0.02) {
+        currentAngleRef.current += diff * 0.22;
+        if (needleRef.current) {
+          needleRef.current.style.transform = `rotate(${currentAngleRef.current}deg)`;
+        }
+      }
+      rafId = requestAnimationFrame(animate);
+    };
+    rafId = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('resize', updateCenter);
       window.removeEventListener('scroll', updateCenter);
       window.removeEventListener('pointermove', handlePointerMove);
+      cancelAnimationFrame(rafId);
     };
   }, []);
 
   const handleCompassClick = () => {
-    if (!needleRef.current) return;
-    isSpinningRef.current = true;
-
     // Add 2 full spins with momentum
-    currentAngleRef.current += 720;
-
-    gsap.to(needleRef.current, {
-      rotation: currentAngleRef.current,
-      transformOrigin: "50px 50px",
-      duration: 1.2,
-      ease: "power3.out",
-      overwrite: true,
-      onComplete: () => {
-        isSpinningRef.current = false;
-      },
-    });
-
-    if (compassRef.current) {
-      gsap.fromTo(
-        compassRef.current,
-        { scale: 0.94 },
-        { scale: 1, duration: 0.4, ease: "back.out(2)" }
-      );
-    }
+    targetAngleRef.current += 720;
   };
 
   return (
     <div 
       onClick={handleCompassClick}
-      className={`${className} relative flex items-center justify-center group cursor-pointer select-none`}
+      className={`${className} relative flex items-center justify-center group cursor-pointer select-none active:scale-95 transition-transform duration-150`}
     >
       {/* "Spin Me" Badge - Mimicking the "Spin the Ball" tag */}
       <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-juice-green text-juice-cream text-[10px] font-bold px-2 py-1 uppercase tracking-widest border border-juice-cream/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap shadow-md">
