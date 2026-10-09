@@ -6,12 +6,80 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import ScrollTrigger from 'gsap/ScrollTrigger';
 
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [headerTheme, setHeaderTheme] = useState<'light' | 'dark'>('light');
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // GSAP Refs
+  const heroTextRef1 = useRef<HTMLHeadingElement>(null);
+  const heroTextRef2 = useRef<HTMLHeadingElement>(null);
+  const compassContainerRef = useRef<HTMLDivElement>(null);
+  const heroSubtextRef = useRef<HTMLDivElement>(null);
+  const manifestoRef = useRef<HTMLElement>(null);
+  const featuresRef = useRef<HTMLElement>(null);
+  const sourcesRef = useRef<HTMLElement>(null);
+  const contactRef = useRef<HTMLElement>(null);
+
+  useGSAP(() => {
+    // Only run if splash screen is done or we don't have it
+    if (!showSplash) {
+      // Register plugin just in case
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Hero animations
+      const tl = gsap.timeline();
+      
+      tl.fromTo(heroTextRef1.current, 
+        { y: 100, opacity: 0, scale: 0.9 },
+        { y: 0, opacity: 0.2, scale: 1, duration: 1.2, ease: "power3.out" }
+      )
+      .fromTo(heroTextRef2.current, 
+        { y: -100, opacity: 0, scale: 0.9 },
+        { y: 0, opacity: 0.2, scale: 1, duration: 1.2, ease: "power3.out" },
+        "<0.2"
+      )
+      .fromTo(compassContainerRef.current,
+        { scale: 0, rotation: -180 },
+        { scale: 1, rotation: 0, duration: 1.5, ease: "back.out(1.5)" },
+        "-=1"
+      )
+      .fromTo(heroSubtextRef.current,
+        { y: 50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, ease: "power2.out" },
+        "-=0.5"
+      );
+
+      // Scroll animations for sections
+      const sections = [manifestoRef, featuresRef, sourcesRef, contactRef];
+      
+      sections.forEach((secRef) => {
+        if (secRef.current) {
+          gsap.fromTo(secRef.current.children,
+            { y: 100, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 1,
+              stagger: 0.2,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: secRef.current,
+                scroller: containerRef.current,
+                start: "top 75%",
+                toggleActions: "play none none reverse"
+              }
+            }
+          );
+        }
+      });
+    }
+  }, { dependencies: [showSplash], scope: containerRef });
 
   const handleLogoClick = () => {
     setShowSplash(true);
@@ -82,21 +150,21 @@ export default function Home() {
         
         {/* Massive Typography - Watermark Style */}
         <div className="flex flex-col items-center justify-center z-0 select-none opacity-20 pointer-events-none absolute inset-0">
-          <h1 className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+          <h1 ref={heroTextRef1} className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
             ODYS
           </h1>
-          <h1 className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+          <h1 ref={heroTextRef2} className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
             SEUS
           </h1>
         </div>
 
         {/* Central Compass */}
-        <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+        <div ref={compassContainerRef} className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <InteractiveCompass className="w-[28vw] h-[28vw] min-w-[280px] min-h-[280px] text-secondary drop-shadow-2xl" />
         </div>
 
         {/* Subtext */}
-        <div className="absolute bottom-8 left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
+        <div ref={heroSubtextRef} className="absolute bottom-8 left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
           <h2 className="text-xl md:text-2xl font-bold uppercase leading-tight mb-4 drop-shadow-sm text-foreground">
             The news aggregator <br />
             that loves to show off <br />
@@ -125,7 +193,7 @@ export default function Home() {
       </main>
 
       {/* Manifesto Section */}
-      <section id="manifesto" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-cream text-juice-green relative snap-start">
+      <section ref={manifestoRef} id="manifesto" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-cream text-juice-green relative snap-start">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">The Manifesto</h2>
           <p className="text-lg md:text-xl lg:text-3xl font-medium leading-relaxed max-w-3xl mx-auto">
@@ -135,7 +203,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start border-t border-juice-cream/10">
+      <section ref={featuresRef} id="features" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start border-t border-juice-cream/10">
         <div className="max-w-6xl mx-auto w-full">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight mb-8 md:mb-16 text-center">Features</h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -154,7 +222,7 @@ export default function Home() {
       </section>
 
       {/* Sources Section (Formerly Community) */}
-      <section id="sources" className="min-h-screen w-full flex flex-col items-center justify-center bg-juice-orange text-juice-cream relative snap-start overflow-hidden">
+      <section ref={sourcesRef} id="sources" className="min-h-screen w-full flex flex-col items-center justify-center bg-juice-orange text-juice-cream relative snap-start overflow-hidden">
         <div className="max-w-6xl mx-auto w-full text-center z-10 px-4">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight mb-6 md:mb-8">Trusted Sources</h2>
           <p className="text-xl md:text-2xl font-medium mb-16 max-w-2xl mx-auto opacity-90">
@@ -179,7 +247,7 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start border-t border-juice-cream/10">
+      <section ref={contactRef} id="contact" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start border-t border-juice-cream/10">
         <div className="max-w-4xl mx-auto text-center space-y-12">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">Get in Touch</h2>
           

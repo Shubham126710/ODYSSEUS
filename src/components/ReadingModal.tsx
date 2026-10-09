@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DOMPurify from 'isomorphic-dompurify';
+import { ReactLenis } from 'lenis/react';
 
 const calculateReadTime = (text: string) => {
   const words = text.trim().split(/\s+/).length;
@@ -287,8 +288,9 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
             </div>
 
             {/* Scrollable body */}
-            <div className="flex-1 overflow-y-auto scroll-smooth" onScroll={handleScroll}>
-              <div className="max-w-2xl mx-auto px-5 py-8 md:px-0 md:py-16 pb-24" ref={contentRef}>
+            <ReactLenis className="flex-1 overflow-y-auto" options={{ smoothWheel: true }}>
+              <div onScroll={handleScroll} className="h-full overflow-y-auto">
+                <div className="max-w-2xl mx-auto px-5 py-8 md:px-0 md:py-16 pb-24" ref={contentRef}>
 
                 {/* Title & meta */}
                 <header className="mb-10 text-center">
@@ -389,6 +391,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                 )}
               </div>
             </div>
+            </ReactLenis>
           </motion.div>
         </>
       )}
