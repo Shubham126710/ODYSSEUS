@@ -41,7 +41,7 @@ export default function Home() {
       "<0.2"
     )
     .to(compassContainerRef.current,
-      { scale: 1, rotation: 0, duration: 1.5, ease: "back.out(1.5)" },
+      { opacity: 1, scale: 1, rotation: 0, duration: 1.5, ease: "back.out(1.5)" },
       "-=1"
     )
     .to(heroSubtextRef.current,
