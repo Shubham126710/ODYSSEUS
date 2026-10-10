@@ -60,7 +60,7 @@ export default function Home() {
     const sections = [manifestoRef, featuresRef, sourcesRef, contactRef];
     
     sections.forEach((secRef) => {
-      if (secRef.current) {
+      if (secRef.current && containerRef.current) {
         gsap.fromTo(secRef.current.children,
           { y: 100, opacity: 0 },
           {
@@ -71,6 +71,7 @@ export default function Home() {
             ease: "power3.out",
             scrollTrigger: {
               trigger: secRef.current,
+              scroller: containerRef.current,
               start: "top 75%",
               toggleActions: "play none none reverse"
             }
@@ -84,13 +85,18 @@ export default function Home() {
     setShowSplash(true);
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const viewportHeight = window.innerHeight;
+  const handleScroll = () => {
+    if (containerRef.current) {
+      const scrollTop = containerRef.current.scrollTop;
+      const viewportHeight = containerRef.current.clientHeight;
       
       setShowScrollTop(scrollTop > 500);
 
+      // Section 0: Hero (Green) -> Light Theme
+      // Section 1: Manifesto (Cream) -> Dark Theme
+      // Section 2: Features (Green) -> Light Theme
+      // Section 3: Sources (Orange) -> Light Theme
+      // Section 4: Contact (Green) -> Light Theme
       const sectionIndex = Math.round(scrollTop / viewportHeight);
       
       if (sectionIndex === 1) {
@@ -98,14 +104,13 @@ export default function Home() {
       } else {
         setHeaderTheme('light');
       }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    }
+  };
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -136,10 +141,12 @@ export default function Home() {
 
       <div 
         ref={containerRef}
-        className="hidden md:flex flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white"
+        onScroll={handleScroll}
+        data-lenis-prevent
+        className="hidden md:flex h-[100dvh] overflow-y-scroll snap-y snap-mandatory flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth"
       >
         {/* Hero Section */}
-        <main className="flex flex-col items-center justify-center relative w-full h-screen shrink-0">
+        <main className="flex flex-col items-center justify-center relative w-full h-screen snap-start shrink-0">
         
         {/* Massive Typography - Watermark Style */}
         <div className="flex flex-col items-center justify-center z-0 select-none opacity-20 pointer-events-none absolute inset-0">
@@ -186,7 +193,7 @@ export default function Home() {
       </main>
 
       {/* Manifesto Section */}
-      <section ref={manifestoRef} id="manifesto" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-cream text-juice-green relative ">
+      <section ref={manifestoRef} id="manifesto" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-cream text-juice-green relative snap-start shrink-0">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">The Manifesto</h2>
           <p className="text-lg md:text-xl lg:text-3xl font-medium leading-relaxed max-w-3xl mx-auto">
@@ -196,7 +203,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section ref={featuresRef} id="features" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative  border-t border-juice-cream/10">
+      <section ref={featuresRef} id="features" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start shrink-0 border-t border-juice-cream/10">
         <div className="max-w-6xl mx-auto w-full">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight mb-8 md:mb-16 text-center">Features</h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -215,7 +222,7 @@ export default function Home() {
       </section>
 
       {/* Sources Section (Formerly Community) */}
-      <section ref={sourcesRef} id="sources" className="min-h-screen w-full flex flex-col items-center justify-center bg-juice-orange text-juice-cream relative  overflow-hidden">
+      <section ref={sourcesRef} id="sources" className="min-h-screen w-full flex flex-col items-center justify-center bg-juice-orange text-juice-cream relative snap-start shrink-0 overflow-hidden">
         <div className="max-w-6xl mx-auto w-full text-center z-10 px-4">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight mb-6 md:mb-8">Trusted Sources</h2>
           <p className="text-xl md:text-2xl font-medium mb-16 max-w-2xl mx-auto opacity-90">
@@ -240,7 +247,7 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section ref={contactRef} id="contact" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative  border-t border-juice-cream/10">
+      <section ref={contactRef} id="contact" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start shrink-0 border-t border-juice-cream/10">
         <div className="max-w-4xl mx-auto text-center space-y-12">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">Get in Touch</h2>
           

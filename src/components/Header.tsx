@@ -30,7 +30,7 @@ export const Header = ({ onLogoClick, theme = 'light' }: HeaderProps) => {
 
   return (
     <>
-      <header className="absolute top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-50 pointer-events-none">
+      <header className="fixed top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-50 pointer-events-none">
         <div className="flex items-center gap-3 pointer-events-auto cursor-pointer" onClick={onLogoClick}>
           <StaticOrangeCompass className="w-10 h-10" />
           <span className={`font-serif text-xl font-bold tracking-wide uppercase transition-colors duration-500 ${isOpen ? 'text-juice-cream' : textColor}`}>Odysseus</span>
