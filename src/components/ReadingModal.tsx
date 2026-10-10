@@ -4,10 +4,55 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DOMPurify from 'isomorphic-dompurify';
 import { ReactLenis } from 'lenis/react';
+import { decodeHtmlEntities } from '@/lib/textUtils';
 
 const calculateReadTime = (text: string) => {
   const words = text.trim().split(/\s+/).length;
   return `${Math.ceil(words / 130)} min`;
+};
+
+/** Radial Scroll Progress Wheel */
+const RadialScrollWheel = ({ progress, accent, size = 32 }: { progress: number; accent: string; size?: number }) => {
+  const strokeWidth = 3;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (Math.min(100, Math.max(0, progress)) / 100) * circumference;
+  const isComplete = progress >= 98;
+
+  return (
+    <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          className="opacity-20"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={accent}
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          className="transition-all duration-150 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center font-mono text-[9px] font-bold">
+        {isComplete ? (
+          <span className="text-[11px] font-black" style={{ color: accent }}>✓</span>
+        ) : (
+          <span className="opacity-80">{Math.round(progress)}%</span>
+        )}
+      </div>
+    </div>
+  );
 };
 
 /** Lightweight markdown → HTML for client-side parsing. */
@@ -59,7 +104,21 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
   const [isPlaying, setIsPlaying] = useState(false);
   
   const contentRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const updateProgress = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const maxScroll = scrollHeight - clientHeight;
+      const progress = maxScroll > 0 ? Math.min(100, Math.max(0, (scrollTop / maxScroll) * 100)) : 100;
+      setScrollProgress(progress);
+    };
+    el.addEventListener('scroll', updateProgress, { passive: true });
+    return () => el.removeEventListener('scroll', updateProgress);
+  }, [isOpen, fullContent]);
 
   const fetchContent = async () => {
     if (!article?.link) return;
@@ -276,6 +335,11 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
                 <div className="w-px h-5 mx-1" style={{ backgroundColor: currentTheme.border }} />
 
+                {/* Progress Wheel in toolbar */}
+                <div className="hidden sm:flex items-center" title={`${Math.round(scrollProgress)}% read`}>
+                  <RadialScrollWheel progress={scrollProgress} accent={currentTheme.accent} size={28} />
+                </div>
+
                 {onSave && (
                   <button onClick={() => onSave(article)} className="p-2 rounded-full hover:bg-black/5 transition-colors opacity-70 hover:opacity-100" title="Save">
                     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
@@ -289,22 +353,22 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
             {/* Scrollable body */}
             <ReactLenis className="flex-1 overflow-y-auto" options={{ smoothWheel: true }}>
-              <div onScroll={handleScroll} className="h-full overflow-y-auto">
+              <div ref={scrollContainerRef} onScroll={handleScroll} className="h-full overflow-y-auto">
                 <div className="max-w-2xl mx-auto px-5 py-8 md:px-0 md:py-16 pb-24" ref={contentRef}>
 
                 {/* Title & meta */}
                 <header className="mb-10 text-center">
                   <div className="flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-widest mb-5 opacity-60">
-                    <span>{article.source}</span>
+                    <span>{decodeHtmlEntities(article.source)}</span>
                     <span>•</span>
                     <span>{article.date}</span>
                     {readTime && (<><span>•</span><span>{readTime} read</span></>)}
                   </div>
                   <h1 className="font-serif font-bold leading-tight mb-5" style={{ fontSize: `${fontSize * 2.2}px` }}>
-                    {article.title}
+                    {decodeHtmlEntities(article.title)}
                   </h1>
                   {article.author && (
-                    <p className="text-sm font-medium opacity-70">By {article.author}</p>
+                    <p className="text-sm font-medium opacity-70">By {decodeHtmlEntities(article.author)}</p>
                   )}
                 </header>
 
@@ -325,9 +389,14 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                 ) : previewOnly ? (
                   <div className="space-y-8 mt-8">
                     {bodyContent && (
-                      <p className="font-serif opacity-80" style={{ fontSize: `${fontSize}px`, lineHeight: 1.8 }}>
-                        {bodyContent.replace(/<[^>]*>/g, '').trim()}
-                      </p>
+                      <div className="font-serif opacity-85 space-y-4" style={{ fontSize: `${fontSize}px`, lineHeight: 1.8 }}>
+                        {decodeHtmlEntities(bodyContent)
+                          .replace(/<[^>]*>/g, '')
+                          .split(/\n+/)
+                          .map((para: string, idx: number) => para.trim() ? (
+                            <p key={idx}>{para.trim()}</p>
+                          ) : null)}
+                      </div>
                     )}
                     <div className="rounded-2xl overflow-hidden shadow-lg" style={{ border: `1px solid ${currentTheme.border}`, backgroundColor: currentTheme.header }}>
                       <div className="p-8 text-center space-y-5">
@@ -340,7 +409,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                         </div>
                         <div>
                           <p className="text-sm mb-1 opacity-60">Full article available on</p>
-                          <p className="font-bold text-xl">{article.source}</p>
+                          <p className="font-bold text-xl">{decodeHtmlEntities(article.source)}</p>
                         </div>
                         <a href={article.link} target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3.5 text-white font-bold text-sm uppercase tracking-widest rounded-full hover:scale-105 active:scale-95 transition-transform shadow-lg" style={{ backgroundColor: currentTheme.accent }}>
                           Read Full Article →
@@ -381,7 +450,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
                     {!fullContent && bodyContent.length < 600 && (
                       <div className="mt-12 pt-8 flex flex-col items-center gap-4 text-center" style={{ borderTop: `1px solid ${currentTheme.border}` }}>
-                        <p className="text-sm opacity-60">Continue reading on {article.source}</p>
+                        <p className="text-sm opacity-60">Continue reading on {decodeHtmlEntities(article.source)}</p>
                         <a href={article.link} target="_blank" rel="noopener noreferrer" className="px-7 py-3 text-white font-bold text-sm uppercase tracking-widest rounded-full hover:scale-105 transition-transform" style={{ backgroundColor: currentTheme.accent }}>
                           Read Full Article →
                         </a>
@@ -392,6 +461,20 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
               </div>
             </div>
             </ReactLenis>
+
+            {/* Floating Reading Progress HUD Wheel */}
+            <div 
+              className="absolute bottom-6 right-6 z-30 flex items-center gap-3 px-4 py-2.5 rounded-full shadow-2xl backdrop-blur-xl border transition-all duration-300 pointer-events-auto"
+              style={{ backgroundColor: `${currentTheme.header}f0`, borderColor: currentTheme.border }}
+            >
+              <RadialScrollWheel progress={scrollProgress} accent={currentTheme.accent} size={32} />
+              <div className="flex flex-col text-left">
+                <span className="text-[9px] font-bold uppercase tracking-widest opacity-60">Reading Progress</span>
+                <span className="text-xs font-serif font-bold">
+                  {scrollProgress >= 98 ? 'Completed 🎉' : `${Math.round(scrollProgress)}% read`}
+                </span>
+              </div>
+            </div>
           </motion.div>
         </>
       )}

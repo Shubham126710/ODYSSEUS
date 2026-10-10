@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { formatDistanceToNow } from 'date-fns';
+import { decodeHtmlEntities, cleanExcerpt as sanitizeExcerpt } from '@/lib/textUtils';
 
 export interface Story {
   id: string;
@@ -145,9 +146,10 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
              if (match) imageUrl = match[1];
           }
 
-          // Clean excerpt
-          const rawExcerpt = item.contentSnippet || item.content || item.summary || '';
-          const cleanExcerpt = rawExcerpt.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...';
+          // Clean excerpt & title
+          const rawExcerpt = item.contentSnippet || item.content || item.summary || item.description || '';
+          const cleanExcerpt = sanitizeExcerpt(rawExcerpt, 160);
+          const cleanTitle = decodeHtmlEntities(item.title || 'Untitled');
 
           // Calculate read time based on the longest available content to be most accurate
           const candidates = [
@@ -168,9 +170,9 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
 
           return {
             id: item.guid || item.link || index,
-            title: item.title,
+            title: cleanTitle,
             excerpt: cleanExcerpt,
-            source: item.source || 'RSS Feed',
+            source: decodeHtmlEntities(item.source || 'RSS Feed'),
             readTime: readTime,
             date: item.isoDate ? formatDistanceToNow(new Date(item.isoDate), { addSuffix: true }) : 'Just now',
             category: getCategoryForFeed(item.source || ''),

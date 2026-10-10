@@ -65,6 +65,7 @@ import { AddFeedModal } from '@/components/AddFeedModal';
 import { ReadingModal } from '@/components/ReadingModal';
 import { Toast } from '@/components/Toast';
 import { formatDistanceToNow } from 'date-fns';
+import { decodeHtmlEntities } from '@/lib/textUtils';
 
 const TRENDING_HEADLINES = [
   { title: "The Future of Interface Design is Invisible", link: "#", source: "Design" },
@@ -106,6 +107,7 @@ export default function FeedPage() {
   const [headerTheme, setHeaderTheme] = useState<'light' | 'dark' | 'orange'>('light');
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   // RSS & Feed State
@@ -204,24 +206,23 @@ export default function FeedPage() {
     }
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const viewportHeight = window.innerHeight;
-      const sectionIndex = Math.round(scrollTop / viewportHeight);
-    
-      if (sectionIndex === 0) {
-        setHeaderTheme('light');
-      } else if (sectionIndex === 2) {
-        setHeaderTheme('orange');
-      } else {
-        setHeaderTheme('dark');
-      }
-    };
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    const viewportHeight = e.currentTarget.clientHeight;
+    const sectionIndex = Math.round(scrollTop / viewportHeight);
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    // Section 0: Hero (Cream) -> Light Theme (Green Text)
+    // Section 1: Featured (Green) -> Dark Theme (Cream Text)
+    // Section 2: Feed (Orange) -> Orange Theme (Cream Text on Orange)
+    // Section 3: Footer (Green) -> Dark Theme (Cream Text)
+    if (sectionIndex === 0) {
+      setHeaderTheme('light');
+    } else if (sectionIndex === 2) {
+      setHeaderTheme('orange');
+    } else {
+      setHeaderTheme('dark');
+    }
+  };
 
   useEffect(() => {
     const getGreeting = () => {
@@ -273,11 +274,14 @@ export default function FeedPage() {
       />
 
       <div 
-        className="bg-juice-cream font-sans selection:bg-juice-orange selection:text-white flex flex-col overflow-x-hidden min-h-screen"
+        ref={containerRef}
+        onScroll={handleScroll}
+        data-lenis-prevent
+        className="h-[100dvh] overflow-y-scroll snap-y snap-mandatory bg-juice-cream font-sans selection:bg-juice-orange selection:text-white flex flex-col overflow-x-hidden scroll-smooth"
       >
       
       {/* HERO SECTION - Cream */}
-      <section className="relative h-screen  flex flex-col items-center justify-center overflow-hidden shrink-0">
+      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden snap-start shrink-0">
         {/* Background Typography */}
         <motion.div 
           style={{ y }}
@@ -386,7 +390,7 @@ export default function FeedPage() {
       </section>
 
       {/* FEATURED STORY - Green */}
-      <section className="min-h-screen h-auto  bg-juice-green text-juice-cream flex items-center py-10 md:py-16 px-4 md:px-12 relative shrink-0 pt-20 md:pt-24 pb-8 md:pb-12">
+      <section className="min-h-screen md:h-screen bg-juice-green text-juice-cream flex items-center py-10 md:py-16 px-4 md:px-12 relative snap-start shrink-0 pt-20 md:pt-24 pb-8 md:pb-12">
         {featuredStory ? (
           <div className="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <motion.div 
@@ -405,20 +409,20 @@ export default function FeedPage() {
                 className="block group cursor-pointer"
               >
                 <h2 className="text-2xl md:text-5xl font-serif font-bold leading-tight group-hover:text-juice-orange transition-colors duration-300">
-                  {featuredStory.title}
+                  {decodeHtmlEntities(featuredStory.title)}
                 </h2>
               </div>
               <p className="text-sm md:text-lg opacity-80 leading-relaxed max-w-xl line-clamp-3">
-                {featuredStory.excerpt}
+                {decodeHtmlEntities(featuredStory.excerpt)}
               </p>
               <div className="flex items-center gap-6 text-sm font-mono opacity-60">
-                <span>{featuredStory.source}</span>
+                <span>{decodeHtmlEntities(featuredStory.source)}</span>
                 <span>•</span>
                 <span>{featuredStory.readTime}</span>
               </div>
               <button 
                 onClick={() => setReadingArticle(featuredStory)}
-                className="mt-6 px-8 py-3 border border-juice-cream rounded-full font-bold uppercase tracking-widest hover:bg-juice-cream hover:text-juice-green transition-all duration-300"
+                className="mt-6 px-8 py-3 border border-juice-cream rounded-full font-bold uppercase tracking-widest hover:bg-juice-cream hover:text-juice-green transition-all duration-300 shadow-md hover:scale-105 active:scale-95"
               >
                 Read Story
               </button>
@@ -462,7 +466,7 @@ export default function FeedPage() {
       </section>
 
       {/* THE FEED - Orange Background */}
-      <section className="min-h-screen  bg-juice-orange flex flex-col shrink-0 relative overflow-hidden">
+      <section className="min-h-screen md:h-screen bg-juice-orange flex flex-col snap-start shrink-0 relative overflow-hidden">
         <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 flex flex-col h-full pt-20 md:pt-28 pb-6 md:pb-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -572,7 +576,7 @@ export default function FeedPage() {
 
                       {/* Body: Title */}
                       <h3 className="font-serif text-base md:text-2xl font-bold text-juice-green mb-2 md:mb-4 leading-tight group-hover:text-juice-orange transition-colors duration-300 line-clamp-2 md:line-clamp-3">
-                        {story.title}
+                        {decodeHtmlEntities(story.title)}
                       </h3>
 
                       {/* Image (Compact but Premium) */}
@@ -593,7 +597,7 @@ export default function FeedPage() {
 
                       {/* Excerpt (Short) */}
                       <p className="text-juice-green/70 text-xs leading-relaxed line-clamp-3 mb-4 md:mb-6 flex-grow font-medium hidden sm:block">
-                        {story.excerpt}
+                        {decodeHtmlEntities(story.excerpt)}
                       </p>
 
                       {/* Footer: Actions */}
@@ -665,7 +669,7 @@ export default function FeedPage() {
         </div>
       </section>
 
-      <div className=" shrink-0">
+      <div className="snap-start shrink-0">
         <Footer />
       </div>
     </div>

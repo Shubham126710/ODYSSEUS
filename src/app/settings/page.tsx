@@ -40,22 +40,17 @@ export default function SettingsPage() {
   const [message, setMessage] = useState('');
   const [headerTheme, setHeaderTheme] = useState<'light' | 'dark' | 'orange'>('light');
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      
-      // If we are near the bottom (Footer is visible), switch to dark theme
-      if (documentHeight - scrollPosition < 300) {
-        setHeaderTheme('dark');
-      } else {
-        setHeaderTheme('light');
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    const viewportHeight = e.currentTarget.clientHeight;
+    const sectionIndex = Math.round(scrollTop / viewportHeight);
+    
+    if (sectionIndex === 0) {
+      setHeaderTheme('light');
+    } else {
+      setHeaderTheme('dark');
+    }
+  };
   
   // Dummy settings state
   const [notifications, setNotifications] = useState({
@@ -108,7 +103,11 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-juice-cream text-juice-green font-sans flex flex-col">
+    <div 
+      onScroll={handleScroll}
+      data-lenis-prevent
+      className="h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-juice-cream text-juice-green font-sans flex flex-col"
+    >
       <div className="fixed top-0 left-0 right-0 z-50">
         <AppHeader theme={headerTheme} />
       </div>
@@ -125,7 +124,7 @@ export default function SettingsPage() {
         }}
         initial="hidden"
         animate="show"
-        className="flex-grow max-w-3xl mx-auto px-4 md:px-8 py-12 w-full pt-24 md:pt-32"
+        className="min-h-screen snap-start shrink-0 flex-grow max-w-3xl mx-auto px-4 md:px-8 py-12 w-full pt-24 md:pt-32"
       >
         <motion.div
           variants={{
@@ -274,7 +273,9 @@ export default function SettingsPage() {
 
         </motion.div>
       </motion.main>
-      <Footer />
+      <section className="snap-start shrink-0">
+        <Footer />
+      </section>
     </div>
   );
 }

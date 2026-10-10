@@ -46,6 +46,7 @@ export default function SavedPage() {
   return (
     <div 
       onScroll={handleScroll}
+      data-lenis-prevent
       className="h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-juice-cream text-juice-green font-sans selection:bg-juice-orange selection:text-juice-cream"
     >
       <div className="fixed top-0 left-0 right-0 z-50">
