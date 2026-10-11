@@ -36,9 +36,19 @@ const LogOutIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
 );
 
-// Fire Icon — clean Duolingo-style flame using provided image
-const FireIcon = ({ className }: { className?: string }) => (
-  <img src="/fire-flame.png" alt="Streak" className={className || "w-5 h-5 object-contain"} />
+// Fire Icon — clean vector flame in signature Juice Orange (#FF6B4A)
+const FireIcon = ({ className = "w-3.5 h-3.5", size = 14 }: { className?: string; size?: number }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="currentColor" 
+    className={`shrink-0 text-juice-orange ${className}`}
+    style={{ width: `${size}px`, height: `${size}px`, maxWidth: `${size}px`, maxHeight: `${size}px` }}
+    aria-hidden="true"
+  >
+    <path d="M12 23c-4.97 0-9-3.95-9-8.82 0-3.6 2.37-6.72 4.1-8.52.47-.49 1.28-.27 1.45.38.4 1.54 1.2 3.16 2.45 3.96.22-2.14 1.45-5.11 3.56-7.85.42-.54 1.25-.43 1.51.21 1.47 3.57 4.93 9.4 1.93 14.64C16.88 19.06 14.61 23 12 23zm-.08-4.2c2.06 0 3.73-1.63 3.73-3.65 0-1.25-.63-2.36-1.59-3.03-.23-.16-.54-.08-.66.17-.18.37-.47.88-.93 1.13-.23.12-.51-.01-.56-.27-.14-.73-.08-1.52.17-2.31.06-.2-.1-.41-.31-.41-.53 0-1.15.42-1.72.97-1.12 1.09-1.86 2.44-1.86 3.77 0 2.02 1.67 3.65 3.73 3.65z" />
+  </svg>
 );
 
 // Compact Circular Progress
@@ -165,17 +175,19 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
 
   return (
     <header className={`sticky top-0 z-50 border-b transition-colors duration-500 ${bgColor} ${borderColor}`}>
-      <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 md:h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 md:h-20 flex items-center justify-between gap-3 md:gap-4">
         
-        <Link href="/feed" className="flex items-center gap-2 md:gap-3 group">
-          <StaticOrangeCompass className="w-7 h-7 md:w-8 md:h-8 group-hover:rotate-45 transition-transform duration-500" />
-          <span className={`font-serif text-lg md:text-xl font-bold tracking-wide transition-colors duration-500 ${textColor}`}>ODYSSEUS</span>
+        {/* Brand Logo */}
+        <Link href="/feed" className="flex items-center gap-2 md:gap-3 group shrink-0">
+          <StaticOrangeCompass className="w-7 h-7 md:w-8 md:h-8 group-hover:rotate-45 transition-transform duration-500 shrink-0" />
+          <span className={`font-serif text-lg md:text-xl font-bold tracking-wide transition-colors duration-500 whitespace-nowrap ${textColor}`}>ODYSSEUS</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
+        {/* Desks Navigation */}
+        <nav className="hidden lg:flex items-center gap-4 xl:gap-8 shrink-0">
           <Link 
             href="/feed" 
-            className={`text-sm font-bold uppercase tracking-widest transition-colors ${
+            className={`text-xs xl:text-sm font-bold uppercase tracking-wider xl:tracking-widest whitespace-nowrap transition-colors ${
               pathname === '/feed' 
                 ? 'text-juice-cream' 
                 : 'text-juice-cream/60 hover:text-juice-cream'
@@ -189,7 +201,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
               <Link 
                 key={item} 
                 href={`/feed/${item.toLowerCase()}`}
-                className={`text-sm font-bold uppercase tracking-widest transition-colors duration-500 ${
+                className={`text-xs xl:text-sm font-bold uppercase tracking-wider xl:tracking-widest whitespace-nowrap transition-colors duration-500 ${
                   isActive 
                     ? 'text-juice-cream'
                     : navTextColor
@@ -201,19 +213,20 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           })}
           <button 
             onClick={() => setIsCustomizeOpen(true)} 
-            className={`p-1.5 rounded-full hover:bg-black/5 transition-colors ${navTextColor}`} 
+            className={`p-1.5 rounded-full hover:bg-black/5 transition-colors shrink-0 ${navTextColor}`} 
             title="Customize Tabs"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
         </nav>
 
-        <div className="flex items-center gap-2 md:gap-3">
+        {/* Right Action Controls */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           
-          {/* Custom Article Import Button (Pocket / Instapaper Style) */}
+          {/* Custom Article Import Button */}
           <button
             onClick={() => setIsImportOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-juice-cream/30 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream text-xs font-mono uppercase tracking-wider transition-all duration-200"
+            className="flex items-center gap-1.5 px-3 py-1.5 h-8 md:h-9 rounded-full border border-juice-cream/30 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream text-xs font-mono uppercase tracking-wider whitespace-nowrap shrink-0 transition-all duration-200"
             title="Import Article (Pocket & Instapaper Clean Reader)"
             aria-label="Import Article"
           >
@@ -224,19 +237,19 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           {/* Traveler's Guide (?) button */}
           <button
             onClick={() => setIsOnboardingOpen(true)}
-            className="w-7 h-7 rounded-full border border-juice-cream/30 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream flex items-center justify-center font-serif text-xs font-bold transition-all duration-200"
+            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-juice-cream/30 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream flex items-center justify-center font-serif text-xs font-bold shrink-0 transition-all duration-200"
             title="Traveler's Guide"
             aria-label="Open Traveler's Guide"
           >
             ?
           </button>
 
-          {/* Streak button — visible on all screens */}
+          {/* Streak button */}
           {profile && (
-            <div className="relative" ref={statsRef}>
+            <div className="relative shrink-0" ref={statsRef}>
               <button 
                 onClick={() => setIsStatsOpen(!isStatsOpen)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 border ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 h-8 md:h-9 rounded-full shrink-0 whitespace-nowrap transition-all duration-200 border ${
                   isStatsOpen 
                     ? 'bg-juice-cream text-juice-green border-juice-cream shadow-sm' 
                     : 'bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream border-juice-cream/30'
@@ -244,10 +257,10 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 title="Open Traveler's Chamber"
                 aria-label="Open Traveler's Chamber"
               >
-                <FireIcon className="w-3.5 h-3.5 object-contain" />
-                <span className="font-mono text-xs font-bold tracking-wider">{profile.streak_count || 1}D</span>
+                <FireIcon size={14} />
+                <span className="font-mono text-xs font-bold tracking-wider leading-none">{profile.streak_count || 1}D</span>
                 {multiplier.isBonusActive && (
-                  <span className="text-[9px] font-mono font-bold bg-juice-orange text-white px-1.5 py-0.2 rounded-full hidden sm:inline-block">
+                  <span className="text-[9px] font-mono font-bold bg-juice-orange text-white px-1.5 py-0.5 rounded-full hidden xl:inline-block leading-none">
                     {multiplier.multiplier}x
                   </span>
                 )}
@@ -265,7 +278,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4 border-b border-juice-green/10 pb-3">
                   <div className="flex items-center gap-2">
-                    <FireIcon className="w-4 h-4 object-contain" />
+                    <FireIcon size={16} />
                     <div>
                       <h3 className="font-serif text-sm font-bold text-juice-green">Traveler&apos;s Chamber</h3>
                       <span className="text-[9px] font-mono text-juice-green/60 uppercase tracking-widest">

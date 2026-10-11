@@ -423,9 +423,9 @@ export default function FeedPage() {
         <div className="absolute bottom-0 left-0 right-0 h-12 md:h-20 bg-juice-orange flex items-center z-30 border-t-2 md:border-t-4 border-juice-cream shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           
           {/* Static Label Section */}
-          <div className="h-full bg-juice-orange flex items-center pl-3 md:pl-8 pr-2 md:pr-4 z-40 relative">
-             <div className="bg-juice-cream px-2.5 md:px-5 py-1 md:py-2 rounded-full text-juice-orange font-black text-[8px] md:text-sm uppercase tracking-widest animate-pulse flex items-center gap-1.5 md:gap-2 shadow-sm ring-2 ring-juice-orange ring-offset-2 ring-offset-juice-cream">
-               <span className="w-1 h-1 md:w-2 md:h-2 rounded-full bg-juice-orange animate-ping" />
+          <div className="h-full bg-juice-orange flex items-center pl-3 md:pl-8 pr-4 md:pr-6 z-40 relative shrink-0">
+             <div className="bg-juice-cream px-2.5 md:px-5 py-1 md:py-2 rounded-full text-juice-orange font-black text-[8px] md:text-sm uppercase tracking-widest flex items-center gap-1.5 md:gap-2 shadow-sm ring-2 ring-juice-orange ring-offset-2 ring-offset-juice-cream">
+               <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-juice-orange" />
                Trending
              </div>
           </div>
@@ -433,11 +433,11 @@ export default function FeedPage() {
           {/* Scrolling Content Section */}
           <div className="flex-1 overflow-hidden relative h-full flex items-center bg-juice-orange">
              {/* Gradient Mask for smooth fade in from left */}
-             <div className="absolute left-0 top-0 bottom-0 w-12 md:w-24 bg-gradient-to-r from-juice-orange via-juice-orange/80 to-transparent z-10" />
-             <div className="absolute right-0 top-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-juice-orange to-transparent z-10" />
+             <div className="absolute left-0 top-0 bottom-0 w-8 md:w-16 bg-gradient-to-r from-juice-orange to-transparent z-10 pointer-events-none" />
+             <div className="absolute right-0 top-0 bottom-0 w-8 md:w-16 bg-gradient-to-l from-juice-orange to-transparent z-10 pointer-events-none" />
              
              <motion.div 
-                className="flex items-center gap-8 md:gap-16 pl-4 w-max"
+                className="flex items-center gap-8 md:gap-16 pl-6 md:pl-12 w-max"
                 animate={{ x: "-50%" }}
                 transition={{ repeat: Infinity, duration: 90, ease: "linear" }}
               >

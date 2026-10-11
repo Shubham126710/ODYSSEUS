@@ -300,7 +300,17 @@ export default function ProfilePage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-mono uppercase tracking-widest opacity-80">Reading Streak</span>
-              <img src="/fire-flame.png" alt="Streak" className="w-5 h-5 object-contain brightness-0 invert" />
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="currentColor" 
+                className="w-5 h-5 text-white shrink-0" 
+                style={{ width: '20px', height: '20px' }}
+                aria-hidden="true"
+              >
+                <path d="M12 23c-4.97 0-9-3.95-9-8.82 0-3.6 2.37-6.72 4.1-8.52.47-.49 1.28-.27 1.45.38.4 1.54 1.2 3.16 2.45 3.96.22-2.14 1.45-5.11 3.56-7.85.42-.54 1.25-.43 1.51.21 1.47 3.57 4.93 9.4 1.93 14.64C16.88 19.06 14.61 23 12 23zm-.08-4.2c2.06 0 3.73-1.63 3.73-3.65 0-1.25-.63-2.36-1.59-3.03-.23-.16-.54-.08-.66.17-.18.37-.47.88-.93 1.13-.23.12-.51-.01-.56-.27-.14-.73-.08-1.52.17-2.31.06-.2-.1-.41-.31-.41-.53 0-1.15.42-1.72.97-1.12 1.09-1.86 2.44-1.86 3.77 0 2.02 1.67 3.65 3.73 3.65z" />
+              </svg>
             </div>
 
             <div className="my-2">
