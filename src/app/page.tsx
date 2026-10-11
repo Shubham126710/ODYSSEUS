@@ -6,80 +6,12 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
-import ScrollTrigger from 'gsap/ScrollTrigger';
 
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [headerTheme, setHeaderTheme] = useState<'light' | 'dark'>('light');
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  // GSAP Refs
-  const heroTextRef1 = useRef<HTMLHeadingElement>(null);
-  const heroTextRef2 = useRef<HTMLHeadingElement>(null);
-  const compassContainerRef = useRef<HTMLDivElement>(null);
-  const heroSubtextRef = useRef<HTMLDivElement>(null);
-  const manifestoRef = useRef<HTMLElement>(null);
-  const featuresRef = useRef<HTMLElement>(null);
-  const sourcesRef = useRef<HTMLElement>(null);
-  const contactRef = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    // Register plugin just in case
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Set initial states immediately to prevent flashing while waiting for delay
-    gsap.set(heroTextRef1.current, { y: 100, opacity: 0, scale: 0.9 });
-    gsap.set(heroTextRef2.current, { y: -100, opacity: 0, scale: 0.9 });
-    // Use xPercent/yPercent for reliable centering with GSAP scale animations
-    gsap.set(compassContainerRef.current, { xPercent: -50, yPercent: -50, scale: 0, rotation: -180, opacity: 0 });
-    gsap.set(heroSubtextRef.current, { y: 50, opacity: 0 });
-
-    // Hero animations
-    const tl = gsap.timeline({ delay: 3.8 });
-    
-    tl.to(heroTextRef1.current, 
-      { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "power3.out" }
-    )
-    .to(heroTextRef2.current, 
-      { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "power3.out" },
-      "<0.2"
-    )
-    .to(compassContainerRef.current,
-      { opacity: 1, scale: 1, rotation: 0, duration: 1.5, ease: "back.out(1.5)" },
-      "-=1"
-    )
-    .to(heroSubtextRef.current,
-      { y: 0, opacity: 1, duration: 1, ease: "power2.out" },
-      "-=0.5"
-    );
-
-    // Scroll animations for sections
-    const sections = [manifestoRef, featuresRef, sourcesRef, contactRef];
-    
-    sections.forEach((secRef) => {
-      if (secRef.current && containerRef.current) {
-        gsap.fromTo(secRef.current.children,
-          { y: 100, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 1,
-            stagger: 0.2,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: secRef.current,
-              scroller: containerRef.current,
-              start: "top 75%",
-              toggleActions: "play none none reverse"
-            }
-          }
-        );
-      }
-    });
-  }, { scope: containerRef });
 
   const handleLogoClick = () => {
     setShowSplash(true);
@@ -92,6 +24,7 @@ export default function Home() {
       
       setShowScrollTop(scrollTop > 500);
 
+      // Calculate current section index to determine header theme
       // Section 0: Hero (Green) -> Light Theme
       // Section 1: Manifesto (Cream) -> Dark Theme
       // Section 2: Features (Green) -> Light Theme
@@ -122,53 +55,75 @@ export default function Home() {
       {/* Interactive Header */}
       <Header onLogoClick={handleLogoClick} theme={headerTheme} />
 
+      {/* Mobile Fallback Overlay */}
+      <div className="md:hidden fixed inset-0 z-[9999] bg-juice-green flex flex-col items-center justify-center p-8 text-center text-juice-cream">
+        <div className="mb-8">
+          <h1 className="text-5xl font-black tracking-tighter opacity-20 mb-[-20px]">ODYS</h1>
+          <h1 className="text-5xl font-black tracking-tighter opacity-20">SEUS</h1>
+        </div>
+        <h2 className="font-serif text-3xl font-bold mb-4">Desktop Recommended</h2>
+        <p className="text-base opacity-80 mb-8 max-w-sm">
+          Odysseus features interactive elements and massive typography that are best experienced on a larger screen.
+        </p>
+        <Link href="/login">
+           <button className="px-6 py-3 bg-juice-orange text-juice-cream text-xs font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg">
+             Go to Login Anyway
+           </button>
+        </Link>
+      </div>
+
       <div 
         ref={containerRef}
         onScroll={handleScroll}
-        data-lenis-prevent
-        className="flex h-[100dvh] overflow-y-scroll snap-y snap-mandatory flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth w-full"
+        className="hidden md:flex h-[100dvh] overflow-y-scroll snap-y snap-mandatory flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth"
       >
         {/* Hero Section */}
         <main className="flex flex-col items-center justify-center relative w-full h-screen snap-start shrink-0">
         
         {/* Massive Typography - Watermark Style */}
         <div className="flex flex-col items-center justify-center z-0 select-none opacity-20 pointer-events-none absolute inset-0">
-          <h1 ref={heroTextRef1} className="text-[26vw] md:text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+          <h1 
+            className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center"
+            style={{ fontSize: '22vw', lineHeight: 0.75 }}
+          >
             ODYS
           </h1>
-          <h1 ref={heroTextRef2} className="text-[26vw] md:text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+          <h1 
+            className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center"
+            style={{ fontSize: '22vw', lineHeight: 0.75 }}
+          >
             SEUS
           </h1>
         </div>
 
         {/* Central Compass */}
-        <div ref={compassContainerRef} className="absolute top-[40%] md:top-[42%] left-1/2 z-20">
-          <InteractiveCompass className="w-[46vw] h-[46vw] max-w-[280px] max-h-[280px] min-w-[180px] min-h-[180px] sm:w-[28vw] sm:h-[28vw] text-secondary drop-shadow-2xl" />
+        <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+          <InteractiveCompass className="w-[28vw] h-[28vw] min-w-[280px] min-h-[280px] text-secondary drop-shadow-2xl" />
         </div>
 
         {/* Subtext */}
-        <div ref={heroSubtextRef} className="absolute bottom-20 md:bottom-12 left-6 md:left-12 z-30 max-w-[220px] sm:max-w-xs md:max-w-sm pointer-events-none">
-          <h2 className="text-sm sm:text-lg md:text-2xl font-bold uppercase leading-tight mb-2 md:mb-4 drop-shadow-sm text-foreground">
+        <div className="absolute bottom-8 left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
+          <h2 className="text-xl md:text-2xl font-bold uppercase leading-tight mb-4 drop-shadow-sm text-foreground">
             The news aggregator <br />
             that loves to show off <br />
             a thing or two.
           </h2>
           <div className="flex items-center gap-4">
-             <p className="text-[11px] sm:text-xs md:text-base font-bold opacity-90 uppercase tracking-wide text-foreground">Starting with your stories</p>
+             <p className="text-sm md:text-base font-bold opacity-90 uppercase tracking-wide text-foreground">Starting with your stories</p>
           </div>
         </div>
 
         {/* Get Started Button - Centered Bottom */}
-        <div className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 z-30">
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30">
             <Link href="/login">
-              <button className="px-6 py-2.5 md:px-8 md:py-3 bg-juice-orange text-juice-cream text-xs md:text-sm font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg whitespace-nowrap">
+              <button className="px-8 py-3 bg-juice-orange text-juice-cream font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg">
                 Get Started
               </button>
             </Link>
         </div>
 
         {/* Footer Details */}
-        <div className="hidden sm:block absolute bottom-6 right-6 md:bottom-8 md:right-8 text-xs md:text-sm font-mono opacity-60 uppercase tracking-widest text-right z-30 text-foreground">
+        <div className="absolute bottom-6 right-6 md:bottom-8 md:right-8 text-xs md:text-sm font-mono opacity-60 uppercase tracking-widest text-right z-30 text-foreground">
           Designed by <br />
           Shubham Upadhyay . 2025
         </div>
@@ -176,7 +131,7 @@ export default function Home() {
       </main>
 
       {/* Manifesto Section */}
-      <section ref={manifestoRef} id="manifesto" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-cream text-juice-green relative snap-start shrink-0">
+      <section id="manifesto" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-cream text-juice-green relative snap-start">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">The Manifesto</h2>
           <p className="text-lg md:text-xl lg:text-3xl font-medium leading-relaxed max-w-3xl mx-auto">
@@ -186,7 +141,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section ref={featuresRef} id="features" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start shrink-0 border-t border-juice-cream/10">
+      <section id="features" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start border-t border-juice-cream/10">
         <div className="max-w-6xl mx-auto w-full">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight mb-8 md:mb-16 text-center">Features</h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -205,7 +160,7 @@ export default function Home() {
       </section>
 
       {/* Sources Section (Formerly Community) */}
-      <section ref={sourcesRef} id="sources" className="min-h-screen w-full flex flex-col items-center justify-center bg-juice-orange text-juice-cream relative snap-start shrink-0 overflow-hidden">
+      <section id="sources" className="min-h-screen w-full flex flex-col items-center justify-center bg-juice-orange text-juice-cream relative snap-start overflow-hidden">
         <div className="max-w-6xl mx-auto w-full text-center z-10 px-4">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight mb-6 md:mb-8">Trusted Sources</h2>
           <p className="text-xl md:text-2xl font-medium mb-16 max-w-2xl mx-auto opacity-90">
@@ -230,7 +185,7 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section ref={contactRef} id="contact" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start shrink-0 border-t border-juice-cream/10">
+      <section id="contact" className="min-h-screen w-full flex flex-col items-center justify-center p-8 md:p-20 bg-juice-green text-juice-cream relative snap-start border-t border-juice-cream/10">
         <div className="max-w-4xl mx-auto text-center space-y-12">
           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">Get in Touch</h2>
           
