@@ -125,3 +125,22 @@ export function computeReadTime(story: { content?: string; excerpt?: string; rea
   }
   return null;
 }
+
+/**
+ * Detects whether an image URL is a publisher placeholder, logo tile (e.g. Bloomberg BL black tile),
+ * favicon, or tracking pixel, so it can be omitted in favor of clean typography.
+ */
+export function isPlaceholderOrLogoUrl(url?: string | null): boolean {
+  if (!url) return true;
+  const lower = url.toLowerCase();
+  if (lower.includes('favicon') || lower.endsWith('.ico') || lower.includes('.ico?')) return true;
+  if (lower.includes('placeholder') || lower.includes('default_image') || lower.includes('no-image') || lower.includes('no_image')) return true;
+  if (lower.includes('blank.') || lower.includes('dummy.')) return true;
+  if (lower.includes('bloomberg') && (lower.includes('logo') || lower.includes('default') || lower.includes('badge') || lower.includes('placeholder'))) return true;
+  if (lower.includes('bwbx.io') && (lower.includes('avatar') || lower.includes('logo') || lower.includes('badge') || lower.includes('icon') || lower.includes('assets/'))) return true;
+  if (lower.includes('publisher-logo') || lower.includes('brand-logo') || lower.includes('site-logo')) return true;
+  if (lower.includes('logo.png') || lower.includes('logo.jpg') || lower.includes('logo.svg') || lower.includes('/logos/')) return true;
+  if (lower.includes('1x1') || lower.includes('tracking') || lower.includes('pixel')) return true;
+  return false;
+}
+

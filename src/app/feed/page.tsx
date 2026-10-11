@@ -13,7 +13,44 @@ import { TrendingTicker } from "@/components/magazine/TrendingTicker";
 import { LeadStorySection } from "@/components/magazine/LeadStorySection";
 import { StoryListRow } from "@/components/magazine/StoryListRow";
 import { CategorySectionBand } from "@/components/magazine/CategorySectionBand";
-import { OrangeMomentBand } from "@/components/magazine/OrangeMomentBand";
+import { isPlaceholderOrLogoUrl } from "@/lib/textUtils";
+
+function matchesCategory(story: any, targetCategory: string): boolean {
+  if (!story) return false;
+  const cat = (story.category || '').toLowerCase();
+  const src = (story.source || '').toLowerCase();
+
+  // Bloomberg / Reuters / markets / chronicle stories must NEVER appear under culture, tech, design, science, sports
+  if (
+    cat === 'chronicle' ||
+    cat === 'business' ||
+    cat === 'finance' ||
+    cat === 'markets' ||
+    src.includes('bloomberg') ||
+    src.includes('financial times') ||
+    src.includes('wsj') ||
+    src.includes('economist')
+  ) {
+    return false;
+  }
+
+  if (targetCategory === 'tech') {
+    return cat === 'tech' || cat === 'technology' || cat === 'vanguard';
+  }
+  if (targetCategory === 'design') {
+    return cat === 'design' || cat === 'atelier';
+  }
+  if (targetCategory === 'culture') {
+    return cat === 'culture' || cat === 'forum';
+  }
+  if (targetCategory === 'science') {
+    return cat === 'science' || cat === 'observatory';
+  }
+  if (targetCategory === 'sports') {
+    return cat === 'sports' || cat === 'sport';
+  }
+  return false;
+}
 
 export default function FeedPage() {
   const { profile } = useProfile();
@@ -24,7 +61,6 @@ export default function FeedPage() {
   const [isAddFeedOpen, setIsAddFeedOpen] = useState(false);
   const [toast, setToast] = useState({ message: '', isVisible: false });
   const [headlines, setHeadlines] = useState<any[]>([]);
-  const [visibleCount, setVisibleCount] = useState(6);
 
   // Fetch breaking trending headlines for the slim orange ticker
   useEffect(() => {
@@ -42,52 +78,69 @@ export default function FeedPage() {
     fetchTrending();
   }, []);
 
-  // Lead featured story
-  const leadStory = useMemo(() => {
-    if (!stories || stories.length === 0) return null;
-    return stories.find(s => s.imageUrl && s.imageUrl.length > 10) || stories[0];
+  // Strict content budget and deduplication:
+  // 1 Lead + max 5 Latest + 5 Bands x 3 = 21 stories maximum
+  const { leadStory, latestStories, bands } = useMemo(() => {
+    if (!stories || stories.length === 0) {
+      return {
+        leadStory: null,
+        latestStories: [],
+        bands: { tech: [], design: [], culture: [], science: [], sports: [] },
+      };
+    }
+
+    const seenKeys = new Set<string>();
+    const getStoryKey = (s: any) => String(s.id || s.link || s.title);
+
+    // 1. Lead Story: 1 story (first story with clean usable image, or stories[0])
+    const lead = stories.find(s => s.imageUrl && s.imageUrl.length > 10 && !isPlaceholderOrLogoUrl(s.imageUrl)) || stories[0];
+    if (lead) {
+      seenKeys.add(getStoryKey(lead));
+    }
+
+    // 2. Latest Stories: max 5 rows, TEXT ONLY
+    const latest: any[] = [];
+    for (const s of stories) {
+      if (latest.length >= 5) break;
+      const key = getStoryKey(s);
+      if (!seenKeys.has(key)) {
+        seenKeys.add(key);
+        latest.push(s);
+      }
+    }
+
+    // 3. Bands: exactly 3 stories if available, otherwise 0 (hide band)
+    const pickBand = (categoryName: string) => {
+      const candidates: any[] = [];
+      for (const s of stories) {
+        const key = getStoryKey(s);
+        if (!seenKeys.has(key) && matchesCategory(s, categoryName)) {
+          candidates.push(s);
+        }
+      }
+      if (candidates.length < 3) {
+        return [];
+      }
+      const selected = candidates.slice(0, 3);
+      for (const s of selected) {
+        seenKeys.add(getStoryKey(s));
+      }
+      return selected;
+    };
+
+    // Strict order: tech, design, culture, science, sports
+    const tech = pickBand('tech');
+    const design = pickBand('design');
+    const culture = pickBand('culture');
+    const science = pickBand('science');
+    const sports = pickBand('sports');
+
+    return {
+      leadStory: lead,
+      latestStories: latest,
+      bands: { tech, design, culture, science, sports },
+    };
   }, [stories]);
-
-  // Remaining stories below the lead for the #for-you list
-  const listStories = useMemo(() => {
-    if (!leadStory) return stories;
-    return stories.filter(s => s.id !== leadStory.id && s.link !== leadStory.link);
-  }, [stories, leadStory]);
-
-  const visibleStories = useMemo(() => {
-    return listStories.slice(0, visibleCount);
-  }, [listStories, visibleCount]);
-
-  const hasMoreStories = listStories.length > visibleCount;
-
-  // Category story buckets for color-blocked sections
-  const techStories = useMemo(() => {
-    return stories.filter(s => s.category?.toLowerCase().includes('tech') && s.id !== leadStory?.id);
-  }, [stories, leadStory]);
-
-  const designStories = useMemo(() => {
-    return stories.filter(s => s.category?.toLowerCase().includes('design') && s.id !== leadStory?.id);
-  }, [stories, leadStory]);
-
-  const cultureStories = useMemo(() => {
-    return stories.filter(s => 
-      (s.category?.toLowerCase().includes('culture') || s.category?.toLowerCase().includes('chronicle')) && 
-      s.id !== leadStory?.id
-    );
-  }, [stories, leadStory]);
-
-  const scienceStories = useMemo(() => {
-    return stories.filter(s => s.category?.toLowerCase().includes('science') && s.id !== leadStory?.id);
-  }, [stories, leadStory]);
-
-  const sportsStories = useMemo(() => {
-    return stories.filter(s => s.category?.toLowerCase().includes('sport') && s.id !== leadStory?.id);
-  }, [stories, leadStory]);
-
-  // Pull-quote story for the single orange moment band
-  const pullQuoteStory = useMemo(() => {
-    return stories.find((s, idx) => idx >= 3 && s.id !== leadStory?.id) || stories[1] || null;
-  }, [stories, leadStory]);
 
   const handleToggleSave = async (story: any) => {
     if (!profile) return;
@@ -109,18 +162,18 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-juice-green text-juice-cream font-sans selection:bg-juice-orange selection:text-juice-cream relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#5D8246] text-[#FFFDD0] font-sans selection:bg-[#FF6B4A] selection:text-[#FFFDD0] relative overflow-x-hidden">
       
-      {/* Sticky App Header with Compass Scroll-Tracking Navigation */}
+      {/* Fixed Header (top-0, z-50, olive background, full width) */}
       <AppHeader />
 
-      {/* Main Container */}
-      <main className="w-full relative z-10">
+      {/* Main content with matching top padding (64px) so content isn't hidden under fixed header */}
+      <main style={{ paddingTop: '64px' }} className="w-full relative z-10">
         
         {/* === SECTION 1: #for-you BAND (Olive Background, Cream Text) === */}
-        <section id="for-you" className="scroll-mt-20 w-full bg-juice-green text-juice-cream">
+        <section id="for-you" className="scroll-mt-16 w-full bg-[#5D8246] text-[#FFFDD0]">
           
-          {/* 2. Orange Trending Ticker (One slim line) */}
+          {/* Slim Orange Ticker (Directly below header) */}
           <TrendingTicker
             headlines={headlines.length > 0 ? headlines : stories.slice(0, 10)}
             onSelectStory={(item) => setReadingArticle({
@@ -133,67 +186,56 @@ export default function FeedPage() {
             })}
           />
 
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10 sm:space-y-14">
             
-            {/* Top Greeting: ~24px below ticker, ~24px above lead metadata */}
-            <div className="mt-6 border-b border-juice-cream/15 pb-4 flex flex-wrap items-baseline justify-between gap-3">
-              <p className="font-serif text-sm sm:text-base text-juice-cream/80">
-                Welcome back, <span className="italic text-juice-cream">{profile?.first_name || 'Traveler'}</span>.
+            {/* Greeting Row */}
+            <div className="border-b border-[#FFFDD0]/15 pb-4 flex flex-wrap items-baseline justify-between gap-3">
+              <p className="font-serif text-sm sm:text-base text-[#FFFDD0]/80">
+                Welcome back, <span className="italic text-[#FFFDD0]">{profile?.first_name || 'Traveler'}</span>.
               </p>
-              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-juice-cream/50">
+              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-[#FFFDD0]/50">
                 Vol. IV — No. 108
               </span>
             </div>
 
-            {/* Lead Story: 60/40 from 900px+, ~20px metadata-to-headline, drop cap on summary */}
+            {/* Lead Story: 7/12 & 5/12 at >= 900px, fixed 4:3 box, max-height 320px */}
             {leadStory && (
-              <div className="mt-6">
-                <LeadStorySection
-                  story={leadStory}
-                  onSelectStory={setReadingArticle}
-                  onToggleSave={handleToggleSave}
-                  isSaved={isSaved}
-                />
-              </div>
+              <LeadStorySection
+                story={leadStory}
+                onSelectStory={setReadingArticle}
+                onToggleSave={handleToggleSave}
+                isSaved={isSaved}
+              />
             )}
 
-            {/* Rhythmic Story List: 6 rows, first 2 rows slightly larger, fixed 128px thumbnail column */}
-            <div aria-label="Latest Stories" className="space-y-0 pt-4">
-              {visibleStories.map((story, idx) => (
-                <StoryListRow
-                  key={story.id || story.link}
-                  story={story}
-                  index={idx}
-                  theme="olive"
-                  onSelectStory={setReadingArticle}
-                  onToggleSave={handleToggleSave}
-                  isSaved={isSaved}
-                />
-              ))}
-
-              {/* "Load more" text link: single hairline rule, no underline */}
-              {hasMoreStories && (
-                <div className="pt-8 pb-4 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setVisibleCount((c) => c + 6)}
-                    className="font-mono text-xs uppercase tracking-widest text-juice-cream/70 hover:text-juice-cream transition-colors cursor-pointer"
-                  >
-                    Load more stories ↓
-                  </button>
+            {/* "Latest" list: max 5 rows, TEXT ONLY (no thumbnails), hairline separators */}
+            {latestStories.length > 0 && (
+              <div aria-label="Latest Stories" className="pt-2">
+                <div className="border-b border-[#FFFDD0]/15 pb-2 mb-1 flex items-center justify-between">
+                  <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-[#FFFDD0]/60 font-bold">
+                    LATEST DISPATCHES
+                  </span>
                 </div>
-              )}
-            </div>
+                {latestStories.map((story) => (
+                  <StoryListRow
+                    key={story.id || story.link}
+                    story={story}
+                    theme="olive"
+                    onSelectStory={setReadingArticle}
+                  />
+                ))}
+              </div>
+            )}
 
           </div>
         </section>
 
         {/* === SECTION 2: #tech BAND (Cream Background, Olive Text) === */}
-        {techStories.length > 0 && (
+        {bands.tech.length >= 3 && (
           <CategorySectionBand
             id="tech"
             title="TECH"
-            stories={techStories}
+            stories={bands.tech}
             theme="cream"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
@@ -201,18 +243,12 @@ export default function FeedPage() {
           />
         )}
 
-        {/* === SINGLE ORANGE MOMENT BAND: Pull-quote with large display type === */}
-        <OrangeMomentBand
-          story={pullQuoteStory}
-          onSelectStory={setReadingArticle}
-        />
-
         {/* === SECTION 3: #design BAND (Olive Background, Cream Text) === */}
-        {designStories.length > 0 && (
+        {bands.design.length >= 3 && (
           <CategorySectionBand
             id="design"
             title="DESIGN"
-            stories={designStories}
+            stories={bands.design}
             theme="olive"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
@@ -221,11 +257,11 @@ export default function FeedPage() {
         )}
 
         {/* === SECTION 4: #culture BAND (Cream Background, Olive Text) === */}
-        {cultureStories.length > 0 && (
+        {bands.culture.length >= 3 && (
           <CategorySectionBand
             id="culture"
             title="CULTURE"
-            stories={cultureStories}
+            stories={bands.culture}
             theme="cream"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
@@ -234,11 +270,11 @@ export default function FeedPage() {
         )}
 
         {/* === SECTION 5: #science BAND (Olive Background, Cream Text) === */}
-        {scienceStories.length > 0 && (
+        {bands.science.length >= 3 && (
           <CategorySectionBand
             id="science"
             title="SCIENCE"
-            stories={scienceStories}
+            stories={bands.science}
             theme="olive"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
@@ -247,11 +283,11 @@ export default function FeedPage() {
         )}
 
         {/* === SECTION 6: #sports BAND (Cream Background, Olive Text) === */}
-        {sportsStories.length > 0 && (
+        {bands.sports.length >= 3 && (
           <CategorySectionBand
             id="sports"
             title="SPORTS"
-            stories={sportsStories}
+            stories={bands.sports}
             theme="cream"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
@@ -259,8 +295,8 @@ export default function FeedPage() {
           />
         )}
 
-        {/* Clean Editorial Footer (60% cream opacity) */}
-        <footer className="border-t border-juice-cream/15 py-12 text-center text-juice-cream/60 font-mono text-[10px] sm:text-[11px] uppercase tracking-widest bg-juice-green">
+        {/* Clean Editorial Footer */}
+        <footer className="border-t border-[#FFFDD0]/15 py-12 text-center text-[#FFFDD0]/60 font-mono text-[10px] sm:text-[11px] uppercase tracking-widest bg-[#5D8246]">
           Odysseus · Vol. IV — No. 108 · Curated slow journalism
         </footer>
 

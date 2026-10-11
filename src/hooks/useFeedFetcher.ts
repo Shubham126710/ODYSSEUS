@@ -30,11 +30,12 @@ const CLIENT_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 // Helper to map feed titles to categories (fallback)
 const getCategoryForFeed = (source: string) => {
   const s = source.toLowerCase();
-  if (s.includes('verge') || s.includes('tech') || s.includes('wired') || s.includes('hacker') || s.includes('ars')) return 'tech';
-  if (s.includes('design') || s.includes('smashing') || s.includes('ux') || s.includes('apart') || s.includes('nice that')) return 'design';
-  if (s.includes('culture') || s.includes('atlantic') || s.includes('new yorker') || s.includes('paris') || s.includes('harper')) return 'culture';
-  if (s.includes('chronicle') || s.includes('bloomberg') || s.includes('financial') || s.includes('wsj') || s.includes('reuters') || s.includes('economist') || s.includes('business')) return 'chronicle';
-  if (s.includes('science') || s.includes('space') || s.includes('nature') || s.includes('nasa') || s.includes('quanta') || s.includes('scientific')) return 'science';
+  if (s.includes('chronicle') || s.includes('bloomberg') || s.includes('financial') || s.includes('wsj') || s.includes('reuters') || s.includes('economist') || s.includes('business') || s.includes('market')) return 'chronicle';
+  if (s.includes('verge') || s.includes('tech') || s.includes('wired') || s.includes('hacker') || s.includes('ars') || s.includes('technologyreview')) return 'tech';
+  if (s.includes('design') || s.includes('smashing') || s.includes('ux') || s.includes('apart') || s.includes('nice that') || s.includes('dezeen') || s.includes('wallpaper')) return 'design';
+  if (s.includes('culture') || s.includes('atlantic') || s.includes('new yorker') || s.includes('paris') || s.includes('harper') || s.includes('aeon')) return 'culture';
+  if (s.includes('science') || s.includes('space') || s.includes('nature') || s.includes('nasa') || s.includes('quanta') || s.includes('scientific') || s.includes('nautilus') || s.includes('phys')) return 'science';
+  if (s.includes('sport') || s.includes('espn') || s.includes('athletic')) return 'sports';
   return 'general';
 };
 

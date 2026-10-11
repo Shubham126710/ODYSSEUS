@@ -71,10 +71,10 @@ export default function CategoryFeedPage() {
   return (
     <div className="min-h-screen bg-juice-green text-juice-cream font-sans selection:bg-juice-orange selection:text-juice-cream relative overflow-x-hidden">
       
-      {/* Sticky App Header (Exact Hero olive green #5D8246) */}
+      {/* Fixed App Header (Exact Hero olive green #5D8246) */}
       <AppHeader />
       
-      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-16 sm:space-y-20 relative z-10">
+      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-12 sm:pb-16 space-y-16 sm:space-y-20 relative z-10">
         
         {/* Top Folio & Return Navigation */}
         <div className="flex items-center justify-between gap-4 border-b border-juice-cream/15 pb-4">

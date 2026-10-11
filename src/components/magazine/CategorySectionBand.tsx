@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { sanitizeText, cleanSource, computeReadTime } from '@/lib/textUtils';
+import { sanitizeText, cleanSource, computeReadTime, isPlaceholderOrLogoUrl } from '@/lib/textUtils';
 
 interface CategorySectionBandProps {
   id: string;
@@ -22,7 +22,8 @@ const CategoryStoryBlock: React.FC<{
   isSaved?: (story: any) => boolean;
 }> = ({ story, theme, onSelectStory, onToggleSave, isSaved }) => {
   const [useProxy, setUseProxy] = useState(false);
-  const [imageError, setImageError] = useState(!story?.imageUrl);
+  const isBadInitialUrl = !story?.imageUrl || isPlaceholderOrLogoUrl(story?.imageUrl);
+  const [imageError, setImageError] = useState(isBadInitialUrl);
 
   const handleImageError = () => {
     if (!useProxy && story.imageUrl) {
@@ -32,11 +33,17 @@ const CategoryStoryBlock: React.FC<{
     }
   };
 
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (e.currentTarget.naturalWidth < 300) {
+      setImageError(true);
+    }
+  };
+
   const activeSrc = useProxy && story.imageUrl
     ? `/api/image-proxy?url=${encodeURIComponent(story.imageUrl)}`
     : story.imageUrl;
 
-  const hasImage = !imageError && !!activeSrc;
+  const hasImage = !imageError && !!activeSrc && !isPlaceholderOrLogoUrl(activeSrc);
 
   const isCream = theme === 'cream';
   const textColor = isCream ? 'text-juice-green' : 'text-juice-cream';
@@ -51,22 +58,23 @@ const CategoryStoryBlock: React.FC<{
   return (
     <article className="flex flex-col justify-between space-y-4 group">
       <div>
-        {/* Optional Small Thumbnail (Never the hero of the block) */}
+        {/* Fixed 16:10 image box: never rendered if broken, < 300px, or placeholder logo */}
         {hasImage && (
           <div 
             onClick={() => onSelectStory(story)}
-            className="w-full aspect-[16/10] max-h-[160px] overflow-hidden mb-4 cursor-pointer"
+            className="w-full aspect-[16/10] h-auto overflow-hidden mb-4 cursor-pointer"
           >
             <img
               src={activeSrc}
               alt={story.title}
               onError={handleImageError}
+              onLoad={handleImageLoad}
               className="w-full h-full object-cover"
             />
           </div>
         )}
 
-        {/* Tiny Mono Metadata */}
+        {/* Tiny Mono Metadata: source name only, no breadcrumbs */}
         <div className={`font-mono text-[9px] sm:text-[10px] uppercase tracking-widest ${metaColor} flex items-center gap-2`}>
           <span className="font-bold">{displaySource}</span>
           {displayReadTime && (
@@ -125,7 +133,8 @@ export const CategorySectionBand: React.FC<CategorySectionBandProps> = ({
   onToggleSave,
   isSaved,
 }) => {
-  if (!stories || stories.length === 0) return null;
+  // Hide a band if it has fewer than 3 valid stories
+  if (!stories || stories.length < 3) return null;
 
   // Take exactly 3 stories per category section
   const sectionStories = stories.slice(0, 3);
@@ -134,7 +143,11 @@ export const CategorySectionBand: React.FC<CategorySectionBandProps> = ({
   return (
     <section 
       id={id} 
-      className={`w-full py-16 sm:py-24 scroll-mt-20 border-t ${
+      style={{
+        backgroundColor: isCream ? '#FFFDD0' : '#5D8246',
+        color: isCream ? '#5D8246' : '#FFFDD0',
+      }}
+      className={`w-full py-16 sm:py-24 scroll-mt-16 border-t ${
         isCream 
           ? 'bg-juice-cream text-juice-green border-juice-green/20' 
           : 'bg-juice-green text-juice-cream border-juice-cream/15'
@@ -142,7 +155,7 @@ export const CategorySectionBand: React.FC<CategorySectionBandProps> = ({
     >
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
         
-        {/* Section Header: Huge display type clamp(56px, 11vw, 160px), tight tracking & line-height */}
+        {/* Section Header: Huge display type, tight tracking & line-height */}
         <div className={`border-b ${isCream ? 'border-juice-green/20' : 'border-juice-cream/15'} pb-4 sm:pb-6`}>
           <div className="flex flex-wrap items-baseline justify-between gap-4">
             <h2 
@@ -169,7 +182,7 @@ export const CategorySectionBand: React.FC<CategorySectionBandProps> = ({
           </div>
         </div>
 
-        {/* 3 Story Columns on Desktop */}
+        {/* 3 Story Columns */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10">
           {sectionStories.map((story) => (
             <CategoryStoryBlock
