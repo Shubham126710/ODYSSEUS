@@ -64,8 +64,9 @@ const FeedLoadingScreen = () => {
 import { AddFeedModal } from '@/components/AddFeedModal';
 import { ReadingModal } from '@/components/ReadingModal';
 import { Toast } from '@/components/Toast';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 import { decodeHtmlEntities } from '@/lib/textUtils';
+import { getCurrentMultiplier, getExplorerRank } from '@/lib/gamification';
 
 const TRENDING_HEADLINES = [
   { title: "The Future of Interface Design is Invisible", link: "#", source: "Design" },
@@ -246,6 +247,22 @@ export default function FeedPage() {
   const featuredStory = filteredStories.length > 0 ? filteredStories[0] : null;
   const otherStories = filteredStories.length > 0 ? filteredStories.slice(1) : [];
 
+  const multiplier = getCurrentMultiplier();
+  const rank = getExplorerRank(profile?.total_reading_minutes || 0, profile?.streak_count || 1);
+  const minutesToday = profile?.minutes_read_today || 0;
+  const dailyGoal = profile?.daily_goal_minutes || 15;
+  const freezesAvailable = profile?.streak_freezes_available ?? 1;
+  const todayFormatted = format(new Date(), 'EEEE, d MMMM yyyy');
+
+  const currentHour = new Date().getHours();
+  const editionLabel = currentHour >= 5 && currentHour < 12 
+    ? 'Morning Dispatch' 
+    : currentHour >= 12 && currentHour < 17 
+    ? 'Midday Edition' 
+    : currentHour >= 17 && currentHour < 22 
+    ? 'Dusk Journal' 
+    : 'Night Owl Nocturne';
+
   return (
     <>
       {/* Full Screen Loading State */}
@@ -280,67 +297,151 @@ export default function FeedPage() {
         className="h-[100dvh] overflow-y-scroll snap-y snap-mandatory bg-juice-cream font-sans selection:bg-juice-orange selection:text-white flex flex-col overflow-x-hidden scroll-smooth"
       >
       
-      {/* HERO SECTION - Cream */}
-      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden snap-start shrink-0">
-        {/* Background Typography */}
+      {/* HERO SECTION - The Editorial Broadside */}
+      <section className="relative h-screen w-full flex flex-col justify-between overflow-hidden snap-start shrink-0 pt-14 md:pt-20 bg-juice-cream text-juice-green select-none">
+        
+        {/* Editorial Masthead Dateline */}
+        <div className="shrink-0 w-full border-b border-juice-green/15 px-4 md:px-12 py-2 flex items-center justify-between text-[9px] md:text-xs font-mono uppercase tracking-[0.2em] text-juice-green/70 z-20 bg-juice-cream/40 backdrop-blur-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-juice-orange">VOL. IV</span>
+            <span className="opacity-40">•</span>
+            <span>NO. {String(new Date().getDate()).padStart(3, '0')}</span>
+            <span className="hidden sm:inline-block opacity-40">•</span>
+            <span className="hidden sm:inline-block font-semibold">{editionLabel}</span>
+          </div>
+          <div className="font-serif font-bold text-xs tracking-wider hidden md:block text-juice-green">
+            THE ODYSSEUS JOURNAL
+          </div>
+          <div className="flex items-center gap-2 font-mono">
+            <span>{todayFormatted}</span>
+            <span className="opacity-40 hidden sm:inline-block">•</span>
+            <span className="text-juice-orange font-bold hidden sm:inline-block">GLOBAL SALON</span>
+          </div>
+        </div>
+
+        {/* Massive Background Typography - Watermark Parallax */}
         <motion.div 
           style={{ y }}
           className="absolute inset-0 flex flex-col items-center justify-center z-0 pointer-events-none select-none overflow-hidden"
         >
-          <motion.h1 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 0.08, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply whitespace-nowrap"
-            style={{ fontSize: 'clamp(4rem, 18vw, 18rem)' }}
-          >
-            {greeting.line1}
-          </motion.h1>
-          <motion.h1 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 0.08, y: 0 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="leading-[0.75] font-black tracking-tighter text-juice-green text-center mix-blend-multiply whitespace-nowrap"
-            style={{ fontSize: 'clamp(4rem, 18vw, 18rem)' }}
-          >
-            {greeting.line2}
-          </motion.h1>
-        </motion.div>
-
-        {/* Foreground Content */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
-          className="z-10 relative text-center mb-32"
-        >
-          <div className="inline-block relative px-4">
-            <h2 className="text-juice-green font-serif text-3xl sm:text-5xl md:text-7xl font-bold italic tracking-tight leading-tight">
-              Ready to explore,<br/>
-              <span className="text-juice-orange not-italic underline decoration-2 md:decoration-4 decoration-juice-green/20 underline-offset-4 md:underline-offset-8">
-                {profile?.first_name || 'Traveler'}?
-              </span>
-            </h2>
+          <div className="flex flex-col items-center justify-center opacity-[0.07] leading-[0.72] font-black tracking-tighter text-juice-green mix-blend-multiply">
+            <span className="text-[20vw] md:text-[18vw]">ODYS</span>
+            <span className="text-[20vw] md:text-[18vw]">SEUS</span>
           </div>
         </motion.div>
 
-        {/* Massive "SCROLL TO BEGIN" Watermark - Behind foreground content */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.06 }}
-          transition={{ delay: 1.2, duration: 1 }}
-          className="absolute inset-0 flex flex-col items-center justify-end pb-24 md:pb-32 z-[5] pointer-events-none select-none"
-        >
-          <p className="text-[12vw] md:text-[10vw] leading-[0.85] font-black tracking-tighter text-juice-green text-center uppercase mix-blend-multiply">
-            Scroll to
-          </p>
-          <p className="text-[12vw] md:text-[10vw] leading-[0.85] font-black tracking-tighter text-juice-green text-center uppercase mix-blend-multiply">
-            begin your
-          </p>
-          <p className="text-[12vw] md:text-[10vw] leading-[0.85] font-black tracking-tighter text-juice-green text-center uppercase mix-blend-multiply">
-            journey
-          </p>
-        </motion.div>
+        {/* Central Hero Broadside Showcase */}
+        <div className="relative z-10 max-w-5xl mx-auto w-full px-4 md:px-8 flex-1 flex flex-col items-center justify-center text-center my-auto pb-14 md:pb-20">
+          
+          {/* Live Traveler Status Ribbon */}
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-3 md:mb-5"
+          >
+            {/* Multiplier Tag */}
+            <div className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-xs border transition-all ${
+              multiplier.isBonusActive 
+                ? 'bg-juice-orange text-white border-juice-orange ring-2 ring-juice-orange/20 animate-pulse' 
+                : 'bg-white/80 text-juice-green border-juice-green/15'
+            }`}>
+              <span>{multiplier.icon}</span>
+              <span>{multiplier.label} ({multiplier.badge})</span>
+            </div>
+
+            {/* Streak & Freeze Status */}
+            <div className="px-3 py-1 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 bg-white/80 text-juice-green border border-juice-green/15 shadow-xs">
+              <span className="text-juice-orange">🔥</span>
+              <span>{profile?.streak_count || 1} Day Streak</span>
+              <span className="text-juice-green/30">•</span>
+              <span>🧊 {freezesAvailable} Shield</span>
+            </div>
+
+            {/* Explorer Rank */}
+            <div className="px-3 py-1 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 bg-juice-green text-juice-cream shadow-xs">
+              <span>{rank.badgeIcon}</span>
+              <span>{rank.title}</span>
+            </div>
+          </motion.div>
+
+          {/* Main Headline */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.1, type: "spring" }}
+            className="space-y-1.5 md:space-y-2 mb-3 md:mb-5"
+          >
+            <div className="text-[9px] md:text-xs font-mono uppercase tracking-[0.25em] text-juice-green/60">
+              DISPATCH EDITION • CURATED CHRONICLE
+            </div>
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-juice-green leading-[1.08]">
+              <span className="italic font-normal">Welcome back, </span>
+              <span className="text-juice-orange not-italic underline decoration-2 md:decoration-4 decoration-juice-green/20 underline-offset-8">
+                {profile?.first_name || 'Traveler'}
+              </span>
+              <span>.</span>
+            </h1>
+            <p className="max-w-lg mx-auto text-xs sm:text-sm text-juice-green/75 leading-relaxed font-sans">
+              Curated salon of slow journalism, technology, architecture, and global affairs.
+            </p>
+          </motion.div>
+
+          {/* Centerpiece: Interactive Compass with Celestial Orbit Rings */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, delay: 0.2, type: "spring", damping: 14 }}
+            className="relative my-2 sm:my-3 md:my-4 flex items-center justify-center"
+          >
+            {/* Concentric Celestial Orbit Rings */}
+            <div className="absolute w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 rounded-full border border-dashed border-juice-green/20 pointer-events-none animate-[spin_50s_linear_infinite]" />
+            <div className="absolute w-48 h-48 sm:w-56 sm:h-56 md:w-68 md:h-68 rounded-full border border-juice-green/10 pointer-events-none" />
+
+            {/* The Interactive Central Compass */}
+            <InteractiveCompass className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 text-juice-orange drop-shadow-xl hover:scale-105 transition-transform" />
+          </motion.div>
+
+          {/* Quick Magazine Portals (Jump straight to spreads) */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="flex flex-wrap items-center justify-center gap-2.5 md:gap-3 mt-2 sm:mt-3"
+          >
+            <button
+              onClick={() => {
+                if (containerRef.current) {
+                  containerRef.current.scrollTo({ top: containerRef.current.clientHeight, behavior: 'smooth' });
+                }
+              }}
+              className="px-5 py-2.5 rounded-full bg-juice-green hover:bg-[#4b6a38] text-juice-cream font-bold text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-all flex items-center gap-2 group"
+            >
+              <span>Read Cover Story</span>
+              <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (containerRef.current) {
+                  containerRef.current.scrollTo({ top: containerRef.current.clientHeight * 2, behavior: 'smooth' });
+                }
+              }}
+              className="px-5 py-2.5 rounded-full bg-white/80 hover:bg-white text-juice-green border border-juice-green/20 hover:border-juice-green/40 font-bold text-xs uppercase tracking-wider shadow-xs hover:scale-105 transition-all flex items-center gap-2"
+            >
+              <span>The Collection</span>
+              <span className="text-juice-orange font-mono">({stories.length})</span>
+              <span>→</span>
+            </button>
+          </motion.div>
+
+          {/* Kinetic Scroll Prompt Indicator */}
+          <div className="mt-3 flex items-center gap-2 text-[9px] md:text-[10px] font-mono uppercase tracking-[0.25em] text-juice-green/50">
+            <span className="w-1.5 h-1.5 rounded-full bg-juice-orange animate-ping" />
+            <span>Scroll to commence reading</span>
+            <span className="animate-bounce">↓</span>
+          </div>
+        </div>
 
 
 
