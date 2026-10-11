@@ -24,14 +24,18 @@ export const ScrollRail: React.FC<ScrollRailProps> = ({
   const percentLabelRef = useRef<HTMLSpanElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Generate 101 ticks (0% to 100% in 1% increments)
+  // Generate 51 ticks (every 2% for an airy, elegant precision gauge)
+  // Only key milestones (0, 20, 40, 60, 80, 100) receive numeric values
   const ticks = useMemo(() => {
-    return Array.from({ length: 101 }, (_, i) => ({
-      percent: i,
-      isMajor: i % 5 === 0, // 0, 5, 10, 15 ... 95, 100
-      isDecade: i % 10 === 0,
-      label: i.toString().padStart(2, '0'),
-    }));
+    return Array.from({ length: 51 }, (_, i) => {
+      const percent = i * 2;
+      return {
+        percent,
+        isMilestone: percent % 20 === 0, // 0, 20, 40, 60, 80, 100
+        isMajor: percent % 10 === 0,     // 10, 30, 50, 70, 90
+        label: percent.toString().padStart(2, '0'),
+      };
+    });
   }, []);
 
   // Smooth scroll to section with navOffset and prefers-reduced-motion check
@@ -123,6 +127,13 @@ export const ScrollRail: React.FC<ScrollRailProps> = ({
           : `${Math.round(progress).toString().padStart(3, '0')}%`;
         percentLabelRef.current.textContent = text;
       }
+
+      // Boundary fallback for active section detection
+      if (currentScroll < 100 && sections.length > 0) {
+        setActiveSectionId(sections[0].id);
+      } else if (maxScroll > 0 && currentScroll >= maxScroll - 80 && sections.length > 0) {
+        setActiveSectionId(sections[sections.length - 1].id);
+      }
     };
 
     const onScroll = () => {
@@ -143,7 +154,7 @@ export const ScrollRail: React.FC<ScrollRailProps> = ({
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, []);
+  }, [sections]);
 
   // IntersectionObserver for section detection (smooth transitions between active sections)
   useEffect(() => {
@@ -151,7 +162,7 @@ export const ScrollRail: React.FC<ScrollRailProps> = ({
 
     const observerOptions = {
       root: null,
-      rootMargin: `-${navOffset}px 0px -45% 0px`,
+      rootMargin: `-${navOffset}px 0px -40% 0px`,
       threshold: [0, 0.2, 0.5],
     };
 
@@ -159,7 +170,6 @@ export const ScrollRail: React.FC<ScrollRailProps> = ({
       // Find the topmost intersecting entry
       const visible = entries.filter((e) => e.isIntersecting);
       if (visible.length > 0) {
-        // Sort by distance from top of viewport
         visible.sort((a, b) => Math.abs(a.boundingClientRect.top - navOffset) - Math.abs(b.boundingClientRect.top - navOffset));
         setActiveSectionId(visible[0].target.id);
       }
@@ -172,9 +182,7 @@ export const ScrollRail: React.FC<ScrollRailProps> = ({
       if (el) observer.observe(el);
     });
 
-    // Fallback: check on initial load in case observer hasn't fired yet
     const checkInitial = () => {
-      const scrollY = window.scrollY;
       let matched = sections[0]?.id;
       for (const sec of sections) {
         const el = document.getElementById(sec.id);
@@ -196,15 +204,15 @@ export const ScrollRail: React.FC<ScrollRailProps> = ({
 
   return (
     <aside
-      aria-label="Vertical navigation rail and scroll progress indicator"
-      className={`fixed right-0 top-16 bottom-0 z-40 select-none pointer-events-none flex items-stretch justify-end pr-0.5 sm:pr-1 ${className}`}
+      aria-label="Vertical reading progress and section navigation"
+      className={`fixed right-1 sm:right-2 top-28 bottom-10 z-40 select-none pointer-events-none flex items-stretch justify-end opacity-75 hover:opacity-100 transition-opacity duration-300 group/rail ${className}`}
     >
       <div className="relative h-full flex items-stretch pointer-events-auto">
 
-        {/* SECTION NAVIGATION LABELS (Visible on desktop lg+) */}
+        {/* SECTION NAVIGATION LABELS (Rotated vertically, whisper-quiet until hovered/active) */}
         <nav
           aria-label="Section shortcuts"
-          className="hidden lg:flex flex-col justify-between py-8 pr-2.5 items-end pointer-events-auto"
+          className="hidden lg:flex flex-col justify-between py-3 pr-1.5 items-end pointer-events-auto"
         >
           {sections.map((section) => {
             const isActive = activeSectionId === section.id;
@@ -215,20 +223,27 @@ export const ScrollRail: React.FC<ScrollRailProps> = ({
                 onClick={() => scrollToSection(section.id)}
                 aria-label={`Navigate to section ${section.label}`}
                 aria-current={isActive ? 'true' : undefined}
-                className={`group py-2 px-1 cursor-pointer transition-all duration-300 flex items-center justify-center focus:outline-none focus-visible:ring-1 focus-visible:ring-[#EA580C] ${
+                className={`group/btn py-1 px-0.5 cursor-pointer transition-all duration-200 flex items-center justify-center focus:outline-none focus-visible:ring-1 focus-visible:ring-[#EA580C] ${
                   isActive
                     ? 'text-[#FFFDD0] font-bold opacity-100'
-                    : 'text-white/35 hover:text-white/80 font-medium opacity-60 hover:opacity-100'
+                    : 'text-white/25 hover:text-white/70 font-medium opacity-60 hover:opacity-100'
                 }`}
                 style={{
                   writingMode: 'vertical-rl',
                   transform: 'rotate(180deg)',
                 }}
               >
-                <span className={`font-mono text-[9px] uppercase tracking-[0.25em] transition-all duration-200 ${
-                  isActive ? 'text-[#FFFDD0] scale-105' : 'text-white/50'
-                }`}>
-                  {section.label}
+                <span className="flex items-center gap-1">
+                  {isActive && (
+                    <span className="w-1 h-1 rounded-full bg-[#EA580C] mb-1 shrink-0" />
+                  )}
+                  <span className={`font-mono text-[7px] sm:text-[7.5px] uppercase tracking-[0.22em] transition-all duration-200 ${
+                    isActive 
+                      ? 'text-[#FFFDD0] font-bold tracking-[0.28em]' 
+                      : 'text-white/30 group-hover/btn:text-white/75'
+                  }`}>
+                    {section.label}
+                  </span>
                 </span>
               </button>
             );
@@ -244,12 +259,12 @@ export const ScrollRail: React.FC<ScrollRailProps> = ({
           aria-label="Scroll progress gauge"
           aria-valuemin={0}
           aria-valuemax={100}
-          className="relative w-8 sm:w-11 md:w-12 h-full flex flex-col items-end cursor-pointer group pointer-events-auto"
+          className="relative w-4 sm:w-5 h-full flex flex-col items-end cursor-pointer pointer-events-auto"
         >
           {/* Thin 1px Vertical Track Line */}
-          <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-white/20 group-hover:bg-white/30 transition-colors duration-200" />
+          <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-white/12 group-hover/rail:bg-white/25 transition-colors duration-200" />
 
-          {/* Graduated Horizontal Ticks & Numeric Percentage Labels */}
+          {/* Graduated Horizontal Ticks & Numeric Milestone Labels */}
           <div className="relative w-full h-full flex flex-col justify-between pointer-events-none py-1">
             {ticks.map((tick) => (
               <div
@@ -257,53 +272,49 @@ export const ScrollRail: React.FC<ScrollRailProps> = ({
                 className="flex items-center justify-end w-full relative"
                 style={{ height: '0px' }}
               >
-                {/* Percentage Numeric Label (Displayed every 5% on desktop, every 10% on tablet) */}
-                {tick.isMajor && (
+                {/* Milestone Numeric Label (Only 00, 20, 40, 60, 80, 100) */}
+                {tick.isMilestone && (
                   <span
-                    className={`absolute right-3.5 sm:right-4 font-mono text-[7px] select-none transition-colors duration-150 ${
-                      tick.isDecade
-                        ? 'text-white/40 font-semibold'
-                        : 'hidden sm:inline text-white/25'
-                    }`}
+                    className="absolute right-2.5 sm:right-3 font-mono text-[6px] sm:text-[6.5px] select-none text-white/20 group-hover/rail:text-white/40 transition-colors pointer-events-none"
                   >
                     {tick.label}
                   </span>
                 )}
 
-                {/* Horizontal Tick Mark extending to the left from the vertical track */}
+                {/* Subtle Horizontal Hairline Tick Mark */}
                 <span
                   className={`block transition-all duration-150 ${
-                    tick.isDecade
-                      ? 'w-3 sm:w-3.5 h-[1px] bg-white/70'
+                    tick.isMilestone
+                      ? 'w-2 sm:w-2.5 h-[1px] bg-white/20 group-hover/rail:bg-white/35'
                       : tick.isMajor
-                      ? 'w-2 sm:w-2.5 h-[1px] bg-white/45'
-                      : 'w-1 sm:w-1.5 h-[1px] bg-white/20'
+                      ? 'w-1.5 sm:w-2 h-[1px] bg-white/12 group-hover/rail:bg-white/25'
+                      : 'w-1 h-[1px] bg-white/[0.06] group-hover/rail:bg-white/[0.12]'
                   }`}
                 />
               </div>
             ))}
           </div>
 
-          {/* ACTIVE PROGRESS INDICATOR (Subtle thin indicator line + live percentage badge) */}
+          {/* ACTIVE PROGRESS INDICATOR (Delicate 1px line + tiny readout) */}
           <div
             ref={indicatorRef}
-            className="absolute right-0 pointer-events-none flex items-center justify-end will-change-[top]"
+            className="absolute right-0 pointer-events-none flex items-center justify-end will-change-[top] z-10"
             style={{
               top: '0%',
               transform: 'translateY(-50%)',
-              transition: 'top 80ms ease-out',
+              transition: 'top 60ms linear',
             }}
           >
             {/* Live Percentage Value Label */}
             <span
               ref={percentLabelRef}
-              className="mr-1.5 font-mono text-[8px] sm:text-[9px] font-bold text-[#EA580C] tracking-tight select-none"
+              className="mr-1 font-mono text-[7px] sm:text-[7.5px] font-bold text-[#EA580C] tracking-tight select-none"
             >
               000%
             </span>
 
-            {/* Thin Subtle Accent Line extending from track */}
-            <span className="w-4 sm:w-5 h-[1.5px] bg-[#EA580C] shadow-[0_0_6px_rgba(234,88,12,0.8)]" />
+            {/* Delicate Accent Tick Line */}
+            <span className="w-2.5 sm:w-3.5 h-[1.5px] bg-[#EA580C] shrink-0" />
           </div>
 
         </div>

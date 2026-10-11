@@ -157,6 +157,7 @@ export default function FeedPage() {
   // Dynamically constructed sections for the ScrollRail navigation
   const dynamicSections = useMemo(() => {
     const list = [
+      { id: 'hub-cover', label: 'COVER' },
       { id: 'hub-dispatch', label: 'DISPATCH' },
     ];
     if (techStories.length > 0) list.push({ id: 'hub-tech', label: 'TECH' });
@@ -221,7 +222,7 @@ export default function FeedPage() {
       <ScrollRail sections={dynamicSections} navOffset={72} />
 
       {/* Main Magazine Layout Broadsheet */}
-      <main className="max-w-[1560px] mx-auto px-4 sm:px-6 lg:pl-10 lg:pr-24 xl:pr-28 2xl:pr-32 py-6 sm:py-8 space-y-10 sm:space-y-14 relative z-10">
+      <main className="max-w-[1560px] mx-auto px-4 sm:px-6 lg:pl-8 lg:pr-14 xl:pl-10 xl:pr-16 2xl:px-14 py-6 sm:py-8 space-y-10 sm:space-y-14 relative z-10">
         
         {/* 1. MASTHEAD FOLIO & CATEGORY STRIP */}
         <Masthead
@@ -263,13 +264,15 @@ export default function FeedPage() {
 
         {/* 4. DOMINANT LEAD STORY (Visible above the fold at 1440px) */}
         {featuredStory && (
-          <LeadStory
-            featuredStory={featuredStory}
-            sideStories={sideStories}
-            onSelectStory={setReadingArticle}
-            onToggleSave={handleToggleSave}
-            isSaved={isSaved}
-          />
+          <div id="hub-cover" className="scroll-mt-24">
+            <LeadStory
+              featuredStory={featuredStory}
+              sideStories={sideStories}
+              onSelectStory={setReadingArticle}
+              onToggleSave={handleToggleSave}
+              isSaved={isSaved}
+            />
+          </div>
         )}
 
         {/* 5. ASYMMETRIC EDITORIAL GRID (01 / THE DISPATCH + IN BRIEF WIRE) */}
