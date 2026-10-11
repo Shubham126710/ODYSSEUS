@@ -28,15 +28,24 @@ export function decodeHtmlEntities(text: string): string {
     .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
 }
 
+/**
+ * Strips all HTML tags and decodes all HTML entities.
+ * Ensures zero literal tags (e.g. <em>, <b>, <font>) or encoded artifacts appear in text.
+ */
+export function sanitizeText(raw: string): string {
+  if (!raw) return '';
+  let cleaned = decodeHtmlEntities(raw);
+  // Strip all HTML tags
+  cleaned = cleaned.replace(/<[^>]+>/g, ' ');
+  // Decode entities again in case of double-encoding
+  cleaned = decodeHtmlEntities(cleaned);
+  // Normalize whitespace
+  return cleaned.replace(/\s+/g, ' ').trim();
+}
+
 export function cleanExcerpt(raw: string, maxLength: number = 180): string {
   if (!raw) return '';
-  const decoded = decodeHtmlEntities(raw);
-  const stripped = decoded
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  if (stripped.length <= maxLength) return stripped;
-  return stripped.substring(0, maxLength).trim() + '...';
+  const sanitized = sanitizeText(raw);
+  if (sanitized.length <= maxLength) return sanitized;
+  return sanitized.substring(0, maxLength).trim() + '...';
 }

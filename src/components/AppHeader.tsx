@@ -120,7 +120,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
     <>
       <header 
         style={{ 
-          backgroundColor: pathname?.startsWith('/feed') ? '#243625' : '#5D8246', 
+          backgroundColor: '#5D8246', 
           borderBottom: '1px solid rgba(255, 253, 208, 0.15)' 
         }}
         className="sticky top-0 z-50 text-[#FFFDD0] shadow-sm transition-colors duration-300"
@@ -147,7 +147,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
             >
               FOR YOU
               {pathname === '/feed' && (
-                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#EA580C] rounded-full" />
+                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FF6B4A] rounded-full" />
               )}
             </Link>
 
@@ -166,7 +166,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 >
                   {cleanItem.toUpperCase()}
                   {isActive && (
-                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#EA580C] rounded-full" />
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FF6B4A] rounded-full" />
                   )}
                 </Link>
               );
@@ -204,7 +204,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
               title="Import Article (Pocket & Instapaper Clean Reader)"
               aria-label="Import Article"
             >
-              <span className="text-[#EA580C]">✦</span>
+              <span className="text-[#FF6B4A]">✦</span>
               <span className="hidden sm:inline">Import</span>
             </button>
 
@@ -225,13 +225,13 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                   onClick={() => setIsStatsOpen(!isStatsOpen)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-all text-xs font-mono font-bold tracking-wider ${
                     isStatsOpen 
-                      ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-sm' 
+                      ? 'bg-[#FF6B4A] text-white border-[#FF6B4A] shadow-sm' 
                       : 'bg-white/10 hover:bg-white/15 text-white border-white/20'
                   }`}
                   title="Traveler's Chamber"
                   aria-label="Streak"
                 >
-                  <span className="text-amber-400">✦</span>
+                  <span className="text-[#FF6B4A]">✦</span>
                   <span>{profile.streak_count || 1}D</span>
                 </button>
 
@@ -423,7 +423,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
               onClick={() => { setIsImportOpen(true); setIsMobileMenuOpen(false); }} 
               className="flex items-center gap-2 px-4 py-2.5 text-xs font-mono text-white/90 hover:text-white w-full text-left"
             >
-              <span className="text-[#EA580C]">✦</span> Import Web Article
+              <span className="text-[#FF6B4A]">✦</span> Import Web Article
             </button>
             <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs font-mono text-white/70">
               Profile

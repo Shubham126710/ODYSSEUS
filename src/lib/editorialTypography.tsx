@@ -1,43 +1,48 @@
 import React from 'react';
+import { sanitizeText } from './textUtils';
 
 /**
- * Formats a headline in editorial magazine style:
- * Heavy grotesk sans display with a single emphasized word set in italic serif.
+ * Renders the lead story headline in the hero's heavy grotesk,
+ * with exactly ONE key word accented in italic serif.
+ * Accents only on the lead headline, never auto-italicizing other headlines.
  */
-export function EditorialHeadline({
+export function LeadHeadline({
   title,
   className = "",
 }: {
   title: string;
   className?: string;
 }) {
-  if (!title) return null;
+  const clean = sanitizeText(title);
+  if (!clean) return null;
 
-  const words = title.trim().split(/\s+/);
+  const words = clean.split(/\s+/);
   if (words.length <= 2) {
-    return <span className={className}>{title}</span>;
+    return <span className={className}>{clean}</span>;
   }
 
   // Common stop words to avoid emphasizing
   const stopWords = new Set([
-    'the', 'and', 'for', 'with', 'from', 'that', 'this', 'have', 'been', 
+    'the', 'and', 'for', 'with', 'from', 'that', 'this', 'have', 'been',
     'will', 'what', 'when', 'where', 'into', 'about', 'over', 'more', 'some',
-    'after', 'before', 'their', 'there', 'could', 'would', 'should', 'here'
+    'after', 'before', 'their', 'there', 'could', 'would', 'should', 'here',
+    'said', 'says', 'than', 'them', 'then', 'they', 'are', 'was', 'were',
+    'how', 'why', 'who', 'its', 'not', 'but', 'out', 'new', 'all'
   ]);
 
-  // Find a meaningful word to italicize in serif (ideally towards middle/end)
+  // Pick a meaningful word towards the end of the headline
   let targetIndex = -1;
-  for (let i = Math.min(words.length - 1, 5); i >= 1; i--) {
-    const clean = words[i].replace(/[^a-zA-Z]/g, '').toLowerCase();
-    if (clean.length >= 4 && !stopWords.has(clean)) {
+  for (let i = words.length - 1; i >= 1; i--) {
+    const wordClean = words[i].replace(/[^a-zA-Z]/g, '').toLowerCase();
+    if (wordClean.length >= 4 && !stopWords.has(wordClean)) {
       targetIndex = i;
       break;
     }
   }
 
-  // Fallback to second-to-last word or last word
+  // Fallback to the last word if no long word matched
   if (targetIndex === -1) {
-    targetIndex = words.length > 2 ? words.length - 2 : words.length - 1;
+    targetIndex = words.length - 1;
   }
 
   return (
@@ -46,7 +51,7 @@ export function EditorialHeadline({
         if (idx === targetIndex) {
           return (
             <React.Fragment key={idx}>
-              <span className="font-serif italic font-normal tracking-normal text-[#FAF6E8] inline-block">
+              <span className="font-serif italic font-normal tracking-normal text-juice-cream inline-block">
                 {word}
               </span>{' '}
             </React.Fragment>
@@ -58,27 +63,5 @@ export function EditorialHeadline({
   );
 }
 
-/**
- * Formats a lead excerpt with a classical magazine drop cap on the first letter.
- */
-export function EditorialDropCapText({
-  text,
-  className = "",
-}: {
-  text: string;
-  className?: string;
-}) {
-  if (!text) return null;
-  const trimmed = text.trim();
-  const firstLetter = trimmed.charAt(0);
-  const remaining = trimmed.slice(1);
+export const EditorialHeadline = LeadHeadline;
 
-  return (
-    <p className={`font-sans leading-relaxed text-[#FFFDD0]/80 text-sm sm:text-base ${className}`}>
-      <span className="float-left text-4xl sm:text-5xl font-serif font-bold text-[#FFFDD0] mr-2.5 leading-[0.8] pt-1 select-none">
-        {firstLetter}
-      </span>
-      {remaining}
-    </p>
-  );
-}

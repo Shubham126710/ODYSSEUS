@@ -214,17 +214,7 @@ export default function SavedPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#243B26] text-[#FAF7EE] font-sans selection:bg-[#EA580C] selection:text-white relative">
-      
-      {/* Tactile Archival Background Dot Pattern */}
-      <div 
-        className="fixed inset-0 pointer-events-none opacity-20 z-0" 
-        style={{
-          backgroundImage: 'radial-gradient(rgba(255, 253, 208, 0.15) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-        }} 
-      />
-
+    <div className="min-h-screen bg-juice-green text-juice-cream font-sans selection:bg-juice-orange selection:text-juice-cream relative overflow-x-hidden">
       <AppHeader />
       
       <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-12 py-8 sm:py-12 space-y-10 relative z-10">
@@ -298,7 +288,7 @@ export default function SavedPage() {
             className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 ${
               activeTab === 'all'
                 ? 'bg-[#EA580C] text-white shadow-md'
-                : 'bg-[#182C1B] text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-[#1f3723] border border-white/15'
+                : 'bg-white/10 text-juice-cream/80 hover:text-juice-cream hover:bg-white/20 border border-white/15'
             }`}
           >
             All Saved ({savedStories.length})
@@ -308,7 +298,7 @@ export default function SavedPage() {
             className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 ${
               activeTab === 'imported'
                 ? 'bg-[#EA580C] text-white shadow-md'
-                : 'bg-[#182C1B] text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-[#1f3723] border border-white/15'
+                : 'bg-white/10 text-juice-cream/80 hover:text-juice-cream hover:bg-white/20 border border-white/15'
             }`}
           >
             ✦ Imported Web Prose
@@ -318,7 +308,7 @@ export default function SavedPage() {
             className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 ${
               activeTab === 'prestige'
                 ? 'bg-[#EA580C] text-white shadow-md'
-                : 'bg-[#182C1B] text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-[#1f3723] border border-white/15'
+                : 'bg-white/10 text-juice-cream/80 hover:text-juice-cream hover:bg-white/20 border border-white/15'
             }`}
           >
             Prestige Publications
