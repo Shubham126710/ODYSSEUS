@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odyssey • Companion Salon</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    
+    <!-- Editorial Header -->
+    <header class="popup-header">
+      <div class="header-brand">
+        <div class="compass-icon">✦</div>
+        <div class="header-titles">
+          <span class="header-kicker">Companion Protocol</span>
+          <h1 class="header-title">ODYSSEY</h1>
+        </div>
+      </div>
+      <button id="open-settings-btn" class="settings-btn" title="Settings & Options">⚙</button>
+    </header>
+
+    <!-- Active Webpage Card -->
+    <section class="active-card">
+      <div class="card-meta">
+        <span id="page-domain" class="domain-pill">detecting...</span>
+        <span id="page-read-time" class="read-time">~ min read</span>
+      </div>
+      <h2 id="page-title" class="page-title">Loading current story...</h2>
+      <p id="page-url" class="page-url"></p>
+    </section>
+
+    <!-- Main Actions -->
+    <div class="actions-stack">
+      <button id="save-btn" class="btn btn-primary">
+        <span class="btn-icon">✦</span>
+        <span id="save-btn-text">Save To Odysseus Salon</span>
+      </button>
+
+      <button id="chamber-btn" class="btn btn-secondary">
+        <span>Read In Zen Chamber</span>
+        <span class="btn-arrow">↗</span>
+      </button>
+    </div>
+
+    <!-- Status Feedback Banner -->
+    <div id="status-banner" class="status-banner hidden">
+      <span class="status-icon">✓</span>
+      <span id="status-text">Article saved to your offline salon!</span>
+    </div>
+
+    <!-- Recent Saves Section -->
+    <section class="recent-section">
+      <div class="recent-header">
+        <span class="recent-title">Recent In Salon</span>
+        <a id="view-all-link" href="#" class="view-all-link">Open Salon ↗</a>
+      </div>
+      <div id="recent-list" class="recent-list">
+        <div class="empty-state">No stories saved yet. Click above to save this page!</div>
+      </div>
+    </section>
+
+    <!-- Footer Dateline -->
+    <footer class="popup-footer">
+      <span>Shortcut: <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> to quick-save</span>
+    </footer>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

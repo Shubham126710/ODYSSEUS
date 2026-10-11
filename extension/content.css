@@ -1,0 +1,119 @@
+/* Odyssey Luxury In-Page Notification Toast */
+#odyssey-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 2147483647;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+  pointer-events: none;
+}
+
+.odyssey-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background-color: #F5F2EB;
+  color: #1E2E1B;
+  border: 1.5px solid #FF6B4A;
+  border-radius: 20px;
+  padding: 14px 20px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(255, 107, 74, 0.15);
+  animation: odysseySlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  max-width: 380px;
+  box-sizing: border-box;
+}
+
+.odyssey-toast-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #FF6B4A;
+  color: #F5F2EB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 900;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255, 107, 74, 0.35);
+}
+
+.odyssey-toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.odyssey-toast-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1E2E1B;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.odyssey-toast-subtitle {
+  font-size: 11px;
+  color: #5D8246;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.odyssey-toast-action {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #FF6B4A;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.odyssey-toast-action:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.odyssey-toast-close {
+  background: none;
+  border: none;
+  color: #8C9987;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: auto;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.odyssey-toast-close:hover {
+  color: #1E2E1B;
+}
+
+@keyframes odysseySlideIn {
+  from {
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes odysseySlideOut {
+  from {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0;
+  }
+}

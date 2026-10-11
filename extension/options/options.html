@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odyssey Companion • Preferences</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <header class="options-header">
+      <div class="brand">
+        <div class="compass-badge">✦</div>
+        <div>
+          <span class="subhead">Companion Protocol</span>
+          <h1>Odyssey Configuration</h1>
+        </div>
+      </div>
+    </header>
+
+    <main class="options-body">
+      <!-- Target Odysseus Instance -->
+      <section class="card">
+        <h2>Odysseus Instance URL</h2>
+        <p class="description">
+          Set the domain of your Odysseus slow-journalism salon. Use your live production URL or <code>http://localhost:3000</code> when running locally.
+        </p>
+        <div class="field-row">
+          <input type="url" id="odysseus-url" placeholder="https://odysseus.vercel.app" class="text-input">
+          <button id="save-url-btn" class="btn btn-primary">Save URL</button>
+        </div>
+        <div class="presets">
+          <span class="preset-label">Quick Presets:</span>
+          <button class="preset-btn" data-url="https://odysseus.vercel.app">Vercel Production</button>
+          <button class="preset-btn" data-url="http://localhost:3000">Local Dev (Port 3000)</button>
+        </div>
+      </section>
+
+      <!-- Preferences -->
+      <section class="card">
+        <h2>Reading & Purification Behavior</h2>
+        <div class="setting-row">
+          <div>
+            <strong>Instapaper & Pocket Purification Protocol</strong>
+            <p>Automatically purge author bylines, newsletter boxes, and tracking sidebars.</p>
+          </div>
+          <input type="checkbox" id="auto-purify" checked class="toggle">
+        </div>
+      </section>
+
+      <!-- Keyboard Shortcuts Info -->
+      <section class="card">
+        <h2>Keyboard Shortcuts</h2>
+        <p class="description">
+          Save articles without touching your mouse using standard Chrome shortcuts.
+        </p>
+        <div class="shortcut-list">
+          <div class="shortcut-item">
+            <span>Quick-Save Active Tab:</span>
+            <kbd>Alt + Shift + S</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>Open Odyssey Popup:</span>
+            <kbd>Alt + Shift + O</kbd>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cache Management -->
+      <section class="card">
+        <h2>Local Cache</h2>
+        <p class="description">
+          Clear cached article history stored locally in your browser.
+        </p>
+        <button id="clear-cache-btn" class="btn btn-outline">Clear Saved History</button>
+      </section>
+    </main>
+
+    <div id="toast" class="toast hidden">Preferences Saved ✓</div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

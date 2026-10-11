@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { Footer } from '@/components/Footer';
 import { useProfile } from '@/hooks/useProfile';
@@ -90,6 +90,44 @@ export default function SavedPage() {
       setIsPurifyingQuick(false);
     }
   };
+
+  // Support incoming deep-links from Odyssey Chromium extension
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlToImport = params.get('importUrl');
+      if (urlToImport) {
+        setQuickUrl(urlToImport);
+        const autoPurifyIncoming = async () => {
+          setIsPurifyingQuick(true);
+          try {
+            const res = await fetch(`/api/read-mode?url=${encodeURIComponent(urlToImport)}&t=${Date.now()}`);
+            const data = await res.json();
+            if (data.success && data.article?.content) {
+              const article = {
+                title: data.article.title || 'Imported Story',
+                content: data.article.content,
+                excerpt: data.article.textContent?.slice(0, 240) + '...',
+                link: urlToImport,
+                source: data.article.siteName || new URL(urlToImport).hostname.replace('www.', ''),
+                readTime: data.article.readTime || `${Math.ceil((data.article.wordCount || 500) / 220)} min read`,
+                date: 'Imported via Odyssey Companion',
+                wordCount: data.article.wordCount,
+                isImported: true,
+              };
+              setActiveStory(article);
+              setToast({ message: '✦ Story purified via Odyssey Companion!', isVisible: true });
+            }
+          } catch {
+            // ignore
+          } finally {
+            setIsPurifyingQuick(false);
+          }
+        };
+        autoPurifyIncoming();
+      }
+    }
+  }, []);
 
   const handleOpenReader = (story: any) => {
     const article = {
