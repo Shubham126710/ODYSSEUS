@@ -307,46 +307,46 @@ export default function FeedPage() {
       {/* HERO SECTION - The Editorial Broadside */}
       <section className="relative h-screen w-full flex flex-col justify-between overflow-hidden snap-start shrink-0 pt-14 md:pt-20 bg-juice-cream text-juice-green select-none">
         
-        {/* Luxury Editorial Backdrop: Radial Glow, Astrolabe Rings & Architectural Frame */}
+        {/* Luxury Editorial Backdrop: Radial Glow, Archival Dot Grid & Corner Hallmarks */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_48%,rgba(255,250,240,0.95)_0%,rgba(245,242,235,0.75)_60%,rgba(238,232,220,0.85)_100%)] pointer-events-none" />
         
+        {/* Fine Archival Dot Grid Texture */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-30" 
+          style={{
+            backgroundImage: 'radial-gradient(rgba(93, 130, 70, 0.18) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }} 
+        />
+
         {/* Subtle Architectural Hairline Margins */}
         <div className="absolute inset-y-0 left-6 md:left-14 w-px bg-juice-green/10 pointer-events-none hidden sm:block" />
         <div className="absolute inset-y-0 right-6 md:right-14 w-px bg-juice-green/10 pointer-events-none hidden sm:block" />
 
-        {/* Astrolabe & Navigational Latitude Geometry (Behind Central Compass) */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-          <svg className="w-[500px] h-[500px] md:w-[720px] md:h-[720px] text-juice-green/30" viewBox="0 0 600 600" fill="none">
-            {/* Concentric Coordinate Rings */}
-            <circle cx="300" cy="300" r="120" stroke="currentColor" strokeWidth="1" strokeDasharray="3 6" opacity="0.4" />
-            <circle cx="300" cy="300" r="190" stroke="currentColor" strokeWidth="1" strokeDasharray="6 8" opacity="0.35" />
-            <circle cx="300" cy="300" r="260" stroke="currentColor" strokeWidth="1.2" opacity="0.3" />
-            <circle cx="300" cy="300" r="285" stroke="currentColor" strokeWidth="0.8" strokeDasharray="2 4" opacity="0.25" />
-            
-            {/* Subtle Crosshairs */}
-            <line x1="300" y1="20" x2="300" y2="580" stroke="currentColor" strokeWidth="0.8" strokeDasharray="4 8" opacity="0.25" />
-            <line x1="20" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="0.8" strokeDasharray="4 8" opacity="0.25" />
-            
-            {/* Cardinal Degree Markers */}
-            <text x="300" y="32" textAnchor="middle" fill="currentColor" fontSize="8" fontFamily="monospace" letterSpacing="0.2em" opacity="0.6">0° NORTH</text>
-            <text x="300" y="575" textAnchor="middle" fill="currentColor" fontSize="8" fontFamily="monospace" letterSpacing="0.2em" opacity="0.6">180° SOUTH</text>
-            <text x="35" y="303" textAnchor="start" fill="currentColor" fontSize="8" fontFamily="monospace" letterSpacing="0.2em" opacity="0.6">270° W</text>
-            <text x="565" y="303" textAnchor="end" fill="currentColor" fontSize="8" fontFamily="monospace" letterSpacing="0.2em" opacity="0.6">90° E</text>
-          </svg>
+        {/* Archival Corner Hallmarks */}
+        <div className="absolute top-16 md:top-24 left-8 md:left-16 flex flex-col items-start gap-1 pointer-events-none hidden sm:flex">
+          <div className="w-4 h-4 border-l border-t border-juice-green/30" />
+          <span className="font-mono text-[8px] md:text-[9px] tracking-[0.2em] text-juice-green/50 uppercase">FOLIO N° 01 • SALON</span>
+        </div>
+        <div className="absolute top-16 md:top-24 right-8 md:right-16 flex flex-col items-end gap-1 pointer-events-none hidden sm:flex">
+          <div className="w-4 h-4 border-r border-t border-juice-green/30" />
+          <span className="font-mono text-[8px] md:text-[9px] tracking-[0.2em] text-juice-green/50 uppercase">EDITION PRINT • 2026</span>
+        </div>
+        <div className="absolute bottom-16 md:bottom-24 left-8 md:left-16 flex flex-col items-start gap-1 pointer-events-none hidden sm:flex">
+          <span className="font-mono text-[8px] md:text-[9px] tracking-[0.2em] text-juice-green/50 uppercase">✦ HARVEST PRESS</span>
+          <div className="w-4 h-4 border-l border-b border-juice-green/30" />
+        </div>
+        <div className="absolute bottom-16 md:bottom-24 right-8 md:right-16 flex flex-col items-end gap-1 pointer-events-none hidden sm:flex">
+          <span className="font-mono text-[8px] md:text-[9px] tracking-[0.2em] text-juice-green/50 uppercase">SLOW JOURNALISM ✦</span>
+          <div className="w-4 h-4 border-r border-b border-juice-green/30" />
         </div>
 
-        {/* Archival Folios in Margins */}
-        <div className="absolute top-16 md:top-24 left-8 md:left-20 font-mono text-[8px] md:text-[9px] tracking-[0.25em] text-juice-green/45 uppercase hidden lg:block pointer-events-none">
+        {/* Archival Latitude Coordinates in Margins */}
+        <div className="absolute top-16 md:top-24 left-16 md:left-24 font-mono text-[8px] md:text-[9px] tracking-[0.25em] text-juice-green/45 uppercase hidden lg:block pointer-events-none">
           LAT. 40°42&apos;46&quot;N • LON. 74°00&apos;21&quot;W
         </div>
-        <div className="absolute top-16 md:top-24 right-8 md:right-20 font-mono text-[8px] md:text-[9px] tracking-[0.25em] text-juice-green/45 uppercase hidden lg:block pointer-events-none text-right">
+        <div className="absolute top-16 md:top-24 right-16 md:right-24 font-mono text-[8px] md:text-[9px] tracking-[0.25em] text-juice-green/45 uppercase hidden lg:block pointer-events-none text-right">
           SALON DE L&apos;ODYSSEUS • ED. 2026
-        </div>
-        <div className="absolute bottom-16 md:bottom-24 left-8 md:left-20 font-mono text-[8px] md:text-[9px] tracking-[0.2em] text-juice-green/40 uppercase hidden lg:block pointer-events-none">
-          ✦ SLOW CHRONICLE • VOL. IV
-        </div>
-        <div className="absolute bottom-16 md:bottom-24 right-8 md:right-20 font-mono text-[8px] md:text-[9px] tracking-[0.2em] text-juice-green/40 uppercase hidden lg:block pointer-events-none text-right">
-          PURE PROSE SALON ✦
         </div>
 
         {/* Editorial Masthead Dateline */}
@@ -400,41 +400,57 @@ export default function FeedPage() {
               <span className="italic font-normal">Welcome back, </span>
               <span className="relative inline-block text-juice-orange not-italic">
                 {profile?.first_name || 'Traveler'}
-                {/* Handcrafted Calligraphic Curved Underline SVG */}
+                {/* Handcrafted Symmetrical Curved Smile Underline SVG */}
                 <svg
-                  className="absolute left-0 -bottom-2 md:-bottom-3.5 w-full h-3 md:h-5 text-juice-orange overflow-visible pointer-events-none"
-                  viewBox="0 0 240 18"
+                  className="absolute left-0 -bottom-1.5 md:-bottom-2 w-full h-2 md:h-2.5 text-juice-orange pointer-events-none overflow-hidden"
+                  viewBox="0 0 100 8"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   preserveAspectRatio="none"
                 >
                   <path
-                    d="M3 13C50 4 150 3 237 13C170 8 95 8 3 17"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M18 15C80 6 160 5 220 15"
-                    stroke="#5D8246"
-                    strokeWidth="1.5"
+                    d="M 2 4.5 Q 50 8 98 4"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
                     strokeLinecap="round"
-                    strokeOpacity="0.35"
+                    fill="none"
                   />
                 </svg>
               </span>
               <span>.</span>
             </h1>
-            <p className="max-w-lg mx-auto text-xs sm:text-sm text-juice-green/75 leading-relaxed font-sans pt-1">
+            <p className="max-w-lg mx-auto text-xs sm:text-sm text-juice-green/75 leading-relaxed font-sans mt-3 md:mt-4">
               Curated salon of slow journalism, technology, architecture, and global affairs.
             </p>
           </motion.div>
 
-          {/* Centerpiece: Clean Interactive Compass */}
+          {/* Centerpiece: Clean Interactive Compass Framed by Celestial Astrolabe Rings */}
           <motion.div
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2, type: "spring", damping: 16 }}
-            className="relative my-2 sm:my-3 flex items-center justify-center"
+            className="relative my-3 sm:my-4 flex items-center justify-center"
           >
+            {/* Celestial Astrolabe Coordinate Rings centered strictly on Compass */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
+              <svg 
+                className="w-44 h-44 sm:w-52 sm:h-52 md:w-64 md:h-64 text-juice-green/35 animate-[spin_180s_linear_infinite]" 
+                viewBox="0 0 240 240" 
+                fill="none"
+              >
+                <circle cx="120" cy="120" r="66" stroke="currentColor" strokeWidth="1" strokeDasharray="3 4" opacity="0.5" />
+                <circle cx="120" cy="120" r="92" stroke="currentColor" strokeWidth="1.2" opacity="0.4" />
+                <circle cx="120" cy="120" r="110" stroke="currentColor" strokeWidth="0.8" strokeDasharray="2 4" opacity="0.3" />
+                {/* Cardinal Tick Marks */}
+                <line x1="120" y1="2" x2="120" y2="12" stroke="currentColor" strokeWidth="1.5" />
+                <line x1="120" y1="228" x2="120" y2="238" stroke="currentColor" strokeWidth="1.5" />
+                <line x1="2" y1="120" x2="12" y2="120" stroke="currentColor" strokeWidth="1.5" />
+                <line x1="228" y1="120" x2="238" y2="120" stroke="currentColor" strokeWidth="1.5" />
+              </svg>
+              {/* Subtle Warm Amber Glow Halo */}
+              <div className="absolute w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-juice-orange/10 blur-xl pointer-events-none" />
+            </div>
+
             <InteractiveCompass className="w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 text-juice-orange drop-shadow-xl hover:scale-105 transition-transform" />
           </motion.div>
 

@@ -184,39 +184,52 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
         </Link>
 
         {/* Desks Navigation (Visible on all desktop and laptop widths) */}
-        <nav className="hidden md:flex items-center gap-2.5 lg:gap-5 xl:gap-7 shrink-0">
+        <nav 
+          className="hidden md:flex items-center shrink-0" 
+          style={{ gap: '18px' }}
+        >
           <Link 
             href="/feed" 
-            className={`text-[11px] lg:text-xs xl:text-sm font-bold uppercase tracking-wider lg:tracking-widest whitespace-nowrap transition-colors ${
+            className={`text-xs xl:text-sm font-mono font-bold tracking-widest whitespace-nowrap transition-colors duration-300 relative py-1 px-1 ${
               pathname === '/feed' 
                 ? 'text-juice-cream' 
                 : 'text-juice-cream/60 hover:text-juice-cream'
             }`}
+            style={{ textTransform: 'uppercase', letterSpacing: '0.14em' }}
           >
-            For You
+            FOR YOU
+            {pathname === '/feed' && (
+              <span className="absolute -bottom-1 left-1 right-1 h-0.5 bg-juice-orange rounded-full" />
+            )}
           </Link>
           {tabs.map((item) => {
-            const isActive = pathname === `/feed/${item.toLowerCase()}`;
+            const cleanItem = String(item).trim();
+            const isActive = pathname === `/feed/${cleanItem.toLowerCase()}`;
             return (
               <Link 
-                key={item} 
-                href={`/feed/${item.toLowerCase()}`}
-                className={`text-[11px] lg:text-xs xl:text-sm font-bold uppercase tracking-wider lg:tracking-widest whitespace-nowrap transition-colors duration-500 ${
+                key={cleanItem} 
+                href={`/feed/${cleanItem.toLowerCase()}`}
+                className={`text-xs xl:text-sm font-mono font-bold tracking-widest whitespace-nowrap transition-colors duration-300 relative py-1 px-1 ${
                   isActive 
                     ? 'text-juice-cream'
                     : navTextColor
                 } hover:text-juice-orange`}
+                style={{ textTransform: 'uppercase', letterSpacing: '0.14em' }}
               >
-                {item}
+                {cleanItem.toUpperCase()}
+                {isActive && (
+                  <span className="absolute -bottom-1 left-1 right-1 h-0.5 bg-juice-orange rounded-full" />
+                )}
               </Link>
             );
           })}
           <button 
             onClick={() => setIsCustomizeOpen(true)} 
-            className={`p-1.5 rounded-full hover:bg-black/5 transition-colors shrink-0 ${navTextColor}`} 
-            title="Customize Tabs"
+            className={`w-6 h-6 rounded-full border border-juice-cream/25 hover:border-juice-cream flex items-center justify-center transition-all shrink-0 ${navTextColor} hover:text-juice-cream hover:bg-juice-cream/10`} 
+            title="Customize Desks"
+            aria-label="Customize Desks"
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
         </nav>
 
@@ -520,20 +533,23 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
             <Link 
               href="/feed" 
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`block px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors ${pathname === '/feed' ? 'text-juice-cream bg-white/10' : 'text-juice-cream/60'}`}
+              className={`block px-4 py-3 rounded-xl text-sm font-mono font-bold tracking-widest transition-colors ${pathname === '/feed' ? 'text-juice-cream bg-white/10' : 'text-juice-cream/60'}`}
+              style={{ textTransform: 'uppercase', letterSpacing: '0.14em' }}
             >
-              For You
+              FOR YOU
             </Link>
             {tabs.map((item) => {
-              const isActive = pathname === `/feed/${item.toLowerCase()}`;
+              const cleanItem = String(item).trim();
+              const isActive = pathname === `/feed/${cleanItem.toLowerCase()}`;
               return (
                 <Link 
-                  key={item} 
-                  href={`/feed/${item.toLowerCase()}`}
+                  key={cleanItem} 
+                  href={`/feed/${cleanItem.toLowerCase()}`}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors ${isActive ? 'text-juice-cream bg-white/10' : 'text-juice-cream/60'}`}
+                  className={`block px-4 py-3 rounded-xl text-sm font-mono font-bold tracking-widest transition-colors ${isActive ? 'text-juice-cream bg-white/10' : 'text-juice-cream/60'}`}
+                  style={{ textTransform: 'uppercase', letterSpacing: '0.14em' }}
                 >
-                  {item}
+                  {cleanItem.toUpperCase()}
                 </Link>
               );
             })}
