@@ -307,6 +307,48 @@ export default function FeedPage() {
       {/* HERO SECTION - The Editorial Broadside */}
       <section className="relative h-screen w-full flex flex-col justify-between overflow-hidden snap-start shrink-0 pt-14 md:pt-20 bg-juice-cream text-juice-green select-none">
         
+        {/* Luxury Editorial Backdrop: Radial Glow, Astrolabe Rings & Architectural Frame */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_48%,rgba(255,250,240,0.95)_0%,rgba(245,242,235,0.75)_60%,rgba(238,232,220,0.85)_100%)] pointer-events-none" />
+        
+        {/* Subtle Architectural Hairline Margins */}
+        <div className="absolute inset-y-0 left-6 md:left-14 w-px bg-juice-green/10 pointer-events-none hidden sm:block" />
+        <div className="absolute inset-y-0 right-6 md:right-14 w-px bg-juice-green/10 pointer-events-none hidden sm:block" />
+
+        {/* Astrolabe & Navigational Latitude Geometry (Behind Central Compass) */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
+          <svg className="w-[500px] h-[500px] md:w-[720px] md:h-[720px] text-juice-green/30" viewBox="0 0 600 600" fill="none">
+            {/* Concentric Coordinate Rings */}
+            <circle cx="300" cy="300" r="120" stroke="currentColor" strokeWidth="1" strokeDasharray="3 6" opacity="0.4" />
+            <circle cx="300" cy="300" r="190" stroke="currentColor" strokeWidth="1" strokeDasharray="6 8" opacity="0.35" />
+            <circle cx="300" cy="300" r="260" stroke="currentColor" strokeWidth="1.2" opacity="0.3" />
+            <circle cx="300" cy="300" r="285" stroke="currentColor" strokeWidth="0.8" strokeDasharray="2 4" opacity="0.25" />
+            
+            {/* Subtle Crosshairs */}
+            <line x1="300" y1="20" x2="300" y2="580" stroke="currentColor" strokeWidth="0.8" strokeDasharray="4 8" opacity="0.25" />
+            <line x1="20" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="0.8" strokeDasharray="4 8" opacity="0.25" />
+            
+            {/* Cardinal Degree Markers */}
+            <text x="300" y="32" textAnchor="middle" fill="currentColor" fontSize="8" fontFamily="monospace" letterSpacing="0.2em" opacity="0.6">0° NORTH</text>
+            <text x="300" y="575" textAnchor="middle" fill="currentColor" fontSize="8" fontFamily="monospace" letterSpacing="0.2em" opacity="0.6">180° SOUTH</text>
+            <text x="35" y="303" textAnchor="start" fill="currentColor" fontSize="8" fontFamily="monospace" letterSpacing="0.2em" opacity="0.6">270° W</text>
+            <text x="565" y="303" textAnchor="end" fill="currentColor" fontSize="8" fontFamily="monospace" letterSpacing="0.2em" opacity="0.6">90° E</text>
+          </svg>
+        </div>
+
+        {/* Archival Folios in Margins */}
+        <div className="absolute top-16 md:top-24 left-8 md:left-20 font-mono text-[8px] md:text-[9px] tracking-[0.25em] text-juice-green/45 uppercase hidden lg:block pointer-events-none">
+          LAT. 40°42&apos;46&quot;N • LON. 74°00&apos;21&quot;W
+        </div>
+        <div className="absolute top-16 md:top-24 right-8 md:right-20 font-mono text-[8px] md:text-[9px] tracking-[0.25em] text-juice-green/45 uppercase hidden lg:block pointer-events-none text-right">
+          SALON DE L&apos;ODYSSEUS • ED. 2026
+        </div>
+        <div className="absolute bottom-16 md:bottom-24 left-8 md:left-20 font-mono text-[8px] md:text-[9px] tracking-[0.2em] text-juice-green/40 uppercase hidden lg:block pointer-events-none">
+          ✦ SLOW CHRONICLE • VOL. IV
+        </div>
+        <div className="absolute bottom-16 md:bottom-24 right-8 md:right-20 font-mono text-[8px] md:text-[9px] tracking-[0.2em] text-juice-green/40 uppercase hidden lg:block pointer-events-none text-right">
+          PURE PROSE SALON ✦
+        </div>
+
         {/* Editorial Masthead Dateline */}
         <div className="shrink-0 w-full border-b border-juice-green/15 px-4 md:px-12 py-2 flex items-center justify-between text-[9px] md:text-xs font-mono uppercase tracking-[0.2em] text-juice-green/70 z-20 bg-juice-cream/40 backdrop-blur-xs">
           <div className="flex items-center gap-2">
@@ -344,7 +386,7 @@ export default function FeedPage() {
             <span className="font-bold text-juice-orange">{profile?.streak_count || 1}D STREAK</span>
           </motion.div>
 
-          {/* Main Headline */}
+          {/* Main Headline with Handcrafted Curved Vector Underline */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -356,8 +398,28 @@ export default function FeedPage() {
             </div>
             <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-juice-green leading-[1.08]">
               <span className="italic font-normal">Welcome back, </span>
-              <span className="text-juice-orange not-italic underline decoration-2 md:decoration-4 decoration-juice-green/20 underline-offset-8">
+              <span className="relative inline-block text-juice-orange not-italic">
                 {profile?.first_name || 'Traveler'}
+                {/* Handcrafted Calligraphic Curved Underline SVG */}
+                <svg
+                  className="absolute left-0 -bottom-2 md:-bottom-3.5 w-full h-3 md:h-5 text-juice-orange overflow-visible pointer-events-none"
+                  viewBox="0 0 240 18"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M3 13C50 4 150 3 237 13C170 8 95 8 3 17"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M18 15C80 6 160 5 220 15"
+                    stroke="#5D8246"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeOpacity="0.35"
+                  />
+                </svg>
               </span>
               <span>.</span>
             </h1>

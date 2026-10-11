@@ -183,11 +183,11 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           <span className={`font-serif text-lg md:text-xl font-bold tracking-wide transition-colors duration-500 whitespace-nowrap ${textColor}`}>ODYSSEUS</span>
         </Link>
 
-        {/* Desks Navigation */}
-        <nav className="hidden lg:flex items-center gap-4 xl:gap-8 shrink-0">
+        {/* Desks Navigation (Visible on all desktop and laptop widths) */}
+        <nav className="hidden md:flex items-center gap-2.5 lg:gap-5 xl:gap-7 shrink-0">
           <Link 
             href="/feed" 
-            className={`text-xs xl:text-sm font-bold uppercase tracking-wider xl:tracking-widest whitespace-nowrap transition-colors ${
+            className={`text-[11px] lg:text-xs xl:text-sm font-bold uppercase tracking-wider lg:tracking-widest whitespace-nowrap transition-colors ${
               pathname === '/feed' 
                 ? 'text-juice-cream' 
                 : 'text-juice-cream/60 hover:text-juice-cream'
@@ -201,7 +201,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
               <Link 
                 key={item} 
                 href={`/feed/${item.toLowerCase()}`}
-                className={`text-xs xl:text-sm font-bold uppercase tracking-wider xl:tracking-widest whitespace-nowrap transition-colors duration-500 ${
+                className={`text-[11px] lg:text-xs xl:text-sm font-bold uppercase tracking-wider lg:tracking-widest whitespace-nowrap transition-colors duration-500 ${
                   isActive 
                     ? 'text-juice-cream'
                     : navTextColor
@@ -216,7 +216,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
             className={`p-1.5 rounded-full hover:bg-black/5 transition-colors shrink-0 ${navTextColor}`} 
             title="Customize Tabs"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
         </nav>
 
