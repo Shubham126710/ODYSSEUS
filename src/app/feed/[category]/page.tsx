@@ -262,13 +262,13 @@ export default function CategoryFeedPage() {
         ) : (
           <div className={`flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-current/20 rounded-3xl ${textColor}`}>
             <div className="w-20 h-20 bg-current/5 rounded-full flex items-center justify-center mb-6">
-              <span className="text-4xl">📗</span>
+              <span className="text-3xl font-serif font-black">✦</span>
             </div>
             <h3 className="text-2xl font-serif font-bold mb-3">
               No stories found
             </h3>
             <p className="opacity-70 max-w-md mx-auto">
-              We couldn"t find any stories in this category right now. Check back later!
+              We couldn't find any stories in this category right now. Check back later!
             </p>
           </div>
         )}

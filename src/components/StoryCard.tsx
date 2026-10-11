@@ -26,18 +26,28 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   isSaved,
   onShare
 }) => {
+  const [imageError, setImageError] = React.useState(false);
+
   return (
     <div className="group relative flex flex-col h-full bg-juice-cream text-juice-green border border-juice-green/10 hover:border-juice-orange/50 transition-all duration-300 rounded-xl overflow-hidden hover:shadow-xl hover:shadow-juice-green/5">
       
-      {/* Image Section (Conditional) */}
-      {imageUrl && (
-        <div className="relative h-36 sm:h-48 w-full overflow-hidden">
+      {/* Image Section with Resilient Fallback */}
+      {imageUrl && !imageError ? (
+        <div className="relative h-36 sm:h-48 w-full overflow-hidden bg-juice-green/5">
           <img 
             src={imageUrl} 
             alt={title} 
+            onError={() => setImageError(true)}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-juice-cream/90 backdrop-blur-sm px-2.5 md:px-3 py-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-juice-green">
+            {category}
+          </div>
+        </div>
+      ) : (
+        <div className="relative h-28 sm:h-36 w-full overflow-hidden bg-juice-green/5 flex items-center justify-between px-6 border-b border-juice-green/10">
+          <span className="font-serif font-black text-5xl text-juice-green/15 select-none">{source.charAt(0)}</span>
+          <div className="bg-juice-cream px-2.5 py-1 rounded-full text-[9px] font-mono font-bold uppercase tracking-widest text-juice-green border border-juice-green/10">
             {category}
           </div>
         </div>

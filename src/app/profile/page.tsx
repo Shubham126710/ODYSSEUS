@@ -129,9 +129,9 @@ export default function ProfilePage() {
       title: 'Inaugural Voyage',
       category: 'First Steps',
       description: 'Commenced your journey through slow journalism on Odysseus.',
-      icon: '🧭',
-      color: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-800',
-      badgeColor: 'bg-emerald-600',
+      icon: '✦',
+      color: 'bg-juice-green/10 border-juice-green/20 text-juice-green',
+      badgeColor: 'bg-juice-green',
       isUnlocked: true,
       progress: '100%',
     },
@@ -139,32 +139,32 @@ export default function ProfilePage() {
       id: 'dawn_patrol',
       title: 'Dawn Patrol',
       category: 'Time Mastery',
-      description: 'Completed a mindful morning session during Early Bird hours (6 AM – 9 AM).',
-      icon: '🌅',
-      color: 'bg-amber-500/15 border-amber-500/30 text-amber-900',
-      badgeColor: 'bg-amber-600',
-      isUnlocked: multiplier.label === 'Early Bird Boost',
-      progress: multiplier.label === 'Early Bird Boost' ? '100%' : 'Active 6-9 AM',
+      description: 'Completed a mindful morning session during Early Bird hours (5 AM – 8:30 AM).',
+      icon: '◈',
+      color: 'bg-juice-orange/10 border-juice-orange/20 text-juice-orange',
+      badgeColor: 'bg-juice-orange',
+      isUnlocked: multiplier.label === 'Early Bird',
+      progress: multiplier.label === 'Early Bird' ? '100%' : 'Active 5-8:30 AM',
     },
     {
       id: 'night_owl',
       title: 'Midnight Scholar',
       category: 'Night Salon',
       description: 'Immersed in slow journalism past 10 PM under the starlit canopy.',
-      icon: '🦉',
-      color: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-900',
-      badgeColor: 'bg-indigo-600',
-      isUnlocked: multiplier.label === 'Night Owl Salon',
-      progress: multiplier.label === 'Night Owl Salon' ? '100%' : 'Active 10 PM+',
+      icon: '◆',
+      color: 'bg-juice-green/10 border-juice-green/20 text-juice-green',
+      badgeColor: 'bg-juice-green',
+      isUnlocked: multiplier.label === 'Night Owl',
+      progress: multiplier.label === 'Night Owl' ? '100%' : 'Active 10 PM+',
     },
     {
       id: 'centurion',
       title: 'Centurion Reader',
       category: 'Devotion',
       description: 'Accumulated 100+ lifetime minutes of distraction-free reading.',
-      icon: '🏛️',
-      color: 'bg-orange-500/15 border-orange-500/30 text-orange-950',
-      badgeColor: 'bg-orange-600',
+      icon: '❖',
+      color: 'bg-juice-orange/10 border-juice-orange/20 text-juice-orange',
+      badgeColor: 'bg-juice-orange',
       isUnlocked: (profile.total_reading_minutes || 0) >= 100,
       progress: `${Math.min(100, profile.total_reading_minutes || 0)}/100m`,
     },
@@ -173,9 +173,9 @@ export default function ProfilePage() {
       title: 'Streak Sentinel',
       category: 'Habit Mastery',
       description: 'Sustained an uninterrupted 7-day reading habit across all desks.',
-      icon: '🔥',
-      color: 'bg-rose-500/15 border-rose-500/30 text-rose-950',
-      badgeColor: 'bg-rose-600',
+      icon: '—',
+      color: 'bg-juice-green/10 border-juice-green/20 text-juice-green',
+      badgeColor: 'bg-juice-green',
       isUnlocked: (profile.streak_count || 1) >= 7,
       progress: `${Math.min(7, profile.streak_count || 1)}/7 days`,
     },
@@ -184,9 +184,9 @@ export default function ProfilePage() {
       title: 'Grand Archivist',
       category: 'Library',
       description: 'Curated 5+ prestige stories or imported articles into your offline salon.',
-      icon: '📜',
-      color: 'bg-teal-500/15 border-teal-500/30 text-teal-950',
-      badgeColor: 'bg-teal-600',
+      icon: '•',
+      color: 'bg-juice-orange/10 border-juice-orange/20 text-juice-orange',
+      badgeColor: 'bg-juice-orange',
       isUnlocked: true,
       progress: 'Unlocked',
     },
@@ -195,9 +195,9 @@ export default function ProfilePage() {
       title: 'The Polymath',
       category: 'Curiosity',
       description: 'Explored dispatches across Tech, Design, Culture, and Science desks.',
-      icon: '✨',
-      color: 'bg-purple-500/15 border-purple-500/30 text-purple-950',
-      badgeColor: 'bg-purple-600',
+      icon: '★',
+      color: 'bg-juice-green/10 border-juice-green/20 text-juice-green',
+      badgeColor: 'bg-juice-green',
       isUnlocked: true,
       progress: '4/4 Desks',
     },
@@ -206,9 +206,9 @@ export default function ProfilePage() {
       title: 'Grand Odyssey Master',
       category: 'Pinnacle',
       description: 'Attain Rank 5 through relentless curiosity and intellectual devotion.',
-      icon: '👑',
-      color: 'bg-amber-400/20 border-amber-400/40 text-amber-950',
-      badgeColor: 'bg-amber-500',
+      icon: '◎',
+      color: 'bg-juice-orange/10 border-juice-orange/20 text-juice-orange',
+      badgeColor: 'bg-juice-orange',
       isUnlocked: rank.rankLevel >= 5,
       progress: `Rank ${rank.rankLevel}/5`,
     },
@@ -287,7 +287,7 @@ export default function ProfilePage() {
           </div>
         </motion.div>
 
-        {/* 4 Colorful High-Fashion Metric Cards */}
+        {/* 4 Editorial Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
           
           {/* Card 1: Juice Orange Streak Spreads */}
@@ -300,7 +300,7 @@ export default function ProfilePage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-mono uppercase tracking-widest opacity-80">Reading Streak</span>
-              <span className="text-2xl drop-shadow-sm animate-pulse">🔥</span>
+              <img src="/fire-flame.png" alt="Streak" className="w-5 h-5 object-contain brightness-0 invert" />
             </div>
 
             <div className="my-2">
@@ -327,7 +327,7 @@ export default function ProfilePage() {
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-mono uppercase tracking-widest opacity-70">Daily Pace Commitment</span>
-              <span className="text-xl">⏱</span>
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-juice-orange">PACE</span>
             </div>
 
             <div className="flex items-center justify-center my-1">
@@ -349,51 +349,51 @@ export default function ProfilePage() {
             </div>
           </motion.div>
 
-          {/* Card 3: Warm Amber/Gold Rank & Milestone */}
+          {/* Card 3: Editorial Milestone */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="p-6 rounded-3xl bg-amber-400 text-amber-950 shadow-xl flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300"
+            className="p-6 rounded-3xl bg-white text-juice-green border border-juice-green/15 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest opacity-80">Odyssey Milestone</span>
-              <span className="text-2xl">🏆</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-juice-green/70">Odyssey Milestone</span>
+              <span className="text-base font-bold text-juice-orange font-mono">★</span>
             </div>
 
             <div>
               <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-xl font-bold font-serif">{milestone.nextPerk}</span>
+                <span className="text-xl font-bold font-serif text-juice-green">{milestone.nextPerk}</span>
               </div>
-              <span className="text-xs font-mono block opacity-80">
+              <span className="text-xs font-mono block text-juice-green/70">
                 {milestone.daysRemaining} days away from perk unlock
               </span>
 
               {/* Progress bar */}
-              <div className="w-full h-2 bg-amber-950/20 rounded-full mt-3 overflow-hidden">
+              <div className="w-full h-2 bg-juice-green/10 rounded-full mt-3 overflow-hidden">
                 <div 
-                  className="h-full bg-amber-950 rounded-full transition-all duration-700"
+                  className="h-full bg-juice-green rounded-full transition-all duration-700"
                   style={{ width: `${milestone.progressPercent}%` }}
                 />
               </div>
             </div>
 
-            <div className="pt-3 border-t border-amber-950/20 mt-3 flex items-center justify-between text-xs font-mono font-bold">
+            <div className="pt-3 border-t border-juice-green/10 mt-3 flex items-center justify-between text-xs font-mono font-bold text-juice-green/80">
               <span>Milestone Perk</span>
-              <span>{milestone.progressPercent}% Progress</span>
+              <span className="text-juice-orange">{milestone.progressPercent}% Progress</span>
             </div>
           </motion.div>
 
-          {/* Card 4: Ice Blue Freeze Shield Vault */}
+          {/* Card 4: Streak Shield Vault */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-6 rounded-3xl bg-sky-500 text-white shadow-xl flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300"
+            className="p-6 rounded-3xl bg-white text-juice-green border border-juice-green/15 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest opacity-80">Streak Freeze Vault</span>
-              <span className="text-2xl">🧊</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-juice-green/70">Streak Freeze Vault</span>
+              <span className="text-base font-bold text-juice-orange font-mono">◈</span>
             </div>
 
             <div>
@@ -401,24 +401,24 @@ export default function ProfilePage() {
                 {[1, 2].map((slot) => (
                   <div
                     key={slot}
-                    className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-base shadow-sm ${
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-base transition-all ${
                       slot <= freezesAvailable
-                        ? 'bg-white text-sky-600 border border-white'
-                        : 'bg-sky-600/40 text-sky-200 border border-dashed border-sky-300/40'
+                        ? 'bg-juice-green text-white shadow-xs'
+                        : 'bg-juice-green/5 text-juice-green/30 border border-dashed border-juice-green/20'
                     }`}
                   >
-                    {slot <= freezesAvailable ? '🧊' : '○'}
+                    {slot <= freezesAvailable ? '◈' : '○'}
                   </div>
                 ))}
               </div>
-              <span className="text-xs font-sans opacity-90 leading-tight block">
+              <span className="text-xs font-sans text-juice-green/75 leading-tight block">
                 {freezesAvailable} active shield in vault. Auto-protects missed days.
               </span>
             </div>
 
-            <div className="pt-3 border-t border-white/20 mt-3 flex items-center justify-between text-xs font-mono">
-              <span>Vault Status</span>
-              <span className="font-bold bg-white/20 px-2 py-0.5 rounded-full">Active</span>
+            <div className="pt-3 border-t border-juice-green/10 mt-3 flex items-center justify-between text-xs font-mono">
+              <span className="text-juice-green/70">Vault Status</span>
+              <span className="font-bold bg-juice-green/10 text-juice-green px-2 py-0.5 rounded-full">Active</span>
             </div>
           </motion.div>
 
@@ -454,7 +454,7 @@ export default function ProfilePage() {
                       day.status === 'completed' || day.status === 'today-done'
                         ? 'bg-juice-orange text-white shadow-md ring-2 ring-juice-orange/20 scale-105'
                         : day.status === 'shielded'
-                        ? 'bg-sky-100 text-sky-800 border border-sky-300'
+                        ? 'bg-juice-green/10 text-juice-green border border-juice-green/20'
                         : day.isToday
                         ? 'bg-juice-green/10 text-juice-green ring-2 ring-juice-orange animate-pulse'
                         : 'bg-juice-green/5 text-juice-green/30'
@@ -463,7 +463,7 @@ export default function ProfilePage() {
                     {day.status === 'completed' || day.status === 'today-done' ? (
                       '✓'
                     ) : day.status === 'shielded' ? (
-                      '🧊'
+                      '◈'
                     ) : (
                       day.dayShort
                     )}

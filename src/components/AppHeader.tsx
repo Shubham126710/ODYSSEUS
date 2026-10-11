@@ -208,33 +208,27 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           </button>
         </nav>
 
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-2 md:gap-3">
           
           {/* Custom Article Import Button (Pocket / Instapaper Style) */}
           <button
             onClick={() => setIsImportOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-full border border-juice-cream/25 hover:border-juice-orange bg-white/10 hover:bg-juice-orange text-juice-cream text-xs font-mono uppercase tracking-wider transition-all duration-300 shadow-xs hover:scale-105"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-juice-cream/30 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream text-xs font-mono uppercase tracking-wider transition-all duration-200"
             title="Import Article (Pocket & Instapaper Clean Reader)"
             aria-label="Import Article"
           >
-            <span className="font-bold text-sm leading-none text-juice-orange hover:text-white">✦</span>
-            <span className="hidden sm:inline">Import</span>
+            <span className="font-bold text-xs leading-none text-juice-orange">✦</span>
+            <span className="font-semibold tracking-wider">Import</span>
           </button>
 
-          {/* Traveler's Guide (?) button — available on all devices */}
+          {/* Traveler's Guide (?) button */}
           <button
             onClick={() => setIsOnboardingOpen(true)}
-            className="relative group p-1.5 md:p-2 text-juice-cream/70 hover:text-juice-cream transition-colors rounded-full hover:bg-white/10 flex items-center justify-center"
+            className="w-7 h-7 rounded-full border border-juice-cream/30 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream flex items-center justify-center font-serif text-xs font-bold transition-all duration-200"
             title="Traveler's Guide"
             aria-label="Open Traveler's Guide"
           >
-            <div className="w-5 h-5 md:w-6 md:h-6 rounded-full border border-current flex items-center justify-center font-serif text-[11px] md:text-xs font-bold leading-none">
-              ?
-            </div>
-            {/* Tooltip */}
-            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-black/90 text-juice-cream text-[9px] font-mono uppercase tracking-wider rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 shadow-lg">
-              Traveler&apos;s Guide
-            </div>
+            ?
           </button>
 
           {/* Streak button — visible on all screens */}
@@ -242,16 +236,18 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
             <div className="relative" ref={statsRef}>
               <button 
                 onClick={() => setIsStatsOpen(!isStatsOpen)}
-                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-3.5 py-1.5 md:py-2 rounded-full transition-all duration-300 shadow-sm relative ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 border ${
                   isStatsOpen 
-                    ? 'bg-juice-green text-white ring-4 ring-juice-green/20' 
-                    : 'bg-juice-orange text-white hover:bg-orange-500 hover:scale-105 hover:shadow-md'
+                    ? 'bg-juice-cream text-juice-green border-juice-cream shadow-sm' 
+                    : 'bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream border-juice-cream/30'
                 }`}
+                title="Open Traveler's Chamber"
+                aria-label="Open Traveler's Chamber"
               >
-                <FireIcon className="w-4 h-4 md:w-5 md:h-5 object-contain drop-shadow-sm" />
-                <span className="font-bold text-xs md:text-sm">{profile.streak_count || 1}</span>
+                <FireIcon className="w-3.5 h-3.5 object-contain" />
+                <span className="font-mono text-xs font-bold tracking-wider">{profile.streak_count || 1}D</span>
                 {multiplier.isBonusActive && (
-                  <span className="text-[9px] font-mono font-bold bg-white/20 px-1.5 py-0.5 rounded-full tracking-wider animate-pulse hidden sm:inline-block">
+                  <span className="text-[9px] font-mono font-bold bg-juice-orange text-white px-1.5 py-0.2 rounded-full hidden sm:inline-block">
                     {multiplier.multiplier}x
                   </span>
                 )}
@@ -280,21 +276,21 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                   <Link 
                     href="/profile" 
                     onClick={() => setIsStatsOpen(false)} 
-                    className="text-[9px] font-bold uppercase tracking-widest text-juice-green/60 hover:text-juice-orange transition-colors flex items-center gap-1"
+                    className="text-[9px] font-bold uppercase tracking-widest text-juice-green/60 hover:text-juice-orange transition-colors flex items-center gap-1 font-mono"
                   >
-                    Ledger <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                    Ledger →
                   </Link>
                 </div>
 
-                {/* Active Multiplier Banner */}
+                {/* Active Multiplier Banner (Minimalist Typographic) */}
                 <div className={`p-3 rounded-2xl mb-4 border transition-all ${
                   multiplier.isBonusActive 
                     ? 'bg-juice-orange/10 border-juice-orange/30 text-juice-green' 
                     : 'bg-juice-green/5 border-juice-green/15 text-juice-green'
                 }`}>
                   <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-1.5 font-bold text-xs">
-                      <span>{multiplier.icon}</span>
+                    <div className="flex items-center gap-1.5 font-bold text-xs font-mono uppercase tracking-wider">
+                      <span className="text-juice-orange font-bold">✦</span>
                       <span>{multiplier.label}</span>
                     </div>
                     <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full ${
@@ -310,7 +306,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                   </p>
                   {multiplier.endsAtText && (
                     <span className="text-[9px] font-mono text-juice-green/50 mt-1 block">
-                      ⏱ {multiplier.endsAtText}
+                      • {multiplier.endsAtText}
                     </span>
                   )}
                 </div>
@@ -318,72 +314,74 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 {/* Main Stats: Streak & Minutes Today */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="flex flex-col items-center p-3 bg-white/70 rounded-2xl border border-juice-green/10">
-                    <span className="text-2xl font-black text-juice-orange mb-0.5">{profile.streak_count || 1}</span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-juice-green/60">Day Streak</span>
+                    <span className="text-2xl font-black text-juice-orange mb-0.5 font-serif">{profile.streak_count || 1}</span>
+                    <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-juice-green/60">Day Streak</span>
                   </div>
                   <div className="flex flex-col items-center p-3 bg-white/70 rounded-2xl border border-juice-green/10">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-black text-juice-green mb-0.5">{minutesToday}</span>
-                      <span className="text-[10px] text-juice-green/40">/ {tempGoal}m</span>
+                      <span className="text-2xl font-black text-juice-green mb-0.5 font-serif">{minutesToday}</span>
+                      <span className="text-[10px] text-juice-green/40 font-mono">/ {tempGoal}m</span>
                     </div>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-juice-green/60">
+                    <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-juice-green/60">
                       {percentOfGoal >= 100 ? 'Goal Reached ✓' : `${Math.max(1, tempGoal - minutesToday)}m to goal`}
                     </span>
                   </div>
                 </div>
 
-                {/* Streak Freeze Vault */}
+                {/* Streak Freeze Shields */}
                 <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white/50 border border-juice-green/10 mb-4 text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-base">🧊</span>
+                    <div className="w-6 h-6 rounded-lg bg-juice-green/10 flex items-center justify-center text-juice-green font-mono text-[10px] font-bold">
+                      ◈
+                    </div>
                     <div>
                       <span className="font-bold text-juice-green text-[11px] block">Streak Shields</span>
                       <span className="text-[9px] text-juice-green/60">Auto-shields missed days</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 font-mono">
                     {[1, 2].map((slot) => (
                       <div 
                         key={slot} 
                         className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-[10px] ${
                           slot <= freezesAvailable 
-                            ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                            : 'bg-juice-green/5 text-juice-green/20 border border-dashed border-juice-green/20'
+                            ? 'bg-juice-green text-juice-cream shadow-xs' 
+                            : 'bg-juice-green/5 text-juice-green/20 border border-dashed border-juice-green/25'
                         }`}
                         title={slot <= freezesAvailable ? 'Active shield' : 'Empty slot (earned every 7 days)'}
                       >
-                        {slot <= freezesAvailable ? '🧊' : '○'}
+                        {slot <= freezesAvailable ? '◈' : '○'}
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* 7-Day Magazine Weekly Spread */}
-                <div className="mb-4">
+                {/* 7-Day Magazine Weekly Spread (GUARANTEED HORIZONTAL FLEX-ROW) */}
+                <div className="mb-4 w-full">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-juice-green/60">7-Day Habit Ledger</span>
+                    <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-juice-green/60">7-Day Habit Ledger</span>
                     <span className="text-[9px] font-mono text-juice-green/50">Mon – Sun</span>
                   </div>
-                  <div className="grid grid-cols-7 gap-1">
+                  <div className="flex flex-row items-center justify-between w-full gap-1">
                     {habitSpread.map((day, idx) => (
-                      <div key={idx} className="flex flex-col items-center">
-                        <span className="text-[9px] font-bold text-juice-green/50 mb-1">{day.dayShort}</span>
+                      <div key={idx} className="flex-1 flex flex-col items-center min-w-0">
+                        <span className="text-[9px] font-mono font-bold text-juice-green/60 mb-1">{day.dayShort}</span>
                         <div 
-                          className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                          className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-mono font-bold transition-all ${
                             day.status === 'completed' || day.status === 'today-done'
-                              ? 'bg-juice-orange text-white shadow-sm ring-1 ring-juice-orange/30'
+                              ? 'bg-juice-orange text-white shadow-xs'
                               : day.status === 'shielded'
-                              ? 'bg-blue-200 text-blue-800'
+                              ? 'bg-juice-green/20 text-juice-green border border-juice-green/40'
                               : day.isToday
-                              ? 'bg-juice-green/10 text-juice-green ring-2 ring-juice-orange animate-pulse'
-                              : 'bg-juice-green/5 text-juice-green/25'
+                              ? 'border-2 border-juice-orange text-juice-orange animate-pulse bg-white'
+                              : 'bg-juice-green/5 text-juice-green/30 border border-juice-green/10'
                           }`}
                           title={`${day.dayName}: ${day.minutes} min`}
                         >
                           {day.status === 'completed' || day.status === 'today-done' ? (
                             '✓'
                           ) : day.status === 'shielded' ? (
-                            '🧊'
+                            '◈'
                           ) : (
                             day.dayShort
                           )}
@@ -396,15 +394,15 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 {/* Milestone Track */}
                 <div className="mb-4 p-2.5 rounded-2xl bg-white/60 border border-juice-green/10">
                   <div className="flex items-center justify-between text-[10px] font-bold text-juice-green mb-1.5">
-                    <span className="flex items-center gap-1">
-                      <span>{milestone.nextIcon}</span>
+                    <span className="flex items-center gap-1.5 font-mono">
+                      <span className="text-juice-orange">{milestone.nextIcon}</span>
                       <span>{milestone.nextPerk}</span>
                     </span>
-                    <span className="text-juice-orange font-mono">{milestone.daysRemaining} days away</span>
+                    <span className="text-juice-orange font-mono">{milestone.daysRemaining}d away</span>
                   </div>
                   <div className="w-full h-1.5 bg-juice-green/10 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-juice-green to-juice-orange transition-all duration-500 rounded-full"
+                      className="h-full bg-juice-orange transition-all duration-500 rounded-full"
                       style={{ width: `${milestone.progressPercent}%` }}
                     />
                   </div>
@@ -413,7 +411,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 {/* Daily Goal Slider */}
                 <div className="pt-1 border-t border-juice-green/10">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-juice-green/60">Pace Commitment</span>
+                    <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-juice-green/60">Pace Commitment</span>
                     <span className="text-[10px] font-bold text-juice-orange font-mono">{tempGoal} min / day</span>
                   </div>
                   <input 
@@ -424,11 +422,8 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                     value={tempGoal}
                     onChange={(e) => updateGoal(parseInt(e.target.value))}
                     className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-juice-green/10 accent-juice-orange"
-                    style={{ 
-                      background: `linear-gradient(to right, #FF6B4A 0%, #FF6B4A ${(tempGoal-5)/55*100}%, rgba(93,130,70,0.1) ${(tempGoal-5)/55*100}%, rgba(93,130,70,0.1) 100%)`
-                    }}
                   />
-                  <div className="flex justify-between text-[8px] font-bold text-juice-green/40 mt-1 uppercase font-mono">
+                  <div className="flex justify-between text-[8px] font-bold text-juice-green/50 mt-1 uppercase font-mono">
                     <span>5m Voyager</span>
                     <span>30m Scholar</span>
                     <span>60m Master</span>

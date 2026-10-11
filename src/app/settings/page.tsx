@@ -136,7 +136,7 @@ export default function SettingsPage() {
                 <span className="text-[10px] font-mono uppercase tracking-widest text-juice-orange font-bold">
                   Reading Cadence
                 </span>
-                <span className="text-xl">⏱</span>
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-juice-orange">PACE</span>
               </div>
 
               <h3 className="font-serif text-xl font-bold mb-1">

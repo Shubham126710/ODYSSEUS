@@ -218,11 +218,12 @@ export default function FeedPage() {
     const viewportHeight = e.currentTarget.clientHeight;
     const sectionIndex = Math.round(scrollTop / viewportHeight);
 
-    // Section 0: Hero (Cream) -> Light Theme (Green Text)
-    // Section 1: Featured (Green) -> Dark Theme (Cream Text)
-    // Section 2: Feed (Orange) -> Orange Theme (Cream Text on Orange)
-    // Section 3: Footer (Green) -> Dark Theme (Cream Text)
-    if (sectionIndex === 0) {
+    // Section 0: Hero (Cream) -> Light Theme
+    // Section 1: Featured (Green) -> Dark Theme
+    // Section 2: Feed (Orange) -> Orange Theme
+    // Section 3: Desks (Cream) -> Light Theme
+    // Section 4: Footer (Green) -> Dark Theme
+    if (sectionIndex === 0 || sectionIndex === 3) {
       setHeaderTheme('light');
     } else if (sectionIndex === 2) {
       setHeaderTheme('orange');
@@ -325,58 +326,30 @@ export default function FeedPage() {
           </div>
         </div>
 
-        {/* Massive Background Typography - Watermark Parallax */}
-        <motion.div 
-          style={{ y }}
-          className="absolute inset-0 flex flex-col items-center justify-center z-0 pointer-events-none select-none overflow-hidden"
-        >
-          <div className="flex flex-col items-center justify-center opacity-[0.07] leading-[0.72] font-black tracking-tighter text-juice-green mix-blend-multiply">
-            <span className="text-[20vw] md:text-[18vw]">ODYS</span>
-            <span className="text-[20vw] md:text-[18vw]">SEUS</span>
-          </div>
-        </motion.div>
-
         {/* Central Hero Broadside Showcase */}
         <div className="relative z-10 max-w-5xl mx-auto w-full px-4 md:px-8 flex-1 flex flex-col items-center justify-center text-center my-auto pb-14 md:pb-20">
           
-          {/* Live Traveler Status Ribbon */}
+          {/* Refined Editorial Status Ribbon */}
           <motion.div
-            initial={{ opacity: 0, y: -15 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-3 md:mb-5"
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[10px] md:text-xs font-mono tracking-wider bg-white/70 border border-juice-green/15 text-juice-green mb-3 md:mb-5 shadow-xs"
           >
-            {/* Multiplier Tag */}
-            <div className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-xs border transition-all ${
-              multiplier.isBonusActive 
-                ? 'bg-juice-orange text-white border-juice-orange ring-2 ring-juice-orange/20 animate-pulse' 
-                : 'bg-white/80 text-juice-green border-juice-green/15'
-            }`}>
-              <span>{multiplier.icon}</span>
-              <span>{multiplier.label} ({multiplier.badge})</span>
-            </div>
-
-            {/* Streak & Freeze Status */}
-            <div className="px-3 py-1 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 bg-white/80 text-juice-green border border-juice-green/15 shadow-xs">
-              <span className="text-juice-orange">🔥</span>
-              <span>{profile?.streak_count || 1} Day Streak</span>
-              <span className="text-juice-green/30">•</span>
-              <span>🧊 {freezesAvailable} Shield</span>
-            </div>
-
-            {/* Explorer Rank */}
-            <div className="px-3 py-1 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 bg-juice-green text-juice-cream shadow-xs">
-              <span>{rank.badgeIcon}</span>
-              <span>{rank.title}</span>
-            </div>
+            <span className="text-juice-orange font-bold">✦</span>
+            <span className="font-semibold uppercase">{editionLabel}</span>
+            <span className="opacity-30">•</span>
+            <span className="uppercase">{rank.title}</span>
+            <span className="opacity-30">•</span>
+            <span className="font-bold text-juice-orange">{profile?.streak_count || 1}D STREAK</span>
           </motion.div>
 
           {/* Main Headline */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.1, type: "spring" }}
-            className="space-y-1.5 md:space-y-2 mb-3 md:mb-5"
+            transition={{ duration: 0.7, delay: 0.1, type: "spring" }}
+            className="space-y-2 mb-4 md:mb-6"
           >
             <div className="text-[9px] md:text-xs font-mono uppercase tracking-[0.25em] text-juice-green/60">
               DISPATCH EDITION • CURATED CHRONICLE
@@ -388,32 +361,27 @@ export default function FeedPage() {
               </span>
               <span>.</span>
             </h1>
-            <p className="max-w-lg mx-auto text-xs sm:text-sm text-juice-green/75 leading-relaxed font-sans">
+            <p className="max-w-lg mx-auto text-xs sm:text-sm text-juice-green/75 leading-relaxed font-sans pt-1">
               Curated salon of slow journalism, technology, architecture, and global affairs.
             </p>
           </motion.div>
 
-          {/* Centerpiece: Interactive Compass with Celestial Orbit Rings */}
+          {/* Centerpiece: Clean Interactive Compass */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, delay: 0.2, type: "spring", damping: 14 }}
-            className="relative my-2 sm:my-3 md:my-4 flex items-center justify-center"
+            transition={{ duration: 0.8, delay: 0.2, type: "spring", damping: 16 }}
+            className="relative my-2 sm:my-3 flex items-center justify-center"
           >
-            {/* Concentric Celestial Orbit Rings */}
-            <div className="absolute w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 rounded-full border border-dashed border-juice-green/20 pointer-events-none animate-[spin_50s_linear_infinite]" />
-            <div className="absolute w-48 h-48 sm:w-56 sm:h-56 md:w-68 md:h-68 rounded-full border border-juice-green/10 pointer-events-none" />
-
-            {/* The Interactive Central Compass */}
-            <InteractiveCompass className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 text-juice-orange drop-shadow-xl hover:scale-105 transition-transform" />
+            <InteractiveCompass className="w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 text-juice-orange drop-shadow-xl hover:scale-105 transition-transform" />
           </motion.div>
 
-          {/* Quick Magazine Portals (Jump straight to spreads) */}
+          {/* Quick Magazine Portals (Two Clean Primary Actions) */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="flex flex-wrap items-center justify-center gap-2.5 md:gap-3 mt-2 sm:mt-3"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex items-center justify-center gap-3 mt-3"
           >
             <button
               onClick={() => {
@@ -421,10 +389,10 @@ export default function FeedPage() {
                   containerRef.current.scrollTo({ top: containerRef.current.clientHeight, behavior: 'smooth' });
                 }
               }}
-              className="px-5 py-2.5 rounded-full bg-juice-green hover:bg-[#4b6a38] text-juice-cream font-bold text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-all flex items-center gap-2 group"
+              className="px-5 py-2.5 rounded-full bg-juice-green hover:bg-[#4b6a38] text-juice-cream font-bold text-xs font-mono uppercase tracking-wider shadow-md hover:scale-105 transition-all flex items-center gap-2 group"
             >
               <span>Read Cover Story</span>
-              <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+              <span className="group-hover:translate-y-0.5 transition-transform font-sans">↓</span>
             </button>
 
             <button
@@ -433,32 +401,19 @@ export default function FeedPage() {
                   containerRef.current.scrollTo({ top: containerRef.current.clientHeight * 2, behavior: 'smooth' });
                 }
               }}
-              className="px-5 py-2.5 rounded-full bg-white/80 hover:bg-white text-juice-green border border-juice-green/20 hover:border-juice-green/40 font-bold text-xs uppercase tracking-wider shadow-xs hover:scale-105 transition-all flex items-center gap-2"
+              className="px-5 py-2.5 rounded-full bg-white/80 hover:bg-white text-juice-green border border-juice-green/20 hover:border-juice-green/40 font-bold text-xs font-mono uppercase tracking-wider shadow-xs hover:scale-105 transition-all flex items-center gap-2"
             >
               <span>The Collection</span>
               <span className="text-juice-orange font-mono">({stories.length})</span>
-              <span>→</span>
-            </button>
-
-            <button
-              onClick={() => {
-                if (typeof window !== 'undefined') {
-                  window.dispatchEvent(new CustomEvent('odysseus:open-import'));
-                }
-              }}
-              className="px-4 py-2.5 rounded-full bg-juice-orange hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-xs hover:scale-105 transition-all flex items-center gap-1.5"
-              title="Import custom article from web"
-            >
-              <span>✦</span>
-              <span>Import URL</span>
+              <span className="font-sans">→</span>
             </button>
           </motion.div>
 
           {/* Kinetic Scroll Prompt Indicator */}
-          <div className="mt-3 flex items-center gap-2 text-[9px] md:text-[10px] font-mono uppercase tracking-[0.25em] text-juice-green/50">
-            <span className="w-1.5 h-1.5 rounded-full bg-juice-orange animate-ping" />
-            <span>Scroll to commence reading</span>
-            <span className="animate-bounce">↓</span>
+          <div className="mt-3 flex items-center gap-2 text-[9px] font-mono uppercase tracking-[0.25em] text-juice-green/50">
+            <span className="w-1.5 h-1.5 rounded-full bg-juice-orange" />
+            <span>Scroll to browse edition</span>
+            <span>↓</span>
           </div>
         </div>
 
@@ -725,19 +680,26 @@ export default function FeedPage() {
                         {decodeHtmlEntities(story.title)}
                       </h3>
 
-                      {/* Image (Compact but Premium) */}
+                      {/* Image (Compact but Premium with Error Fallback) */}
                       {(story.imageUrl || (story as any).enclosure?.url) ? (
                         <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0 bg-[#FDFBF7]">
                           <img 
                             src={story.imageUrl || (story as any).enclosure?.url} 
                             alt={story.title} 
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              const parent = e.currentTarget.parentElement;
+                              if (parent) {
+                                parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-juice-green/5"><span class="text-4xl font-serif font-black text-juice-green/20">${story.source.charAt(0)}</span></div>`;
+                              }
+                            }}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                           <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-xl" />
                         </div>
                       ) : (
                         <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0 bg-juice-green/5 flex items-center justify-center">
-                           <span className="text-4xl font-black text-juice-green/10">{story.source.charAt(0)}</span>
+                           <span className="text-4xl font-serif font-black text-juice-green/10">{story.source.charAt(0)}</span>
                         </div>
                       )}
 
@@ -811,6 +773,94 @@ export default function FeedPage() {
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: CURATED DESKS / GENRES SPREAD */}
+      <section className="min-h-screen md:h-screen bg-juice-cream text-juice-green flex flex-col justify-between py-12 md:py-20 px-4 md:px-12 relative snap-start shrink-0 overflow-hidden">
+        <div className="max-w-7xl mx-auto w-full flex flex-col h-full justify-between">
+          {/* Section Header */}
+          <div className="text-center space-y-2 shrink-0 pt-4 md:pt-6">
+            <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-juice-orange font-bold">
+              EDITORIAL DESKS • 4 THEMATIC TERRITORIES
+            </div>
+            <h2 className="font-serif text-3xl md:text-5xl font-bold tracking-tight text-juice-green">
+              Curated Genre Desks
+            </h2>
+            <p className="max-w-xl mx-auto text-xs md:text-sm text-juice-green/70">
+              Immerse yourself by discipline. Each desk gathers authoritative reporting from prestige publications.
+            </p>
+          </div>
+
+          {/* Desk Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 my-auto py-4">
+            {[
+              {
+                id: 'tech',
+                desk: 'The Vanguard',
+                category: 'Tech & AI',
+                desc: 'Frontier models, cybernetics, chip architecture, and the digital frontier.',
+                sources: 'The Verge • Wired • MIT Tech',
+                border: 'border-juice-green/15 hover:border-juice-orange',
+              },
+              {
+                id: 'design',
+                desk: 'The Atelier',
+                category: 'Design & Craft',
+                desc: 'Spatial architecture, typography, tactile objects, and visual culture.',
+                sources: 'Dezeen • It\'s Nice That • Smashing',
+                border: 'border-juice-green/15 hover:border-juice-orange',
+              },
+              {
+                id: 'culture',
+                desk: 'The Forum',
+                category: 'Culture & Essays',
+                desc: 'Philosophy, slow journalism, literary criticism, and human condition.',
+                sources: 'The Atlantic • Aeon • New Yorker',
+                border: 'border-juice-green/15 hover:border-juice-orange',
+              },
+              {
+                id: 'science',
+                desk: 'The Observatory',
+                category: 'Science & Cosmos',
+                desc: 'Astrophysics, biology, quantum mechanics, and planetary discovery.',
+                sources: 'Quanta • Nature • Scientific American',
+                border: 'border-juice-green/15 hover:border-juice-orange',
+              },
+            ].map((desk) => (
+              <Link
+                key={desk.id}
+                href={`/feed/${desk.id}`}
+                className={`group p-6 rounded-3xl bg-white/80 border ${desk.border} shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-juice-green/50">
+                      {desk.desk}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-juice-orange group-hover:translate-x-1 transition-transform">
+                      Explore →
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-xl font-bold text-juice-green mb-2 group-hover:text-juice-orange transition-colors">
+                    {desk.category}
+                  </h3>
+                  <p className="text-xs text-juice-green/75 leading-relaxed line-clamp-3 mb-4">
+                    {desk.desc}
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-juice-green/10 flex items-center justify-between text-[10px] font-mono text-juice-green/60">
+                  <span className="truncate">{desk.sources}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Section prompt */}
+          <div className="shrink-0 flex items-center justify-center gap-4 text-xs font-mono uppercase tracking-wider text-juice-green/60 pb-2">
+            <span>Scroll down for Archive & Salon Ledger</span>
+            <span className="text-juice-orange font-bold">↓</span>
           </div>
         </div>
       </section>

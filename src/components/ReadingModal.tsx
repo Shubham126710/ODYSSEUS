@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DOMPurify from 'isomorphic-dompurify';
-import { ReactLenis } from 'lenis/react';
 import { decodeHtmlEntities } from '@/lib/textUtils';
 import { useProfile } from '@/hooks/useProfile';
 import { getCurrentMultiplier, recordReadingProgress } from '@/lib/gamification';
@@ -12,64 +11,6 @@ import { sanitizeArticleProse } from '@/lib/cleanArticleExtraction';
 const calculateReadTime = (text: string) => {
   const words = text.trim().split(/\s+/).length;
   return `${Math.ceil(words / 130)} min`;
-};
-
-/** High-fashion Radial Scroll Progress Wheel */
-const RadialScrollWheel = ({ 
-  progress, 
-  accent, 
-  size = 36,
-  showLabel = true 
-}: { 
-  progress: number; 
-  accent: string; 
-  size?: number;
-  showLabel?: boolean;
-}) => {
-  const strokeWidth = 3.5;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const clampedProgress = Math.min(100, Math.max(0, progress));
-  const strokeDashoffset = circumference - (clampedProgress / 100) * circumference;
-  const isComplete = clampedProgress >= 95;
-
-  return (
-    <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="transform -rotate-90">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          fill="transparent"
-          className="opacity-15"
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={accent}
-          strokeWidth={strokeWidth}
-          fill="transparent"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          className="transition-all duration-200 ease-out"
-          style={{ filter: isComplete ? `drop-shadow(0 0 6px ${accent})` : undefined }}
-        />
-      </svg>
-      {showLabel && (
-        <div className="absolute inset-0 flex items-center justify-center font-mono text-[9px] font-black">
-          {isComplete ? (
-            <span className="text-[12px] font-black animate-bounce" style={{ color: accent }}>✓</span>
-          ) : (
-            <span className="opacity-90">{Math.round(clampedProgress)}%</span>
-          )}
-        </div>
-      )}
-    </div>
-  );
 };
 
 /** Lightweight markdown → HTML for client-side parsing. */
@@ -113,6 +54,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
   const [fullContent, setFullContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [previewOnly, setPreviewOnly] = useState(false);
+  const [imageError, setImageError] = useState(false);
   
   // New features state
   const [theme, setTheme] = useState<'dark' | 'sepia' | 'light'>('dark');
@@ -159,19 +101,6 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
       });
     }
   }, [isOpen, scrollProgress, readSeconds, profile?.id, article]);
-
-  useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
-    const updateProgress = () => {
-      const { scrollTop, scrollHeight, clientHeight } = el;
-      const maxScroll = scrollHeight - clientHeight;
-      const progress = maxScroll > 0 ? Math.min(100, Math.max(0, (scrollTop / maxScroll) * 100)) : 100;
-      setScrollProgress(progress);
-    };
-    el.addEventListener('scroll', updateProgress, { passive: true });
-    return () => el.removeEventListener('scroll', updateProgress);
-  }, [isOpen, fullContent]);
 
   const fetchContent = async () => {
     if (!article?.link) return;
@@ -254,6 +183,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
   useEffect(() => {
     if (isOpen && article) {
+      setImageError(false);
       // If article is imported or already has purified full content, display immediately
       if (article.isImported || (article.content && article.content.length > 600)) {
         setFullContent(sanitizeArticleProse(article.content));
@@ -271,7 +201,8 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    const progress = (scrollTop / (scrollHeight - clientHeight)) * 100;
+    const maxScroll = scrollHeight - clientHeight;
+    const progress = maxScroll > 0 ? Math.min(100, Math.max(0, (scrollTop / maxScroll) * 100)) : 100;
     setScrollProgress(progress);
   };
 
@@ -336,30 +267,30 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
             exit={{ opacity: 0, y: 80 }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
             style={{ backgroundColor: currentTheme.bg, color: currentTheme.text }}
-            className="fixed inset-0 top-4 md:top-10 md:inset-x-8 md:bottom-4 rounded-t-3xl md:rounded-3xl shadow-2xl z-[90] overflow-hidden flex flex-col transition-colors duration-500"
+            className="fixed inset-0 top-3 md:top-8 md:inset-x-8 md:bottom-3 rounded-t-3xl md:rounded-3xl shadow-2xl z-[90] overflow-hidden flex flex-col transition-colors duration-500"
           >
-            {/* Top Progress Bar */}
-            <div className="absolute top-0 left-0 right-0 h-1 z-50 bg-black/5">
+            {/* Top Linear Reading Progress Meter (Fills as user scrolls down) */}
+            <div className="w-full h-1 z-50 bg-black/10 shrink-0 relative overflow-hidden">
               <div 
-                className="h-full transition-all duration-150" 
+                className="h-full transition-[width] duration-150 ease-out" 
                 style={{ width: `${scrollProgress}%`, backgroundColor: currentTheme.accent }}
               />
             </div>
 
             {/* Header / Toolbar */}
             <div 
-              className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 z-10 shrink-0 transition-colors duration-500"
+              className="flex items-center justify-between px-4 py-3 md:px-6 md:py-3.5 z-10 shrink-0 transition-colors duration-500"
               style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${currentTheme.border}` }}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <button onClick={() => { stopSpeaking(); onClose(); }} className="p-2 rounded-full hover:bg-black/5 transition-colors shrink-0">
+                <button onClick={() => { stopSpeaking(); onClose(); }} className="p-2 rounded-full hover:bg-black/5 transition-colors shrink-0" title="Close reader">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
                 </button>
                 <span className="font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-60 truncate">
                   {article.source}
                 </span>
                 {isLoading && (
-                  <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest animate-pulse" style={{ color: currentTheme.accent }}>
+                  <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest animate-pulse font-mono" style={{ color: currentTheme.accent }}>
                     <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: currentTheme.accent }} /> Fetching
                   </span>
                 )}
@@ -369,7 +300,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                   </span>
                 ) : multiplier.isBonusActive ? (
                   <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-juice-orange/20 text-juice-orange animate-pulse">
-                    <span>{multiplier.icon}</span>
+                    <span>✦</span>
                     <span>{multiplier.multiplier}x Active</span>
                   </span>
                 ) : null}
@@ -399,35 +330,39 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
                 {/* Theme Toggle */}
                 <div className="flex items-center gap-1 bg-black/5 p-1 rounded-full">
-                  <button onClick={() => setTheme('light')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'light' ? 'scale-110 ring-2 ring-offset-1 ring-gray-400' : 'hover:scale-105'}`} style={{ backgroundColor: '#ffffff' }} />
-                  <button onClick={() => setTheme('sepia')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'sepia' ? 'scale-110 ring-2 ring-offset-1 ring-[#b46014]' : 'hover:scale-105'}`} style={{ backgroundColor: '#f4ecd8' }} />
-                  <button onClick={() => setTheme('dark')} className={`w-6 h-6 rounded-full border border-white/10 transition-transform ${theme === 'dark' ? 'scale-110 ring-2 ring-offset-1 ring-gray-500' : 'hover:scale-105'}`} style={{ backgroundColor: '#0f1117' }} />
+                  <button onClick={() => setTheme('light')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'light' ? 'scale-110 ring-2 ring-offset-1 ring-gray-400' : 'hover:scale-105'}`} style={{ backgroundColor: '#ffffff' }} title="Light mode" />
+                  <button onClick={() => setTheme('sepia')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'sepia' ? 'scale-110 ring-2 ring-offset-1 ring-[#b46014]' : 'hover:scale-105'}`} style={{ backgroundColor: '#f4ecd8' }} title="Sepia mode" />
+                  <button onClick={() => setTheme('dark')} className={`w-6 h-6 rounded-full border border-white/10 transition-transform ${theme === 'dark' ? 'scale-110 ring-2 ring-offset-1 ring-gray-500' : 'hover:scale-105'}`} style={{ backgroundColor: '#0f1117' }} title="Dark mode" />
                 </div>
 
                 <div className="w-px h-5 mx-1" style={{ backgroundColor: currentTheme.border }} />
 
-                {/* Progress Wheel in toolbar */}
-                <div className="hidden sm:flex items-center" title={`${Math.round(scrollProgress)}% read`}>
-                  <RadialScrollWheel progress={scrollProgress} accent={currentTheme.accent} size={28} />
+                {/* Clean Linear Reading Percentage */}
+                <div className="hidden sm:flex items-center gap-1 font-mono text-xs font-bold opacity-75" title={`${Math.round(scrollProgress)}% read`}>
+                  <span>{Math.round(scrollProgress)}%</span>
+                  <span className="text-[9px] opacity-50 uppercase">read</span>
                 </div>
 
                 {onSave && (
-                  <button onClick={() => onSave(article)} className="p-2 rounded-full hover:bg-black/5 transition-colors opacity-70 hover:opacity-100" title="Save">
+                  <button onClick={() => onSave(article)} className="p-2 rounded-full hover:bg-black/5 transition-colors opacity-70 hover:opacity-100" title="Save Article">
                     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
                   </button>
                 )}
-                <a href={article.link} target="_blank" rel="noopener noreferrer" className="ml-1 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors hover:opacity-80" style={{ backgroundColor: currentTheme.accent, color: theme === 'sepia' ? '#fff' : '#fff' }}>
-                  Original
+                <a href={article.link} target="_blank" rel="noopener noreferrer" className="ml-1 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors hover:opacity-80 font-mono" style={{ backgroundColor: currentTheme.accent, color: '#fff' }}>
+                  Original ↗
                 </a>
               </div>
             </div>
 
-            {/* Scrollable body */}
-            <ReactLenis className="flex-1 overflow-y-auto" options={{ smoothWheel: true }}>
-              <div ref={scrollContainerRef} onScroll={handleScroll} className="h-full overflow-y-auto">
-                <div className="max-w-2xl mx-auto px-5 py-8 md:px-0 md:py-16 pb-24" ref={contentRef}>
+            {/* Scrollable Article Body (Native smooth scroll, no nested Lenis) */}
+            <div 
+              ref={scrollContainerRef} 
+              onScroll={handleScroll} 
+              className="flex-1 overflow-y-auto scroll-smooth overscroll-contain select-text"
+            >
+              <div className="max-w-2xl mx-auto px-5 py-8 md:px-0 md:py-16 pb-24" ref={contentRef}>
 
-                {/* Title & meta (Pristine typography, no author details) */}
+                {/* Title & meta (Pristine typography, clean editorial layout) */}
                 <header className="mb-10 text-center">
                   <div className="flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-widest mb-4 opacity-60">
                     <span className="font-bold text-juice-orange">{decodeHtmlEntities(article.source)}</span>
@@ -440,10 +375,15 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                   </h1>
                 </header>
 
-                {/* Hero image */}
-                {(article.imageUrl || article.enclosure?.url) && (
+                {/* Hero image with resilient error fallback */}
+                {(article.imageUrl || article.enclosure?.url) && !imageError && (
                   <figure className="mb-12 rounded-2xl overflow-hidden shadow-xl" style={{ border: `1px solid ${currentTheme.border}` }}>
-                    <img src={article.imageUrl || article.enclosure?.url} alt="" className="w-full h-auto max-h-[500px] object-cover" />
+                    <img 
+                      src={article.imageUrl || article.enclosure?.url} 
+                      alt="" 
+                      onError={() => setImageError(true)}
+                      className="w-full h-auto max-h-[500px] object-cover" 
+                    />
                   </figure>
                 )}
 
@@ -479,7 +419,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                           <p className="text-sm mb-1 opacity-60">Full article available on</p>
                           <p className="font-bold text-xl">{decodeHtmlEntities(article.source)}</p>
                         </div>
-                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3.5 text-white font-bold text-sm uppercase tracking-widest rounded-full hover:scale-105 active:scale-95 transition-transform shadow-lg" style={{ backgroundColor: currentTheme.accent }}>
+                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3.5 text-white font-bold text-sm uppercase tracking-widest rounded-full hover:scale-105 active:scale-95 transition-transform shadow-lg font-mono" style={{ backgroundColor: currentTheme.accent }}>
                           Read Full Article →
                         </a>
                       </div>
@@ -519,7 +459,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                     {!fullContent && bodyContent.length < 600 && (
                       <div className="mt-12 pt-8 flex flex-col items-center gap-4 text-center" style={{ borderTop: `1px solid ${currentTheme.border}` }}>
                         <p className="text-sm opacity-60">Continue reading on {decodeHtmlEntities(article.source)}</p>
-                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="px-7 py-3 text-white font-bold text-sm uppercase tracking-widest rounded-full hover:scale-105 transition-transform" style={{ backgroundColor: currentTheme.accent }}>
+                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="px-7 py-3 text-white font-bold text-sm uppercase tracking-widest rounded-full hover:scale-105 transition-transform font-mono" style={{ backgroundColor: currentTheme.accent }}>
                           Read Full Article →
                         </a>
                       </div>
@@ -528,45 +468,6 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                 )}
               </div>
             </div>
-            </ReactLenis>
-
-            {/* High-Fashion Floating Reading Progress HUD Wheel */}
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                if (scrollContainerRef.current) {
-                  scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-              }}
-              title="Click to scroll to top"
-              className={`absolute bottom-6 right-6 z-30 flex items-center gap-3 px-4 py-2.5 rounded-full shadow-2xl backdrop-blur-xl border cursor-pointer select-none transition-all duration-300 pointer-events-auto ${
-                scrollProgress >= 95 
-                  ? 'ring-2 ring-juice-orange/50 shadow-juice-orange/20' 
-                  : 'hover:shadow-xl'
-              }`}
-              style={{ backgroundColor: `${currentTheme.header}f0`, borderColor: currentTheme.border }}
-            >
-              <RadialScrollWheel progress={scrollProgress} accent={currentTheme.accent} size={36} />
-              <div className="flex flex-col text-left">
-                <span className="text-[9px] font-bold uppercase tracking-widest opacity-60 flex items-center gap-1">
-                  <span>Reading Dial</span>
-                  {readSeconds > 0 && <span className="opacity-40">• {Math.floor(readSeconds / 60)}m</span>}
-                </span>
-                <span className="text-xs font-serif font-bold flex items-center gap-1.5">
-                  {scrollProgress >= 95 ? (
-                    <span className="text-juice-orange font-black flex items-center gap-1">
-                      <span>Completed</span>
-                      <span>✦</span>
-                    </span>
-                  ) : (
-                    <span>{Math.round(scrollProgress)}% read</span>
-                  )}
-                </span>
-              </div>
-            </motion.div>
           </motion.div>
         </>
       )}

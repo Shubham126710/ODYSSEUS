@@ -55,7 +55,7 @@ export function getCurrentMultiplier(): MultiplierInfo {
     return {
       multiplier: 1.5,
       label: 'Early Bird',
-      icon: '🌅',
+      icon: '✦',
       badge: '1.5x ACTIVE',
       description: 'Morning contemplation bonus: 1.5x reading minutes & XP',
       isBonusActive: true,
@@ -68,7 +68,7 @@ export function getCurrentMultiplier(): MultiplierInfo {
     return {
       multiplier: 1.5,
       label: 'Night Owl',
-      icon: '🦉',
+      icon: '✦',
       badge: '1.5x ACTIVE',
       description: 'Late night quiet hours: 1.5x reading minutes & XP',
       isBonusActive: true,
@@ -81,7 +81,7 @@ export function getCurrentMultiplier(): MultiplierInfo {
     return {
       multiplier: 1.25,
       label: 'Weekend Deep Diver',
-      icon: '⚡',
+      icon: '✦',
       badge: '1.25x ACTIVE',
       description: 'Weekend long-form focus: 1.25x reading XP',
       isBonusActive: true,
@@ -92,7 +92,7 @@ export function getCurrentMultiplier(): MultiplierInfo {
   return {
     multiplier: 1.0,
     label: 'Standard Pace',
-    icon: '📖',
+    icon: '•',
     badge: '1.0x XP',
     description: 'Standard editorial reading pace',
     isBonusActive: false,
@@ -108,7 +108,7 @@ export function getExplorerRank(totalMinutes: number = 0, streakCount: number = 
     return {
       tier: 5,
       title: 'Grand Odyssey Master',
-      badgeIcon: '👑',
+      badgeIcon: '★',
       nextTitle: null,
       progressPercent: 100,
       currentMins: totalMinutes,
@@ -122,7 +122,7 @@ export function getExplorerRank(totalMinutes: number = 0, streakCount: number = 
     return {
       tier: 4,
       title: 'Voyager',
-      badgeIcon: '🧭',
+      badgeIcon: '◈',
       nextTitle: 'Grand Odyssey Master',
       progressPercent: progress,
       currentMins: totalMinutes,
@@ -136,7 +136,7 @@ export function getExplorerRank(totalMinutes: number = 0, streakCount: number = 
     return {
       tier: 3,
       title: 'Cartographer',
-      badgeIcon: '📜',
+      badgeIcon: '◆',
       nextTitle: 'Voyager',
       progressPercent: progress,
       currentMins: totalMinutes,
@@ -150,7 +150,7 @@ export function getExplorerRank(totalMinutes: number = 0, streakCount: number = 
     return {
       tier: 2,
       title: 'Navigator',
-      badgeIcon: '⚓',
+      badgeIcon: '◇',
       nextTitle: 'Cartographer',
       progressPercent: progress,
       currentMins: totalMinutes,
@@ -163,7 +163,7 @@ export function getExplorerRank(totalMinutes: number = 0, streakCount: number = 
   return {
     tier: 1,
     title: 'Novice Wanderer',
-    badgeIcon: '🪶',
+    badgeIcon: '✦',
     nextTitle: 'Navigator',
     progressPercent: progress,
     currentMins: totalMinutes,
@@ -177,11 +177,11 @@ export function getExplorerRank(totalMinutes: number = 0, streakCount: number = 
  */
 export function getMilestoneProgress(streakCount: number = 0) {
   const milestones = [
-    { days: 7, perk: 'Vintage Sepia Theme', icon: '📜' },
-    { days: 14, perk: 'Bionic Focus Mode', icon: '👁️' },
-    { days: 30, perk: 'Traveler Gold Monogram', icon: '✨' },
-    { days: 60, perk: 'Master Archivist Pin', icon: '🏛️' },
-    { days: 100, perk: 'Legendary Centurion Crest', icon: '🏆' },
+    { days: 7, perk: 'Vintage Sepia Theme', icon: '✦' },
+    { days: 14, perk: 'Bionic Focus Mode', icon: '◈' },
+    { days: 30, perk: 'Traveler Gold Monogram', icon: '◆' },
+    { days: 60, perk: 'Master Archivist Pin', icon: '❖' },
+    { days: 100, perk: 'Legendary Centurion Crest', icon: '★' },
   ];
 
   const nextMilestone = milestones.find((m) => m.days > streakCount) || milestones[milestones.length - 1];

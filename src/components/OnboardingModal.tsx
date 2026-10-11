@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { StaticOrangeCompass } from './StaticOrangeCompass';
 import { supabase } from '@/lib/supabaseClient';
-import gsap from 'gsap';
 
 interface OnboardingModalProps {
   isOpen: boolean;
@@ -14,24 +13,75 @@ interface OnboardingModalProps {
   onComplete?: () => void;
 }
 
+// Prestige Publication SVG Logos
+const VergeLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" fill="currentColor" className={className}>
+    <polygon points="10,20 34,20 48,62 62,20 86,20 56,82 40,82" />
+  </svg>
+);
+
+const WiredLogo = ({ className = "w-12 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 110 32" fill="currentColor" className={className}>
+    <text x="55" y="24" textAnchor="middle" fontFamily="ui-monospace, monospace" fontWeight="900" fontSize="24" letterSpacing="2">WIRED</text>
+  </svg>
+);
+
+const AtlanticLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" fill="currentColor" className={className}>
+    <text x="50" y="80" textAnchor="middle" fontFamily="Georgia, serif" fontWeight="bold" fontSize="88" fontStyle="italic">A</text>
+  </svg>
+);
+
+const NYTimesLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" fill="currentColor" className={className}>
+    <text x="50" y="78" textAnchor="middle" fontFamily="Georgia, 'Times New Roman', serif" fontWeight="900" fontSize="82">T</text>
+  </svg>
+);
+
+const TechCrunchLogo = ({ className = "w-8 h-5" }: { className?: string }) => (
+  <svg viewBox="0 0 100 60" fill="currentColor" className={className}>
+    <rect x="6" y="6" width="88" height="48" rx="8" fill="currentColor" fillOpacity="0.15" />
+    <text x="50" y="42" textAnchor="middle" fontFamily="system-ui, sans-serif" fontWeight="900" fontSize="36" letterSpacing="-1">TC</text>
+  </svg>
+);
+
+const BloombergLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" fill="currentColor" className={className}>
+    <text x="50" y="76" textAnchor="middle" fontFamily="system-ui, sans-serif" fontWeight="900" fontSize="80" letterSpacing="-2">B</text>
+  </svg>
+);
+
+const DezeenLogo = ({ className = "w-8 h-5" }: { className?: string }) => (
+  <svg viewBox="0 0 100 60" fill="currentColor" className={className}>
+    <text x="50" y="44" textAnchor="middle" fontFamily="system-ui, sans-serif" fontWeight="900" fontSize="42" letterSpacing="-1">dz</text>
+  </svg>
+);
+
+const QuantaLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" fill="currentColor" className={className}>
+    <circle cx="48" cy="46" r="28" fill="none" stroke="currentColor" strokeWidth="10" />
+    <line x1="56" y1="56" x2="82" y2="82" stroke="currentColor" strokeWidth="12" strokeLinecap="round" />
+  </svg>
+);
+
 const TOPICS = [
-  { id: 'tech', label: 'Technology & AI', icon: '🛰️', desc: 'Breakthroughs, models & computing' },
-  { id: 'design', label: 'Design & Architecture', icon: '📐', desc: 'Craft, spatial design & typography' },
-  { id: 'culture', label: 'Culture & Essays', icon: '🏛️', desc: 'Philosophy, longform & human condition' },
-  { id: 'science', label: 'Science & Cosmos', icon: '🔭', desc: 'Astrophysics, biology & quantum realms' },
-  { id: 'economy', label: 'Global Economy', icon: '🌐', desc: 'Markets, macro trends & geopolitics' },
-  { id: 'nature', label: 'Earth & Ecology', icon: '🌿', desc: 'Climate, expeditions & living systems' },
+  { id: 'tech', label: 'Technology & AI', glyph: '✦', desc: 'Frontier models, cybernetics & computing' },
+  { id: 'design', label: 'Design & Architecture', glyph: '◈', desc: 'Spatial craft, typography & aesthetic form' },
+  { id: 'culture', label: 'Culture & Essays', glyph: '◆', desc: 'Philosophy, longform criticism & human affairs' },
+  { id: 'science', label: 'Science & Cosmos', glyph: '❖', desc: 'Astrophysics, biology & quantum realms' },
+  { id: 'economy', label: 'Global Chronicle', glyph: '—', desc: 'Markets, macro trends & geopolitics' },
+  { id: 'nature', label: 'Earth & Ecology', glyph: '•', desc: 'Expeditions, climate & living systems' },
 ];
 
 const PRESTIGE_PUBLICATIONS = [
-  { id: 'wired', name: 'Wired', category: 'Technology', monogram: 'WI' },
-  { id: 'atlantic', name: 'The Atlantic', category: 'Culture', monogram: 'AT' },
-  { id: 'dezeen', name: 'Dezeen', category: 'Architecture', monogram: 'DZ' },
-  { id: 'quanta', name: 'Quanta Magazine', category: 'Science', monogram: 'QM' },
-  { id: 'verge', name: 'The Verge', category: 'Technology', monogram: 'VG' },
-  { id: 'mit', name: 'MIT Tech Review', category: 'AI & Research', monogram: 'TR' },
-  { id: 'nice', name: "It's Nice That", category: 'Visual Culture', monogram: 'NT' },
-  { id: 'bloomberg', name: 'Bloomberg', category: 'Global Chronicle', monogram: 'BB' },
+  { id: 'theverge', name: 'The Verge', category: 'Technology', Logo: VergeLogo },
+  { id: 'wired', name: 'Wired', category: 'Technology', Logo: WiredLogo },
+  { id: 'atlantic', name: 'The Atlantic', category: 'Culture', Logo: AtlanticLogo },
+  { id: 'nytimes', name: 'NY Times', category: 'Global Chronicle', Logo: NYTimesLogo },
+  { id: 'techcrunch', name: 'TechCrunch', category: 'Frontier AI', Logo: TechCrunchLogo },
+  { id: 'bloomberg', name: 'Bloomberg', category: 'Markets', Logo: BloombergLogo },
+  { id: 'dezeen', name: 'Dezeen', category: 'Architecture', Logo: DezeenLogo },
+  { id: 'quanta', name: 'Quanta Magazine', category: 'Science', Logo: QuantaLogo },
 ];
 
 const READING_PACES = [
@@ -39,7 +89,7 @@ const READING_PACES = [
     minutes: 10,
     title: 'Casual Voyager',
     subtitle: '10 min / day',
-    description: 'A focused morning briefing over coffee.',
+    description: 'A focused morning briefing over quiet contemplation.',
     badge: 'Light Digest',
   },
   {
@@ -52,7 +102,7 @@ const READING_PACES = [
   },
   {
     minutes: 35,
-    title: 'Grand Explorer',
+    title: 'Grand Master',
     subtitle: '35 min / day',
     description: 'Uninterrupted long-form immersion and deep essays.',
     badge: 'Deep Dive',
@@ -68,33 +118,33 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 }) => {
   const [step, setStep] = useState(1);
   const [selectedTopics, setSelectedTopics] = useState<string[]>(['tech', 'design', 'culture']);
-  const [selectedPubs, setSelectedPubs] = useState<string[]>(['wired', 'atlantic', 'dezeen', 'quanta']);
+  const [selectedPubs, setSelectedPubs] = useState<string[]>(['theverge', 'wired', 'atlantic', 'nytimes', 'dezeen']);
   const [selectedGoal, setSelectedGoal] = useState<number>(20);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const compassNeedleRef = useRef<HTMLDivElement>(null);
-  const waxSealRef = useRef<HTMLDivElement>(null);
 
-  // Animate compass rotation when changing steps or topics
+  // Background Element Snapping: Smooth-scroll the hub behind the modal to highlight the actual salon sections
   useEffect(() => {
-    if (compassNeedleRef.current) {
-      gsap.to(compassNeedleRef.current, {
-        rotation: (step - 1) * 90 + selectedTopics.length * 45,
-        duration: 0.8,
-        ease: 'back.out(1.4)',
-      });
-    }
-  }, [step, selectedTopics.length]);
+    if (!isOpen) return;
 
-  // Animate wax seal stamp in Step 4
-  useEffect(() => {
-    if (step === 4 && waxSealRef.current) {
-      gsap.fromTo(
-        waxSealRef.current,
-        { scale: 2.5, opacity: 0, rotate: -25 },
-        { scale: 1, opacity: 1, rotate: 0, duration: 0.6, ease: 'bounce.out', delay: 0.2 }
-      );
+    // Target the main scroll container on the feed page
+    const feedContainer = document.querySelector('[data-lenis-prevent]') as HTMLElement | null;
+    if (feedContainer) {
+      const vh = feedContainer.clientHeight || window.innerHeight;
+      if (step === 1) {
+        // Step 1: Snap to Hero Broadside
+        feedContainer.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (step === 2) {
+        // Step 2: Snap to The Collection & Library
+        feedContainer.scrollTo({ top: vh * 2, behavior: 'smooth' });
+      } else if (step === 3) {
+        // Step 3: Snap to Cover Story
+        feedContainer.scrollTo({ top: vh, behavior: 'smooth' });
+      } else if (step === 4) {
+        // Step 4: Return to Top Masthead
+        feedContainer.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
-  }, [step]);
+  }, [step, isOpen]);
 
   if (!isOpen) return null;
 
@@ -113,7 +163,6 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const handleFinish = async () => {
     setIsSubmitting(true);
     try {
-      // Mark onboarding as completed in Supabase profiles
       if (userId) {
         await supabase
           .from('profiles')
@@ -141,28 +190,28 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 md:p-6 bg-black/70 backdrop-blur-md">
+      <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6 bg-black/65 backdrop-blur-md">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="relative w-full max-w-2xl bg-juice-cream rounded-3xl md:rounded-[32px] border border-juice-green/20 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+          exit={{ opacity: 0, scale: 0.95, y: 15 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="relative w-full max-w-2xl bg-juice-cream rounded-3xl md:rounded-[32px] border border-juice-green/20 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[88vh]"
         >
           {/* Top Editorial Bar */}
-          <div className="px-6 py-4 md:px-8 md:py-5 border-b border-juice-green/10 flex items-center justify-between bg-juice-green/5">
+          <div className="px-5 py-3.5 sm:px-8 sm:py-4 border-b border-juice-green/10 flex items-center justify-between bg-juice-green/5 shrink-0">
             <div className="flex items-center gap-3">
-              <div ref={compassNeedleRef} className="w-6 h-6 md:w-7 md:h-7 shrink-0">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0">
                 <StaticOrangeCompass className="w-full h-full" />
               </div>
               <div>
-                <span className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-juice-green/60">
-                  Odysseus • Editorial Guide
+                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-juice-green/60 block">
+                  Odysseus • Salon Orientation
                 </span>
-                <h4 className="font-serif text-sm md:text-base font-bold text-juice-green">
+                <h4 className="font-serif text-sm sm:text-base font-bold text-juice-green">
                   {step === 1 && 'Step 1: Orient Your Curiosity'}
-                  {step === 2 && 'Step 2: Curate Your Library'}
-                  {step === 3 && 'Step 3: Define Your Daily Pace'}
+                  {step === 2 && 'Step 2: Curate Prestige Publications'}
+                  {step === 3 && 'Step 3: Define Daily Reading Pace'}
                   {step === 4 && 'Step 4: The Traveler’s Passport'}
                 </h4>
               </div>
@@ -186,7 +235,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </div>
               <button
                 onClick={onClose}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-juice-green/50 hover:text-juice-green hover:bg-juice-green/10 transition-colors ml-2"
+                className="w-7 h-7 rounded-full flex items-center justify-center text-juice-green/50 hover:text-juice-green hover:bg-juice-green/10 transition-colors ml-1 font-mono text-xs"
                 title="Close Guide"
               >
                 ✕
@@ -195,48 +244,56 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           </div>
 
           {/* Modal Content Body */}
-          <div className="p-6 md:p-8 overflow-y-auto flex-1 font-sans">
+          <div className="p-5 sm:p-7 overflow-y-auto flex-1 font-sans space-y-4">
+            
             {/* STEP 1: TOPIC CALIBRATION */}
             {step === 1 && (
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 15 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                exit={{ opacity: 0, x: -15 }}
+                className="space-y-4"
               >
                 <div className="text-center max-w-lg mx-auto">
-                  <h3 className="font-serif text-2xl md:text-3xl font-bold text-juice-green mb-2">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-juice-orange font-bold">
+                    TERRITORY ORIENTATION
+                  </span>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-juice-green mt-0.5 mb-1.5">
                     Orient Your Curiosity
                   </h3>
-                  <p className="text-sm text-juice-green/70">
-                    Select the intellectual territories you wish to explore. Odysseus shapes your daily magazine edition around your choices.
+                  <p className="text-xs sm:text-sm text-juice-green/75 leading-relaxed">
+                    Select the intellectual territories you wish to explore. Odysseus shapes your daily magazine broadside around your choices.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                   {TOPICS.map((topic) => {
                     const isSelected = selectedTopics.includes(topic.id);
                     return (
                       <button
                         key={topic.id}
                         onClick={() => toggleTopic(topic.id)}
-                        className={`text-left p-4 rounded-2xl border transition-all duration-200 flex items-start gap-3.5 ${
+                        className={`text-left p-3.5 rounded-2xl border transition-all duration-200 flex items-start gap-3 ${
                           isSelected
-                            ? 'bg-juice-green text-juice-cream border-juice-green shadow-md scale-[1.01]'
-                            : 'bg-white/60 hover:bg-white text-juice-green border-juice-green/15 hover:border-juice-green/40'
+                            ? 'bg-juice-green text-juice-cream border-juice-green shadow-sm'
+                            : 'bg-white/60 hover:bg-white text-juice-green border-juice-green/15 hover:border-juice-green/35'
                         }`}
                       >
-                        <span className="text-2xl shrink-0 p-2 rounded-xl bg-black/5">{topic.icon}</span>
+                        <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${
+                          isSelected ? 'bg-white/15 text-white' : 'bg-juice-green/5 text-juice-orange font-mono'
+                        }`}>
+                          {topic.glyph}
+                        </span>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
                             <span className="font-serif font-bold text-sm">{topic.label}</span>
                             {isSelected && (
-                              <span className="text-xs bg-juice-orange text-white px-2 py-0.5 rounded-full font-bold">
+                              <span className="text-[10px] font-mono font-bold bg-juice-orange text-white px-2 py-0.5 rounded-full">
                                 ✓
                               </span>
                             )}
                           </div>
-                          <p className={`text-xs mt-1 leading-snug line-clamp-1 ${isSelected ? 'text-juice-cream/80' : 'text-juice-green/60'}`}>
+                          <p className={`text-[11px] mt-0.5 leading-snug line-clamp-1 ${isSelected ? 'text-juice-cream/80' : 'text-juice-green/60'}`}>
                             {topic.desc}
                           </p>
                         </div>
@@ -247,49 +304,58 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </motion.div>
             )}
 
-            {/* STEP 2: PUBLICATION STAMPS */}
+            {/* STEP 2: PRESTIGE PUBLICATION SEALS WITH REAL SVG LOGOS */}
             {step === 2 && (
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 15 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                exit={{ opacity: 0, x: -15 }}
+                className="space-y-4"
               >
                 <div className="text-center max-w-lg mx-auto">
-                  <h3 className="font-serif text-2xl md:text-3xl font-bold text-juice-green mb-2">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-juice-orange font-bold">
+                    PRESTIGE REPOSITORY
+                  </span>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-juice-green mt-0.5 mb-1.5">
                     Curate Your Library
                   </h3>
-                  <p className="text-sm text-juice-green/70">
-                    Select prestigious global publications to inaugurate your collection. Tap to stamp with a wax seal.
+                  <p className="text-xs sm:text-sm text-juice-green/75 leading-relaxed">
+                    Select authoritative global publications to inaugurate your library. Tap to stamp with a verified salon seal.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
                   {PRESTIGE_PUBLICATIONS.map((pub) => {
                     const isSelected = selectedPubs.includes(pub.id);
+                    const Logo = pub.Logo;
                     return (
                       <button
                         key={pub.id}
                         onClick={() => togglePub(pub.id)}
-                        className={`p-3.5 rounded-2xl border text-center transition-all duration-200 flex flex-col items-center justify-between relative overflow-hidden group ${
+                        className={`p-3.5 rounded-2xl border text-center transition-all duration-200 flex flex-col items-center justify-between relative group ${
                           isSelected
-                            ? 'bg-juice-green/10 border-juice-orange ring-2 ring-juice-orange/20 shadow-sm'
+                            ? 'bg-white border-juice-orange ring-2 ring-juice-orange/20 shadow-md scale-[1.01]'
                             : 'bg-white/60 hover:bg-white border-juice-green/15 hover:border-juice-green/30'
                         }`}
                       >
-                        <div className={`w-11 h-11 rounded-full flex items-center justify-center font-serif font-bold text-sm tracking-wider mb-2 transition-transform duration-300 group-hover:scale-105 ${
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2 transition-all ${
                           isSelected
-                            ? 'bg-juice-orange text-white shadow-md'
-                            : 'bg-juice-green/10 text-juice-green'
+                            ? 'bg-juice-orange/10 text-juice-orange border border-juice-orange/30'
+                            : 'bg-juice-green/5 text-juice-green/80 group-hover:text-juice-green'
                         }`}>
-                          {pub.monogram}
+                          <Logo className="w-7 h-7 object-contain" />
                         </div>
                         <span className="font-serif font-bold text-xs text-juice-green line-clamp-1">{pub.name}</span>
-                        <span className="text-[10px] text-juice-green/60 uppercase tracking-widest mt-0.5">{pub.category}</span>
+                        <span className="text-[9px] font-mono text-juice-green/60 uppercase tracking-wider mt-0.5">{pub.category}</span>
 
-                        {isSelected && (
-                          <div className="mt-2 text-[9px] font-bold uppercase tracking-wider text-juice-orange bg-juice-orange/10 px-2 py-0.5 rounded-full">
-                            ★ Stamped
+                        {isSelected ? (
+                          <div className="mt-2 text-[8px] font-mono font-bold uppercase tracking-wider text-juice-orange bg-juice-orange/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span>✦</span>
+                            <span>Stamped</span>
+                          </div>
+                        ) : (
+                          <div className="mt-2 text-[8px] font-mono text-juice-green/40 uppercase tracking-wider px-2 py-0.5">
+                            Select
                           </div>
                         )}
                       </button>
@@ -302,53 +368,56 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             {/* STEP 3: DAILY READING PACE */}
             {step === 3 && (
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 15 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                exit={{ opacity: 0, x: -15 }}
+                className="space-y-4"
               >
                 <div className="text-center max-w-lg mx-auto">
-                  <h3 className="font-serif text-2xl md:text-3xl font-bold text-juice-green mb-2">
-                    Set Your Daily Pace
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-juice-orange font-bold">
+                    HABIT COMMITMENT
+                  </span>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-juice-green mt-0.5 mb-1.5">
+                    Define Your Daily Pace
                   </h3>
-                  <p className="text-sm text-juice-green/70">
-                    Streaks form through steady, intentional ritual. Choose a daily commitment you can savor each day.
+                  <p className="text-xs sm:text-sm text-juice-green/75 leading-relaxed">
+                    Reading habits form through steady, intentional ritual. Choose a daily commitment that suits your contemplative rhythm.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
                   {READING_PACES.map((pace) => {
                     const isSelected = selectedGoal === pace.minutes;
                     return (
                       <button
                         key={pace.minutes}
                         onClick={() => setSelectedGoal(pace.minutes)}
-                        className={`text-left p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between relative ${
+                        className={`text-left p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between relative ${
                           isSelected
                             ? 'bg-juice-green text-juice-cream border-juice-green shadow-xl scale-[1.02]'
-                            : 'bg-white/60 hover:bg-white text-juice-green border-juice-green/15 hover:border-juice-green/40'
+                            : 'bg-white/60 hover:bg-white text-juice-green border-juice-green/15 hover:border-juice-green/35'
                         }`}
                       >
                         {pace.badge && (
-                          <div className={`text-[9px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded-full inline-block w-fit mb-3 font-bold ${
+                          <div className={`text-[9px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded-full inline-block w-fit mb-2 font-bold ${
                             isSelected ? 'bg-juice-orange text-white' : 'bg-juice-green/10 text-juice-green'
                           }`}>
                             {pace.badge}
                           </div>
                         )}
                         <div>
-                          <div className="font-serif text-xl font-bold mb-1">{pace.title}</div>
-                          <div className={`font-mono text-xs mb-3 font-semibold ${isSelected ? 'text-juice-orange' : 'text-juice-orange'}`}>
+                          <div className="font-serif text-lg sm:text-xl font-bold mb-0.5">{pace.title}</div>
+                          <div className={`font-mono text-xs mb-2 font-bold ${isSelected ? 'text-juice-orange' : 'text-juice-orange'}`}>
                             {pace.subtitle}
                           </div>
-                          <p className={`text-xs leading-relaxed ${isSelected ? 'text-juice-cream/80' : 'text-juice-green/60'}`}>
+                          <p className={`text-xs leading-relaxed ${isSelected ? 'text-juice-cream/80' : 'text-juice-green/65'}`}>
                             {pace.description}
                           </p>
                         </div>
 
-                        <div className="mt-5 pt-3 border-t border-current/10 flex items-center justify-between text-xs font-bold">
-                          <span>Multiplier Eligible</span>
-                          <span>1.5x 🌅 / 🦉</span>
+                        <div className="mt-4 pt-2.5 border-t border-current/10 flex items-center justify-between text-[11px] font-mono font-bold">
+                          <span>Contemplation Bonus</span>
+                          <span className="text-juice-orange">1.5x Quiet Hours</span>
                         </div>
                       </button>
                     );
@@ -357,67 +426,67 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </motion.div>
             )}
 
-            {/* STEP 4: PASSPORT & WAX SEAL STAMP */}
+            {/* STEP 4: PASSPORT & PERMANENT MINTED SEAL */}
             {step === 4 && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="space-y-6 text-center"
+                exit={{ opacity: 0, scale: 0.98 }}
+                className="space-y-4 text-center"
               >
                 <div className="max-w-md mx-auto">
-                  <h3 className="font-serif text-2xl md:text-3xl font-bold text-juice-green mb-1">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-juice-orange font-bold">
+                    CREDENTIAL INAUGURATION
+                  </span>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-juice-green mt-0.5 mb-1">
                     Your Odyssey Begins
                   </h3>
-                  <p className="text-xs md:text-sm text-juice-green/70">
-                    Your reader credentials and inaugural rank have been minted.
+                  <p className="text-xs sm:text-sm text-juice-green/75">
+                    Your salon credentials and inaugural rank have been permanently minted.
                   </p>
                 </div>
 
-                {/* Passport Card */}
-                <div className="relative max-w-md mx-auto bg-gradient-to-br from-[#F2ECE1] to-[#E5DDCB] p-6 rounded-3xl border-2 border-juice-green/30 shadow-xl text-left overflow-hidden">
-                  {/* Watermark Compass */}
-                  <div className="absolute right-[-20px] bottom-[-20px] opacity-10 pointer-events-none">
-                    <StaticOrangeCompass className="w-56 h-56" />
-                  </div>
-
-                  <div className="flex items-center justify-between border-b border-juice-green/15 pb-4 mb-4">
+                {/* Minted Passport Card */}
+                <div className="relative max-w-md mx-auto bg-white/90 p-5 sm:p-6 rounded-3xl border-2 border-juice-green/20 shadow-xl text-left overflow-hidden">
+                  
+                  {/* Header Dateline */}
+                  <div className="flex items-center justify-between border-b border-juice-green/15 pb-3 mb-3">
                     <div>
-                      <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-juice-green/60">
+                      <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-juice-green/60 block">
                         OFFICIAL TRAVELER’S PASSPORT
                       </span>
                       <h4 className="font-serif text-lg font-bold text-juice-green">{userName}</h4>
                     </div>
                     <div className="text-right">
-                      <span className="text-[9px] font-mono uppercase tracking-widest text-juice-green/50">COMMITTED</span>
-                      <div className="font-mono text-sm font-bold text-juice-orange">{selectedGoal} MIN / DAY</div>
+                      <span className="text-[9px] font-mono uppercase tracking-widest text-juice-green/50 block">COMMITTED</span>
+                      <div className="font-mono text-xs sm:text-sm font-bold text-juice-orange">{selectedGoal} MIN / DAY</div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-xs mb-4">
-                    <div className="bg-white/50 p-2.5 rounded-xl border border-juice-green/10">
-                      <span className="text-[9px] uppercase tracking-wider text-juice-green/60 block mb-0.5">Assigned Rank</span>
-                      <span className="font-serif font-bold text-juice-green text-sm flex items-center gap-1">
-                        🪶 Novice Wanderer
+                  {/* Badges Grid */}
+                  <div className="grid grid-cols-2 gap-2.5 text-xs mb-4">
+                    <div className="bg-juice-green/5 p-3 rounded-2xl border border-juice-green/10">
+                      <span className="text-[9px] font-mono uppercase tracking-wider text-juice-green/60 block mb-0.5">Assigned Rank</span>
+                      <span className="font-serif font-bold text-juice-green text-sm flex items-center gap-1.5">
+                        <span className="text-juice-orange font-mono">✦</span>
+                        <span>Novice Wanderer</span>
                       </span>
                     </div>
-                    <div className="bg-white/50 p-2.5 rounded-xl border border-juice-green/10">
-                      <span className="text-[9px] uppercase tracking-wider text-juice-green/60 block mb-0.5">Shield Inventory</span>
-                      <span className="font-serif font-bold text-juice-green text-sm flex items-center gap-1">
-                        🧊 1 Streak Freeze
+                    <div className="bg-juice-green/5 p-3 rounded-2xl border border-juice-green/10">
+                      <span className="text-[9px] font-mono uppercase tracking-wider text-juice-green/60 block mb-0.5">Shield Inventory</span>
+                      <span className="font-serif font-bold text-juice-green text-sm flex items-center gap-1.5">
+                        <span className="text-juice-orange font-mono">◈</span>
+                        <span>1 Active Shield</span>
                       </span>
                     </div>
                   </div>
 
-                  {/* Wax Seal Stamp */}
+                  {/* Minted Wax Seal Stamp (Permanently Visible) */}
                   <div className="flex items-center justify-center pt-2">
-                    <div
-                      ref={waxSealRef}
-                      className="w-20 h-20 rounded-full bg-gradient-to-br from-[#E25838] to-[#C1381A] text-juice-cream flex flex-col items-center justify-center shadow-lg border-2 border-[#FFA185] rotate-[-5deg]"
-                    >
-                      <span className="text-[8px] font-mono tracking-widest uppercase">ODYSSEUS</span>
-                      <span className="font-serif font-black text-sm tracking-widest">VERIFIED</span>
-                      <span className="text-[8px] opacity-80">★ EDITION ★</span>
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#E25838] to-[#B33519] text-juice-cream flex flex-col items-center justify-center shadow-lg border-2 border-[#FFA185] rotate-[-4deg] select-none shrink-0 ring-4 ring-black/5">
+                      <span className="text-[8px] font-mono tracking-widest uppercase opacity-80">ODYSSEUS</span>
+                      <span className="font-serif font-black text-sm tracking-widest text-white">MINTED</span>
+                      <span className="text-[7px] font-mono tracking-wider opacity-90 uppercase">SALON PASS</span>
                     </div>
                   </div>
                 </div>
@@ -426,18 +495,18 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           </div>
 
           {/* Modal Footer Controls */}
-          <div className="px-6 py-4 md:px-8 md:py-5 border-t border-juice-green/10 flex items-center justify-between bg-juice-green/5">
+          <div className="px-5 py-3.5 sm:px-8 sm:py-4 border-t border-juice-green/10 flex items-center justify-between bg-juice-green/5 shrink-0">
             {step > 1 ? (
               <button
                 onClick={() => setStep((s) => s - 1)}
-                className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-juice-green/70 hover:text-juice-green hover:bg-juice-green/10 transition-colors"
+                className="px-4 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider text-juice-green/70 hover:text-juice-green hover:bg-juice-green/10 transition-colors"
               >
                 ← Back
               </button>
             ) : (
               <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-juice-green/40 hover:text-juice-green hover:bg-juice-green/10 transition-colors"
+                className="px-4 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider text-juice-green/45 hover:text-juice-green hover:bg-juice-green/10 transition-colors"
               >
                 Skip Guide
               </button>
@@ -446,19 +515,19 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             {step < 4 ? (
               <button
                 onClick={() => setStep((s) => s + 1)}
-                className="px-6 py-2.5 rounded-full bg-juice-orange hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all flex items-center gap-2 group"
+                className="px-6 py-2.5 rounded-full bg-juice-orange hover:bg-orange-600 text-white font-mono font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all flex items-center gap-2 group"
               >
-                Continue
-                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                <span>Continue</span>
+                <span className="group-hover:translate-x-0.5 transition-transform font-sans">→</span>
               </button>
             ) : (
               <button
                 onClick={handleFinish}
                 disabled={isSubmitting}
-                className="px-7 py-3 rounded-full bg-juice-green hover:bg-[#4d6d39] text-white font-serif font-bold text-sm tracking-wide shadow-lg hover:shadow-xl transition-all flex items-center gap-2 disabled:opacity-50"
+                className="px-7 py-2.5 rounded-full bg-juice-green hover:bg-[#4d6d39] text-white font-mono font-bold text-xs uppercase tracking-widest shadow-lg hover:shadow-xl transition-all flex items-center gap-2 disabled:opacity-50"
               >
-                {isSubmitting ? 'Inaugurating...' : 'Begin Your Odyssey'}
-                <span>✨</span>
+                <span>{isSubmitting ? 'Inaugurating...' : 'Enter Odysseus Salon'}</span>
+                <span>→</span>
               </button>
             )}
           </div>
