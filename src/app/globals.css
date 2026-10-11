@@ -3105,20 +3105,17 @@ body {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
-.bg-parchment {
-  background-color: #FAF7EE !important;
-}
 .bg-forest-header {
-  background-color: #142316 !important;
+  background-color: #243B26 !important;
 }
 .bg-forest-card {
-  background-color: #162919 !important;
+  background-color: #1B2F1D !important;
 }
-.text-ink {
-  color: #131E15 !important;
+.bg-forest-surface {
+  background-color: #1B2F1D !important;
 }
-.text-olive-ink {
-  color: #37493A !important;
+.text-cream {
+  color: #FFFDD0 !important;
 }
 .text-orange-accent {
   color: #EA580C !important;

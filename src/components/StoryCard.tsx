@@ -44,12 +44,12 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
   return (
     <div 
-      style={{ backgroundColor: '#FAF7EE' }}
-      className="group relative flex flex-col h-full bg-parchment text-ink border border-white/20 hover:border-[#EA580C] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+      style={{ backgroundColor: '#1B2F1D' }}
+      className="group relative flex flex-col h-full bg-[#1B2F1D] text-[#FFFDD0] border border-[#FFFDD0]/15 hover:border-[#EA580C] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
     >
       
       {/* Visual Header */}
-      <div className="relative w-full aspect-[16/10] overflow-hidden bg-stone-200 shrink-0">
+      <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#162919] shrink-0">
         {!imageFailed && activeSrc ? (
           <img 
             src={activeSrc} 
@@ -68,7 +68,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         )}
         
         {/* Category Badge */}
-        <div className="absolute top-3 left-3 bg-[#131E15]/90 text-white backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border border-white/10">
+        <div className="absolute top-3 left-3 bg-[#243B26]/90 text-[#FFFDD0] backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border border-[#FFFDD0]/20">
           {category}
         </div>
       </div>
@@ -80,35 +80,35 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           {/* Publisher Meta Row */}
           <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider">
             <span className="font-bold text-[#EA580C] truncate max-w-[140px]">{source}</span>
-            <span className="text-stone-500">{date}</span>
+            <span className="text-[#FFFDD0]/60">{date}</span>
           </div>
 
           {/* Title */}
-          <h3 className="font-serif text-lg font-bold leading-snug text-[#131E15] group-hover:text-[#EA580C] transition-colors duration-200 line-clamp-2 tracking-tight">
+          <h3 className="font-serif text-lg font-bold leading-snug text-[#FFFDD0] group-hover:text-[#EA580C] transition-colors duration-200 line-clamp-2 tracking-tight">
             {decodeHtmlEntities(title)}
           </h3>
 
           {/* Excerpt */}
-          <p className="text-xs text-[#37493A] font-serif italic leading-relaxed line-clamp-2">
+          <p className="text-xs text-[#FFFDD0]/75 font-serif italic leading-relaxed line-clamp-2">
             {decodeHtmlEntities(excerpt)}
           </p>
         </div>
 
         {/* Footer Actions */}
-        <div className="pt-3 border-t border-stone-200/80 flex items-center justify-between mt-auto">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#131E15] group-hover:text-[#EA580C] transition-colors flex items-center gap-1.5">
+        <div className="pt-3 border-t border-[#FFFDD0]/10 flex items-center justify-between mt-auto">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#FFFDD0] group-hover:text-[#EA580C] transition-colors flex items-center gap-1.5">
             <span>Read Story</span>
             <span className="text-sm font-sans transition-transform group-hover:translate-x-0.5">→</span>
           </span>
           
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-stone-500 tracking-wider mr-1">
+            <span className="text-[10px] font-mono text-[#FFFDD0]/60 tracking-wider mr-1">
               {readTime}
             </span>
 
             {/* Bookmark button */}
             <button 
-              className={`p-1.5 rounded-full hover:bg-stone-100 transition-colors ${isSaved ? 'text-[#EA580C]' : 'text-stone-400 hover:text-stone-700'}`} 
+              className={`p-1.5 rounded-full hover:bg-white/10 transition-colors ${isSaved ? 'text-[#EA580C]' : 'text-[#FFFDD0]/60 hover:text-[#FFFDD0]'}`} 
               aria-label="Save story"
               title={isSaved ? "Saved to Library" : "Save for later"}
               onClick={(e) => {
@@ -124,7 +124,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
             {/* Share button */}
             <button 
-              className="p-1.5 rounded-full hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-700" 
+              className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-[#FFFDD0]/60 hover:text-[#FFFDD0]" 
               aria-label="Share story"
               title="Share story"
               onClick={(e) => {

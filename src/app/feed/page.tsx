@@ -196,15 +196,15 @@ export default function FeedPage() {
           {/* Signature Hermès Orange Trending Wire Marquee Ribbon */}
           <div 
             style={{ backgroundColor: '#EA580C' }}
-            className="w-full h-12 sm:h-14 bg-orange-accent rounded-2xl flex items-center shadow-xl overflow-hidden border border-white/20 relative z-20"
+            className="w-full h-12 sm:h-14 rounded-2xl flex items-center shadow-xl overflow-hidden border border-white/25 relative z-20"
           >
-            {/* Static Trending Pill */}
+            {/* Static Trending Badge Section */}
             <div 
               style={{ backgroundColor: '#EA580C' }}
-              className="h-full flex items-center pl-3.5 sm:pl-6 pr-2.5 sm:pr-4 z-20 relative shrink-0"
+              className="h-full flex items-center pl-4 sm:pl-6 pr-4 sm:pr-6 z-20 relative shrink-0 border-r border-white/25"
             >
               <div 
-                style={{ backgroundColor: '#FAF7EE', color: '#EA580C' }}
+                style={{ backgroundColor: '#FFFDD0', color: '#EA580C' }}
                 className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full font-mono font-black text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-2 shadow-sm"
               >
                 <span className="w-2 h-2 rounded-full bg-[#EA580C] animate-pulse" />
@@ -212,12 +212,12 @@ export default function FeedPage() {
               </div>
             </div>
 
-            {/* Scrolling Headline Marquee */}
+            {/* Scrolling Headline Marquee Section */}
             <div className="flex-1 overflow-hidden relative h-full flex items-center">
               <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-[#EA580C] to-transparent z-10 pointer-events-none" />
               <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-[#EA580C] to-transparent z-10 pointer-events-none" />
 
-              <div className="flex items-center gap-8 sm:gap-12 pl-4 animate-marquee whitespace-nowrap">
+              <div className="flex items-center gap-8 sm:gap-14 pl-6 animate-marquee whitespace-nowrap">
                 {(headlines.length > 0 
                   ? [...headlines, ...headlines] 
                   : [...stories.slice(0, 10), ...stories.slice(0, 10)]
@@ -236,15 +236,15 @@ export default function FeedPage() {
                         date: 'Trending Wire',
                         readTime: item.readTime || '3 min',
                       })}
-                      className="group flex items-center gap-2.5 text-xs sm:text-sm font-serif font-bold text-white hover:text-[#FAF7EE] transition-colors cursor-pointer"
+                      className="group flex items-center gap-2.5 text-xs sm:text-sm font-serif font-bold text-white hover:text-[#FFFDD0] transition-colors cursor-pointer"
                     >
-                      <span className="font-mono text-[10px] sm:text-xs tracking-wider uppercase text-[#FAF7EE]/80 group-hover:text-white">
+                      <span className="font-mono text-[10px] sm:text-xs tracking-wider uppercase text-[#FFFDD0]/85 group-hover:text-white shrink-0">
                         [{source}]
                       </span>
-                      <span className="group-hover:underline underline-offset-4 decoration-white/70">
+                      <span className="group-hover:underline underline-offset-4 decoration-white/70 whitespace-nowrap">
                         {decodeHtmlEntities(title)}
                       </span>
-                      <span className="mx-3 text-white/40 select-none">•</span>
+                      <span className="mx-4 text-white/40 select-none">•</span>
                     </button>
                   );
                 })}
@@ -253,44 +253,44 @@ export default function FeedPage() {
           </div>
         </section>
 
-        {/* SECTION 2: THE LEAD COVER STORY */}
+        {/* SECTION 2: THE LEAD COVER STORY (All-Green Typography Focus) */}
         {featuredStory && (
           <section 
             id="hub-lead" 
-            style={{ backgroundColor: '#FAF7EE' }}
-            className="bg-parchment text-ink border border-white/20 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition-all"
+            style={{ backgroundColor: '#1B2F1D' }}
+            className="bg-[#1B2F1D] text-[#FFFDD0] border border-[#FFFDD0]/15 rounded-3xl p-6 sm:p-8 lg:p-12 shadow-2xl hover:border-[#EA580C]/50 transition-all"
           >
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-12 items-center">
               
               {/* Left Column: Headline & Editorial Prose */}
               <div className="md:col-span-7 space-y-4 sm:space-y-6">
                 <div className="flex items-center gap-3 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em]">
-                  <span className="px-3 py-1 rounded-full bg-[#131E15] text-[#FAF7EE] font-bold text-[10px] tracking-widest shadow-xs">
+                  <span className="px-3 py-1 rounded-full bg-[#EA580C]/20 border border-[#EA580C]/40 text-[#EA580C] font-bold text-[10px] tracking-widest shadow-xs">
                     {featuredStory.category}
                   </span>
-                  <span className="text-[#37493A]/40">•</span>
+                  <span className="text-[#FFFDD0]/40">•</span>
                   <span className="font-bold text-[#EA580C] tracking-wider">{featuredStory.source}</span>
-                  <span className="text-[#37493A]/40">•</span>
-                  <span className="text-[#37493A] font-semibold">{featuredStory.readTime}</span>
+                  <span className="text-[#FFFDD0]/40">•</span>
+                  <span className="text-[#FFFDD0]/70 font-semibold">{featuredStory.readTime}</span>
                 </div>
 
                 <div 
                   onClick={() => setReadingArticle(featuredStory)}
                   className="cursor-pointer group block"
                 >
-                  <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-[#131E15] group-hover:text-[#EA580C] transition-colors leading-[1.12] tracking-tight">
+                  <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#FFFDD0] group-hover:text-[#FF7A59] transition-colors leading-[1.08] tracking-tight">
                     {decodeHtmlEntities(featuredStory.title)}
                   </h2>
                 </div>
 
-                <p className="text-base sm:text-lg text-[#37493A] font-serif italic leading-relaxed line-clamp-3 sm:line-clamp-4 border-l-2 border-[#EA580C]/40 pl-4">
+                <p className="text-base sm:text-lg text-[#FFFDD0]/80 font-serif italic leading-relaxed line-clamp-3 sm:line-clamp-4 border-l-2 border-[#EA580C] pl-4">
                   {decodeHtmlEntities(featuredStory.excerpt)}
                 </p>
 
                 {/* Perspective Links */}
                 {featuredStory.relatedPerspectives && featuredStory.relatedPerspectives.length > 0 && (
                   <div className="pt-1">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#37493A]/80 block mb-2 font-bold">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#FFFDD0]/70 block mb-2 font-bold">
                       Alternative Viewpoints ({featuredStory.relatedPerspectives.length})
                     </span>
                     <div className="flex flex-wrap gap-2">
@@ -305,10 +305,10 @@ export default function FeedPage() {
                             date: 'Related Perspective',
                             readTime: '3 min'
                           })}
-                          className="text-xs px-3 py-1.5 rounded-xl bg-white hover:bg-[#FAF7EE] border border-[#131E15]/10 text-[#131E15] flex items-center gap-1.5 transition-colors shadow-xs"
+                          className="text-xs px-3 py-1.5 rounded-xl bg-[#243B26] hover:bg-[#2c482f] border border-[#FFFDD0]/15 text-[#FFFDD0] flex items-center gap-1.5 transition-colors shadow-xs"
                         >
                           <span className="font-bold text-[#EA580C] font-mono text-[11px]">{p.source}:</span>
-                          <span className="truncate max-w-[180px] sm:max-w-[240px] text-[#37493A]">{decodeHtmlEntities(p.title)}</span>
+                          <span className="truncate max-w-[180px] sm:max-w-[240px] text-[#FFFDD0]/85">{decodeHtmlEntities(p.title)}</span>
                         </button>
                       ))}
                     </div>
@@ -318,7 +318,7 @@ export default function FeedPage() {
                 <div className="pt-2 flex items-center gap-4">
                   <button
                     onClick={() => setReadingArticle(featuredStory)}
-                    className="px-7 py-3 rounded-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-mono font-bold text-xs uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                    className="px-8 py-3.5 rounded-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-mono font-bold text-xs uppercase tracking-wider shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                   >
                     <span>Read Cover Story</span>
                     <span className="text-sm">→</span>
@@ -326,10 +326,10 @@ export default function FeedPage() {
 
                   <button
                     onClick={() => handleToggleSave(featuredStory)}
-                    className={`p-3 rounded-full border transition-all ${
+                    className={`p-3.5 rounded-full border transition-all ${
                       isSaved(featuredStory)
-                        ? 'bg-[#EA580C]/15 border-[#EA580C] text-[#EA580C]'
-                        : 'border-[#131E15]/20 text-[#37493A] hover:text-[#131E15] hover:bg-black/5'
+                        ? 'bg-[#EA580C]/20 border-[#EA580C] text-[#EA580C]'
+                        : 'border-[#FFFDD0]/20 text-[#FFFDD0]/80 hover:text-[#EA580C] hover:border-[#EA580C] hover:bg-white/5'
                     }`}
                     title={isSaved(featuredStory) ? "Saved" : "Save for later"}
                   >
@@ -343,7 +343,7 @@ export default function FeedPage() {
               {/* Right Column: Hero Visual Frame */}
               <div 
                 onClick={() => setReadingArticle(featuredStory)}
-                className="md:col-span-5 aspect-[4/3] sm:aspect-[16/10] md:aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden relative shadow-2xl cursor-pointer group bg-[#162919] border border-black/10"
+                className="md:col-span-5 aspect-[4/3] sm:aspect-[16/10] md:aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden relative shadow-2xl cursor-pointer group bg-[#162919] border border-[#FFFDD0]/15"
               >
                 {!featuredImageFailed && featuredStory.imageUrl ? (
                   <img
@@ -368,7 +368,7 @@ export default function FeedPage() {
                     className="w-full h-full"
                   />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 pointer-events-none" />
               </div>
 
             </div>
@@ -442,8 +442,8 @@ export default function FeedPage() {
               <Link
                 key={desk.id}
                 href={`/feed/${desk.id}`}
-                style={{ backgroundColor: '#FAF7EE' }}
-                className={`group p-5 sm:p-6 rounded-2xl bg-parchment text-ink border border-white/20 hover:border-[#EA580C] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between ${
+                style={{ backgroundColor: '#1B2F1D' }}
+                className={`group p-5 sm:p-6 rounded-2xl bg-[#1B2F1D] text-[#FFFDD0] border border-[#FFFDD0]/15 hover:border-[#EA580C] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between ${
                   desk.id === 'science' ? 'sm:col-span-2 lg:col-span-1' : ''
                 }`}
               >
@@ -452,26 +452,26 @@ export default function FeedPage() {
                     <span className="text-xs font-mono font-bold text-[#EA580C] tracking-widest">
                       {desk.numeral}. {desk.glyph}
                     </span>
-                    <span className="text-xs font-mono font-bold text-[#37493A]/50 group-hover:text-[#EA580C] group-hover:translate-x-0.5 transition-all">
+                    <span className="text-xs font-mono font-bold text-[#FFFDD0]/50 group-hover:text-[#EA580C] group-hover:translate-x-0.5 transition-all">
                       →
                     </span>
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#37493A]/70 block mb-1">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#FFFDD0]/60 block mb-1">
                       {desk.desk}
                     </span>
-                    <h3 className="font-serif text-lg font-bold text-[#131E15] group-hover:text-[#EA580C] transition-colors">
+                    <h3 className="font-serif text-lg font-bold text-[#FFFDD0] group-hover:text-[#EA580C] transition-colors">
                       {desk.category}
                     </h3>
                   </div>
 
-                  <p className="text-xs text-[#37493A] font-serif italic leading-relaxed line-clamp-2">
+                  <p className="text-xs text-[#FFFDD0]/80 font-serif italic leading-relaxed line-clamp-2">
                     {desk.desc}
                   </p>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-[#131E15]/10 text-[10px] font-mono text-[#37493A]/70 truncate">
+                <div className="pt-4 mt-4 border-t border-[#FFFDD0]/10 text-[10px] font-mono text-[#FFFDD0]/60 truncate">
                   {desk.sources}
                 </div>
               </Link>
@@ -550,12 +550,12 @@ export default function FeedPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-[#FAF7EE] text-[#131E15] rounded-3xl border border-white/20 p-8 space-y-4 shadow-xl">
+            <div className="text-center py-20 bg-[#1B2F1D] text-[#FFFDD0] rounded-3xl border border-[#FFFDD0]/15 p-8 space-y-4 shadow-xl">
               <span className="text-2xl text-[#EA580C] font-mono">✦</span>
-              <h3 className="font-serif text-xl font-bold text-[#131E15]">
+              <h3 className="font-serif text-xl font-bold text-[#FFFDD0]">
                 {stories.length === 0 ? "Your feed is currently empty" : "No stories match this filter"}
               </h3>
-              <p className="text-xs text-[#37493A] max-w-sm mx-auto">
+              <p className="text-xs text-[#FFFDD0]/70 max-w-sm mx-auto">
                 {stories.length === 0
                   ? "Connect custom RSS feeds or select topics to begin your voyage."
                   : "Try clearing selected publications to view all stories."}
