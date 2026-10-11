@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Footer = () => {
   return (
-    <footer className="w-full bg-[#131E15] text-[#FAF9F6] border-t border-white/10 py-16 md:py-20 px-6 sm:px-10">
+    <footer id="hub-colophon" className="w-full bg-[#131E15] text-[#FAF9F6] border-t border-white/10 py-16 md:py-20 px-6 sm:px-10">
       <div className="max-w-4xl mx-auto text-center space-y-8">
         
         <div className="space-y-2">

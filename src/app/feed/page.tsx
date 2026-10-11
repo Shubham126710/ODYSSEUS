@@ -15,6 +15,7 @@ import { EditorialMonogramPoster } from "@/components/EditorialMonogramPoster";
 import { StaticOrangeCompass } from "@/components/StaticOrangeCompass";
 import { decodeHtmlEntities } from "@/lib/textUtils";
 import { getExplorerRank, getCurrentMultiplier } from "@/lib/gamification";
+import { CompassScrollWheel } from "@/components/CompassScrollWheel";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from 'next/link';
 
@@ -125,11 +126,14 @@ export default function FeedPage() {
       {/* Sticky Masthead Navigation */}
       <AppHeader />
 
+      {/* Navigational Compass Scroll Wheel (Graduated horizontal markers on right side) */}
+      <CompassScrollWheel />
+
       {/* Main Continuous Editorial Broadsheet */}
       <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-12 py-8 sm:py-12 space-y-12 sm:space-y-16">
         
         {/* SECTION 1: EDITORIAL WELCOME & MASTHEAD DISPATCH */}
-        <section className="border-b border-stone-200/80 pb-10 sm:pb-12 space-y-6">
+        <section id="hub-dispatch" className="border-b border-stone-200/80 pb-10 sm:pb-12 space-y-6">
           
           {/* Top Folio Dateline */}
           <div className="flex flex-wrap items-center justify-between gap-3 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-stone-500 border-b border-stone-200/60 pb-3">
@@ -187,7 +191,7 @@ export default function FeedPage() {
 
         {/* SECTION 2: THE LEAD COVER STORY */}
         {featuredStory && (
-          <section className="bg-white border border-stone-200/90 rounded-3xl p-6 sm:p-10 shadow-xs hover:shadow-md transition-shadow">
+          <section id="hub-lead" className="bg-white border border-stone-200/90 rounded-3xl p-6 sm:p-10 shadow-xs hover:shadow-md transition-shadow">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               
               {/* Left Column: Headline & Editorial Prose */}
@@ -304,7 +308,7 @@ export default function FeedPage() {
         )}
 
         {/* SECTION 3: THE 5 CURATED PRESTIGE DESKS */}
-        <section className="space-y-6">
+        <section id="hub-desks" className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-stone-200/80 pb-4">
             <div>
               <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#EA580C] font-bold block mb-1">
@@ -400,7 +404,7 @@ export default function FeedPage() {
         </section>
 
         {/* SECTION 4: THE LIVE SALON COLLECTION */}
-        <section className="space-y-6 pt-4">
+        <section id="hub-salon" className="space-y-6 pt-4">
           
           {/* Header & Source Filter Chips */}
           <div className="space-y-4 border-b border-stone-200/80 pb-6">
