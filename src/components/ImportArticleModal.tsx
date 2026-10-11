@@ -32,7 +32,7 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
     if (!url.trim()) return;
 
     try {
-      new URL(url);
+      new URL(url.trim());
     } catch {
       setError('Please enter a valid web URL starting with https://');
       return;
@@ -53,7 +53,7 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
           content: data.article.content,
           excerpt: data.article.textContent?.slice(0, 240) + '...',
           link: url.trim(),
-          source: data.article.siteName || new URL(url).hostname.replace('www.', ''),
+          source: data.article.siteName || new URL(url.trim()).hostname.replace('www.', ''),
           readTime: data.article.readTime || `${Math.ceil((data.article.wordCount || 500) / 220)} min read`,
           date: 'Imported Just Now',
           wordCount: data.article.wordCount,
@@ -61,10 +61,10 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
         };
         setExtractedArticle(article);
       } else {
-        setError(data.error || 'Could not extract clean article text from this URL. Please verify the link is accessible.');
+        setError(data.error || 'Could not extract clean text from this URL. Verify the link is accessible.');
       }
-    } catch (err: any) {
-      setError('Extraction timed out or was blocked by the host server. Try another article.');
+    } catch {
+      setError('Extraction timed out or was blocked by the host server. Try another link.');
     } finally {
       setIsLoading(false);
     }
@@ -98,10 +98,9 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
   };
 
   const handleOpenReader = () => {
-    if (extractedArticle) {
-      onReadArticle(extractedArticle);
-      onClose();
-    }
+    if (!extractedArticle) return;
+    onReadArticle(extractedArticle);
+    onClose();
   };
 
   const setSampleUrl = (sample: string) => {
@@ -111,32 +110,32 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 md:p-6 bg-black/75 backdrop-blur-md">
+      <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="relative w-full max-w-xl bg-juice-cream rounded-3xl md:rounded-[32px] border border-juice-green/20 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+          exit={{ opacity: 0, scale: 0.95, y: 15 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="relative w-full max-w-xl bg-white text-stone-900 rounded-3xl border border-stone-200 shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
         >
           {/* Header */}
-          <div className="px-6 py-5 border-b border-juice-green/10 flex items-center justify-between bg-juice-green/5">
+          <div className="px-6 py-5 border-b border-stone-100 flex items-center justify-between bg-stone-50/50">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-juice-orange text-white flex items-center justify-center font-serif font-bold text-sm shadow-sm">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center font-serif font-bold text-base shadow-xs">
                 ✦
               </div>
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-juice-green/60 block">
-                  Instapaper & Pocket Style
+                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-stone-400 block font-bold">
+                  CLEAN READER PROTOCOL
                 </span>
-                <h3 className="font-serif text-base md:text-lg font-bold text-juice-green">
-                  Import Custom Article
+                <h3 className="font-serif text-lg font-bold text-stone-900">
+                  Import Web Article
                 </h3>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-juice-green/40 hover:text-juice-green hover:bg-juice-green/10 transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors font-mono text-sm"
               title="Close"
             >
               ✕
@@ -144,33 +143,34 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
           </div>
 
           {/* Body */}
-          <div className="p-6 md:p-8 overflow-y-auto flex-1 font-sans space-y-6">
-            <div>
-              <p className="text-xs md:text-sm text-juice-green/75 leading-relaxed">
-                Paste any article URL from the web. Odysseus strips out author bios, social shares, newsletter popups, ads, and sidebars, extracting <strong className="font-bold text-juice-green">pure story text</strong> into our luxury reading chamber.
-              </p>
-            </div>
+          <div className="p-6 sm:p-7 overflow-y-auto flex-1 font-sans space-y-6">
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+              Paste any article link from the web. Odysseus strips out ads, trackers, social widgets, and clutter, isolating pure story text into our focused reading chamber.
+            </p>
 
-            {/* Input Form */}
+            {/* Input Form with Separate Clean Button */}
             <form onSubmit={handleExtract} className="space-y-3">
-              <div className="relative flex items-center">
+              <div className="flex flex-col sm:flex-row gap-2.5">
                 <input
                   type="url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://example.com/longform-article..."
-                  className="w-full bg-white border border-juice-green/20 focus:border-juice-orange rounded-2xl px-4 py-3.5 text-sm text-juice-green placeholder:text-juice-green/30 focus:outline-none transition-all shadow-inner pr-28"
+                  placeholder="https://example.com/essay-or-article..."
+                  className="flex-1 bg-stone-50 border border-stone-300 focus:border-amber-600 focus:bg-white rounded-xl px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none transition-all"
                   autoFocus
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !url.trim()}
-                  className="absolute right-1.5 top-1.5 bottom-1.5 px-4 rounded-xl bg-juice-orange hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xs flex items-center gap-1.5"
+                  className="px-6 py-3 rounded-xl bg-stone-900 hover:bg-stone-800 disabled:opacity-50 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 shrink-0"
                 >
                   {isLoading ? (
-                    <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Purifying...</span>
+                    </>
                   ) : (
-                    'Purify'
+                    <span>Purify Prose →</span>
                   )}
                 </button>
               </div>
@@ -182,91 +182,92 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
               )}
             </form>
 
-            {/* Samples */}
+            {/* Sample Links */}
             {!extractedArticle && !isLoading && (
-              <div className="pt-2">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-juice-green/50 block mb-2 font-bold">
-                  Try Sample Articles:
+              <div className="pt-1">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400 block mb-2.5 font-bold">
+                  Try Sample Longform Articles:
                 </span>
-                <div className="flex flex-col gap-1.5 text-xs">
+                <div className="flex flex-col gap-2 text-xs">
                   <button
                     onClick={() => setSampleUrl('https://paulgraham.com/foundermode.html')}
-                    className="text-left px-3 py-2 rounded-xl bg-white/70 hover:bg-white border border-juice-green/10 text-juice-green/80 hover:text-juice-orange transition-colors flex items-center justify-between"
+                    className="text-left px-3.5 py-2.5 rounded-xl bg-stone-50 hover:bg-amber-50/50 border border-stone-200/80 hover:border-amber-200 text-stone-700 hover:text-amber-800 transition-all flex items-center justify-between"
                   >
-                    <span className="font-serif">Paul Graham • Founder Mode</span>
-                    <span className="text-[10px] font-mono text-juice-green/40">Essay</span>
+                    <span className="font-serif font-bold">Paul Graham • Founder Mode</span>
+                    <span className="text-[10px] font-mono text-stone-400">Essay</span>
                   </button>
                   <button
                     onClick={() => setSampleUrl('https://ciechanow.ski/mechanical-watch/')}
-                    className="text-left px-3 py-2 rounded-xl bg-white/70 hover:bg-white border border-juice-green/10 text-juice-green/80 hover:text-juice-orange transition-colors flex items-center justify-between"
+                    className="text-left px-3.5 py-2.5 rounded-xl bg-stone-50 hover:bg-amber-50/50 border border-stone-200/80 hover:border-amber-200 text-stone-700 hover:text-amber-800 transition-all flex items-center justify-between"
                   >
-                    <span className="font-serif">Bartosz Ciechanowski • Mechanical Watch</span>
-                    <span className="text-[10px] font-mono text-juice-green/40">Visual Engineering</span>
+                    <span className="font-serif font-bold">Bartosz Ciechanowski • Mechanical Watch</span>
+                    <span className="text-[10px] font-mono text-stone-400">Engineering</span>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Loading State */}
+            {/* Loading Animation */}
             {isLoading && (
               <div className="py-8 text-center space-y-3">
-                <div className="inline-block w-8 h-8 border-3 border-juice-orange/20 border-t-juice-orange rounded-full animate-spin" />
-                <p className="text-xs font-mono uppercase tracking-widest text-juice-green/60">
-                  Purging noise, ads, bylines & sidebars...
+                <div className="inline-block w-8 h-8 border-3 border-amber-500/20 border-t-amber-600 rounded-full animate-spin" />
+                <p className="text-xs font-mono uppercase tracking-widest text-stone-500">
+                  Parsing DOM & Purifying clean prose...
                 </p>
               </div>
             )}
 
             {/* Extracted Preview Card */}
-            {extractedArticle && !isLoading && (
+            {extractedArticle && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-5 rounded-2xl bg-white border border-juice-green/15 shadow-sm space-y-4"
+                className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-4"
               >
-                <div className="flex items-center justify-between text-[10px] font-mono text-juice-green/60 uppercase tracking-widest">
-                  <span className="font-bold text-juice-orange">✓ Pure Text Extracted</span>
-                  <span>{extractedArticle.readTime} • {extractedArticle.wordCount} words</span>
+                <div className="flex items-center justify-between text-[10px] font-mono text-stone-400 uppercase tracking-widest">
+                  <span className="font-bold text-amber-700">{extractedArticle.source}</span>
+                  <span>{extractedArticle.readTime}</span>
                 </div>
 
                 <div>
-                  <h4 className="font-serif text-lg font-bold text-juice-green leading-snug">
+                  <h4 className="font-serif text-lg font-bold text-stone-900 leading-snug">
                     {extractedArticle.title}
                   </h4>
-                  <p className="text-xs text-juice-green/70 mt-1 line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-stone-600 line-clamp-3 mt-2 leading-relaxed">
                     {extractedArticle.excerpt}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 pt-2 border-t border-juice-green/10">
+                <div className="pt-2 flex flex-wrap gap-2.5">
                   <button
                     onClick={handleOpenReader}
-                    className="flex-1 py-2.5 rounded-xl bg-juice-green hover:bg-[#4b6a38] text-white font-serif font-bold text-xs uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5"
+                    className="px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-sm"
                   >
-                    <span>Read In Zen Chamber</span>
-                    <span>→</span>
+                    Read in Chamber →
                   </button>
 
-                  <button
-                    onClick={handleSaveToLibrary}
-                    disabled={isSaved}
-                    className={`px-4 py-2.5 rounded-xl border font-bold text-xs uppercase tracking-wider transition-all ${
-                      isSaved
-                        ? 'bg-juice-orange/10 border-juice-orange text-juice-orange'
-                        : 'bg-white hover:bg-juice-green/5 border-juice-green/20 text-juice-green'
-                    }`}
-                  >
-                    {isSaved ? '✓ Saved' : 'Save to Library'}
-                  </button>
+                  {userId && (
+                    <button
+                      onClick={handleSaveToLibrary}
+                      disabled={isSaved}
+                      className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all border ${
+                        isSaved
+                          ? 'bg-amber-50 text-amber-700 border-amber-300'
+                          : 'bg-white hover:bg-stone-100 text-stone-700 border-stone-300'
+                      }`}
+                    >
+                      {isSaved ? '✓ Saved to Library' : 'Save for Later'}
+                    </button>
+                  )}
                 </div>
               </motion.div>
             )}
           </div>
 
-          {/* Footer */}
-          <div className="px-6 py-4 border-t border-juice-green/10 bg-juice-green/5 flex items-center justify-between text-[11px] text-juice-green/60">
-            <span>Clean Prose Isolation Protocol</span>
-            <span className="font-mono text-juice-orange font-bold">100% Distraction Free</span>
+          {/* Footer Bar */}
+          <div className="px-6 py-3.5 border-t border-stone-100 bg-stone-50/50 flex items-center justify-between text-[10px] font-mono text-stone-400 uppercase tracking-wider">
+            <span>Isolated Clean Prose</span>
+            <span className="text-amber-700 font-bold">100% Distraction Free</span>
           </div>
         </motion.div>
       </div>

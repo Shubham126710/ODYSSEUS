@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DOMPurify from 'isomorphic-dompurify';
 import { decodeHtmlEntities } from '@/lib/textUtils';
@@ -73,7 +73,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
   const [imageError, setImageError] = useState(false);
   const [useProxy, setUseProxy] = useState(false);
   
-  // New features state
+  // Settings & layout
   const [theme, setTheme] = useState<'dark' | 'sepia' | 'light'>('dark');
   const [fontSize, setFontSize] = useState<number>(18);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -262,20 +262,32 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     setIsPlaying(false);
   };
 
+  // Memoize body content and sanitized HTML to prevent expensive re-sanitization on every scroll tick
+  const bodyContent = useMemo(() => {
+    if (!article) return '';
+    return fullContent || article.content || article.description || article.excerpt || '';
+  }, [fullContent, article]);
+
+  const sanitized = useMemo(() => {
+    if (!bodyContent) return '';
+    return DOMPurify.sanitize(bodyContent, {
+      USE_PROFILES: { html: true },
+      FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'button'],
+    });
+  }, [bodyContent]);
+
+  const readTime = useMemo(() => {
+    if (!article) return '';
+    return fullContent ? calculateReadTime(bodyContent) : (article.readTime || '3 min');
+  }, [fullContent, bodyContent, article]);
+
   if (!article) return null;
 
-  const bodyContent = fullContent || article.content || article.description || article.excerpt || '';
-  const sanitized = DOMPurify.sanitize(bodyContent, {
-    USE_PROFILES: { html: true },
-    FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'button'],
-  });
-  const readTime = fullContent ? calculateReadTime(bodyContent) : article.readTime;
-
-  // Theme styling
+  // Ultra-refined themes
   const themeStyles = {
-    dark: { bg: '#0f1117', text: '#e5e7eb', header: '#1f2937', accent: '#FF6B4A', border: 'rgba(255,255,255,0.1)' },
-    sepia: { bg: '#f4ecd8', text: '#433422', header: '#e8dfc7', accent: '#b46014', border: 'rgba(67,52,34,0.1)' },
-    light: { bg: '#ffffff', text: '#111827', header: '#f3f4f6', accent: '#5D8246', border: 'rgba(0,0,0,0.1)' },
+    dark: { bg: '#111317', text: '#E5E7EB', header: '#1A1D23', accent: '#EA580C', border: 'rgba(255,255,255,0.08)' },
+    sepia: { bg: '#F5EFE6', text: '#3C2F2F', header: '#EBE2D5', accent: '#C25E00', border: 'rgba(60,47,47,0.12)' },
+    light: { bg: '#FAF9F6', text: '#141518', header: '#FFFFFF', accent: '#EA580C', border: '#E5E2DA' },
   };
   const currentTheme = themeStyles[theme];
 
@@ -288,30 +300,30 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => { stopSpeaking(); onClose(); }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[80]"
+            className="fixed inset-0 bg-black/65 backdrop-blur-md z-[80]"
           />
 
           <motion.div
-            initial={{ opacity: 0, y: 80 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 80 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 240 }}
             data-lenis-prevent="true"
             data-lenis-prevent
             style={{ backgroundColor: currentTheme.bg, color: currentTheme.text }}
-            className="fixed inset-0 top-3 md:top-8 md:inset-x-8 md:bottom-3 rounded-t-3xl md:rounded-3xl shadow-2xl z-[90] overflow-hidden flex flex-col transition-colors duration-500"
+            className="fixed inset-0 top-2 md:top-6 md:inset-x-8 md:bottom-3 rounded-t-3xl md:rounded-3xl shadow-2xl z-[90] overflow-hidden flex flex-col transition-colors duration-300"
           >
-            {/* Top Linear Reading Progress Meter (Fills as user scrolls down) */}
+            {/* Top Linear Reading Progress Meter (Clean indicator at the top of the article) */}
             <div className="w-full h-1 z-50 bg-black/10 shrink-0 relative overflow-hidden">
               <div 
-                className="h-full transition-[width] duration-150 ease-out" 
+                className="h-full transition-[width] duration-100 ease-out" 
                 style={{ width: `${scrollProgress}%`, backgroundColor: currentTheme.accent }}
               />
             </div>
 
             {/* Header / Toolbar */}
             <div 
-              className="flex items-center justify-between px-4 py-3 md:px-6 md:py-3.5 z-10 shrink-0 transition-colors duration-500"
+              className="flex items-center justify-between px-4 py-3 md:px-6 md:py-3.5 z-10 shrink-0 transition-colors duration-300"
               style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${currentTheme.border}` }}
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -323,15 +335,15 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                 </span>
                 {isLoading && (
                   <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest animate-pulse font-mono" style={{ color: currentTheme.accent }}>
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: currentTheme.accent }} /> Fetching
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: currentTheme.accent }} /> Purifying Prose
                   </span>
                 )}
                 {sessionCredited ? (
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-juice-green/20 text-juice-green">
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
                     ✓ Progress Saved
                   </span>
                 ) : multiplier.isBonusActive ? (
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-juice-orange/20 text-juice-orange animate-pulse">
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#EA580C]/20 text-[#EA580C]">
                     <span>✦</span>
                     <span>{multiplier.multiplier}x Active</span>
                   </span>
@@ -362,9 +374,9 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
                 {/* Theme Toggle */}
                 <div className="flex items-center gap-1 bg-black/5 p-1 rounded-full">
-                  <button onClick={() => setTheme('light')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'light' ? 'scale-110 ring-2 ring-offset-1 ring-gray-400' : 'hover:scale-105'}`} style={{ backgroundColor: '#ffffff' }} title="Light mode" />
-                  <button onClick={() => setTheme('sepia')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'sepia' ? 'scale-110 ring-2 ring-offset-1 ring-[#b46014]' : 'hover:scale-105'}`} style={{ backgroundColor: '#f4ecd8' }} title="Sepia mode" />
-                  <button onClick={() => setTheme('dark')} className={`w-6 h-6 rounded-full border border-white/10 transition-transform ${theme === 'dark' ? 'scale-110 ring-2 ring-offset-1 ring-gray-500' : 'hover:scale-105'}`} style={{ backgroundColor: '#0f1117' }} title="Dark mode" />
+                  <button onClick={() => setTheme('light')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'light' ? 'scale-110 ring-2 ring-offset-1 ring-gray-400' : 'hover:scale-105'}`} style={{ backgroundColor: '#FAF9F6' }} title="Light mode" />
+                  <button onClick={() => setTheme('sepia')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'sepia' ? 'scale-110 ring-2 ring-offset-1 ring-[#C25E00]' : 'hover:scale-105'}`} style={{ backgroundColor: '#F5EFE6' }} title="Sepia mode" />
+                  <button onClick={() => setTheme('dark')} className={`w-6 h-6 rounded-full border border-white/10 transition-transform ${theme === 'dark' ? 'scale-110 ring-2 ring-offset-1 ring-gray-500' : 'hover:scale-105'}`} style={{ backgroundColor: '#111317' }} title="Dark mode" />
                 </div>
 
                 <div className="w-px h-5 mx-1" style={{ backgroundColor: currentTheme.border }} />
@@ -380,13 +392,13 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
                   </button>
                 )}
-                <a href={article.link} target="_blank" rel="noopener noreferrer" className="ml-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors hover:opacity-80 font-mono shrink-0 whitespace-nowrap" style={{ backgroundColor: currentTheme.accent, color: '#fff' }}>
+                <a href={article.link} target="_blank" rel="noopener noreferrer" className="ml-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors hover:opacity-85 font-mono shrink-0 whitespace-nowrap" style={{ backgroundColor: currentTheme.accent, color: '#fff' }}>
                   Original ↗
                 </a>
               </div>
             </div>
 
-            {/* Scrollable Article Body (Explicitly isolated from Lenis, native trackpad scroll enabled) */}
+            {/* Scrollable Article Body (Isolated native scroll) */}
             <div 
               ref={scrollContainerRef} 
               onScroll={handleScroll} 
@@ -397,17 +409,17 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
               tabIndex={0}
               className="flex-1 overflow-y-auto overscroll-contain select-text outline-none focus:outline-none"
             >
-              <div className="max-w-2xl mx-auto px-5 py-8 md:px-0 md:py-16 pb-24" ref={contentRef}>
+              <div className="max-w-2xl mx-auto px-5 py-8 md:px-0 md:py-14 pb-24" ref={contentRef}>
 
-                {/* Title & meta (Pristine typography, clean editorial layout) */}
+                {/* Title & meta */}
                 <header className="mb-10 text-center">
                   <div className="flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-widest mb-4 opacity-60">
-                    <span className="font-bold text-juice-orange">{decodeHtmlEntities(article.source)}</span>
+                    <span className="font-bold text-[#EA580C]">{decodeHtmlEntities(article.source)}</span>
                     <span>•</span>
                     <span>{article.date}</span>
                     {readTime && (<><span>•</span><span>{readTime} read</span></>)}
                   </div>
-                  <h1 className="font-serif font-bold leading-tight mb-4" style={{ fontSize: `clamp(22px, 5.5vw, ${fontSize * 2.2}px)` }}>
+                  <h1 className="font-serif font-bold leading-tight mb-4 tracking-tight" style={{ fontSize: `clamp(22px, 5.5vw, ${fontSize * 2.1}px)` }}>
                     {decodeHtmlEntities(article.title)}
                   </h1>
                 </header>

@@ -15,7 +15,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { profile } = useProfile();
-  const { stories, loading } = useFeedFetcher(profile?.id);
+  const { stories } = useFeedFetcher(profile?.id);
 
   // Filter stories by search query
   const q = query.toLowerCase().trim();
@@ -65,11 +65,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            style={{
-              position: 'fixed', inset: 0, zIndex: 60,
-              backgroundColor: 'rgba(30,50,30,0.6)',
-              backdropFilter: 'blur(8px)',
-            }}
+            className="fixed inset-0 z-60 bg-black/60 backdrop-blur-md"
           />
 
           {/* Search Panel */}
@@ -78,26 +74,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            style={{
-              position: 'fixed', top: 0, left: 0, right: 0, zIndex: 70,
-              paddingTop: 24, paddingLeft: 16, paddingRight: 16,
-            }}
+            className="fixed top-0 left-0 right-0 z-70 pt-8 px-4"
           >
-            <div style={{
-              maxWidth: 540, margin: '0 auto',
-              backgroundColor: '#FEFDF5',
-              borderRadius: 16,
-              border: '1px solid rgba(93,130,70,0.15)',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.15)',
-              overflow: 'hidden',
-            }}>
+            <div className="max-w-[580px] mx-auto bg-white rounded-2xl border border-stone-200/90 shadow-2xl overflow-hidden">
               {/* Search Input Row */}
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '16px 20px',
-                borderBottom: '1px solid rgba(93,130,70,0.1)',
-              }}>
-                <svg style={{ width: 20, height: 20, flexShrink: 0, color: 'rgba(93,130,70,0.4)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-stone-100">
+                <svg className="w-5 h-5 shrink-0 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -105,44 +87,28 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search stories, sources..."
-                  style={{
-                    flex: 1, backgroundColor: 'transparent',
-                    fontSize: 16, fontWeight: 500, color: '#5D8246',
-                    outline: 'none', border: 'none',
-                  }}
+                  placeholder="Search articles, sources, topics..."
+                  className="flex-1 bg-transparent text-base font-sans font-medium text-stone-900 placeholder:text-stone-400 outline-none border-none"
                 />
                 <button
                   onClick={onClose}
-                  style={{
-                    fontSize: 10, fontWeight: 700,
-                    textTransform: 'uppercase', letterSpacing: '0.1em',
-                    padding: '4px 10px', borderRadius: 6,
-                    color: 'rgba(93,130,70,0.4)',
-                    backgroundColor: 'rgba(93,130,70,0.06)',
-                    border: 'none', cursor: 'pointer',
-                  }}
+                  className="text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded-md text-stone-400 hover:text-stone-700 bg-stone-100 transition-colors"
                 >
                   ESC
                 </button>
               </div>
 
               {/* Results Area */}
-              <div style={{ maxHeight: '55vh', overflowY: 'auto' }}>
+              <div className="max-h-[55vh] overflow-y-auto">
                 {query.trim().length > 1 && results.length === 0 && (
-                  <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-                    <p style={{ color: 'rgba(93,130,70,0.4)', fontWeight: 500, fontSize: 14 }}>No stories found for &ldquo;{query}&rdquo;</p>
+                  <div className="py-12 px-5 text-center">
+                    <p className="text-sm font-sans text-stone-400">No stories found for &ldquo;{query}&rdquo;</p>
                   </div>
                 )}
 
                 {results.length > 0 && (
-                  <div style={{ padding: '4px 0' }}>
-                    <p style={{
-                      padding: '12px 20px 8px',
-                      fontSize: 10, fontWeight: 700,
-                      textTransform: 'uppercase', letterSpacing: '0.12em',
-                      color: 'rgba(93,130,70,0.35)',
-                    }}>
+                  <div className="py-2">
+                    <p className="px-5 py-2 text-[10px] font-mono font-bold uppercase tracking-widest text-stone-400">
                       {results.length} result{results.length !== 1 ? 's' : ''}
                     </p>
                     {results.map((story) => (
@@ -152,8 +118,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                 )}
 
                 {query.trim().length <= 1 && (
-                  <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-                    <p style={{ fontWeight: 500, fontSize: 14, color: 'rgba(93,130,70,0.3)' }}>Type to search your feed</p>
+                  <div className="py-12 px-5 text-center">
+                    <p className="text-sm font-sans text-stone-400">Type to search your reading feed</p>
                   </div>
                 )}
               </div>
@@ -165,72 +131,45 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
   );
 };
 
-/** Individual result row — extracted to handle hover state cleanly */
+/** Individual result row */
 function SearchResultItem({ story, onClose }: { story: Story; onClose: () => void }) {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <Link
       href={`/story/${encodeURIComponent(String(story.id))}?url=${encodeURIComponent(story.link)}&title=${encodeURIComponent(story.title)}&source=${encodeURIComponent(story.source)}&date=${encodeURIComponent(story.date)}&imageUrl=${encodeURIComponent(story.imageUrl || '')}`}
       onClick={onClose}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '10px 20px',
-        backgroundColor: hovered ? 'rgba(93,130,70,0.05)' : 'transparent',
-        textDecoration: 'none',
-        transition: 'background-color 0.15s',
-      }}
+      className="flex items-center gap-3.5 px-5 py-3 hover:bg-stone-50 transition-colors group text-decoration-none"
     >
-      {/* Thumbnail / Initial */}
+      {/* Thumbnail */}
       {story.imageUrl ? (
-        <div style={{
-          width: 44, height: 44, borderRadius: 10,
-          overflow: 'hidden', flexShrink: 0,
-          backgroundColor: 'rgba(93,130,70,0.05)',
-        }}>
+        <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-stone-100 border border-stone-200/60">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={story.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <img src={story.imageUrl} alt="" className="w-full h-full object-cover" />
         </div>
       ) : (
-        <div style={{
-          width: 44, height: 44, borderRadius: 10,
-          flexShrink: 0, display: 'flex',
-          alignItems: 'center', justifyContent: 'center',
-          backgroundColor: 'rgba(93,130,70,0.06)',
-        }}>
-          <span style={{ fontSize: 16, fontWeight: 900, color: 'rgba(93,130,70,0.2)' }}>
-            {story.source.charAt(0)}
-          </span>
+        <div className="w-11 h-11 rounded-lg shrink-0 flex items-center justify-center bg-stone-100 border border-stone-200/60 font-serif font-black text-sm text-stone-400">
+          {story.source.charAt(0)}
         </div>
       )}
 
       {/* Title + meta */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <h4 style={{
-          fontFamily: 'serif', fontWeight: 700, fontSize: 14,
-          lineHeight: 1.35, color: '#3d5a2e',
-          overflow: 'hidden', textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap', margin: 0,
-        }}>
+      <div className="flex-1 min-w-0">
+        <h4 className="font-serif font-bold text-sm text-stone-900 group-hover:text-[#EA580C] truncate transition-colors">
           {story.title}
         </h4>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#FF6B4A' }}>
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EA580C]">
             {story.source}
           </span>
-          <span style={{ color: 'rgba(93,130,70,0.2)' }}>·</span>
-          <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(93,130,70,0.4)' }}>
+          <span className="text-stone-300">•</span>
+          <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider">
             {story.readTime}
           </span>
         </div>
       </div>
 
-      {/* Small chevron */}
-      <svg style={{ width: 14, height: 14, flexShrink: 0, color: hovered ? '#FF6B4A' : 'rgba(93,130,70,0.15)', transition: 'color 0.15s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-      </svg>
+      <span className="text-stone-300 group-hover:text-[#EA580C] text-sm transition-colors">
+        →
+      </span>
     </Link>
   );
 }

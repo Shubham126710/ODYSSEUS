@@ -36,47 +36,12 @@ const LogOutIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
 );
 
-// Fire Icon — clean vector flame in signature Juice Orange (#FF6B4A)
-const FireIcon = ({ className = "w-3.5 h-3.5", size = 14 }: { className?: string; size?: number }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="currentColor" 
-    className={`shrink-0 text-juice-orange ${className}`}
-    style={{ width: `${size}px`, height: `${size}px`, maxWidth: `${size}px`, maxHeight: `${size}px` }}
-    aria-hidden="true"
-  >
-    <path d="M12 23c-4.97 0-9-3.95-9-8.82 0-3.6 2.37-6.72 4.1-8.52.47-.49 1.28-.27 1.45.38.4 1.54 1.2 3.16 2.45 3.96.22-2.14 1.45-5.11 3.56-7.85.42-.54 1.25-.43 1.51.21 1.47 3.57 4.93 9.4 1.93 14.64C16.88 19.06 14.61 23 12 23zm-.08-4.2c2.06 0 3.73-1.63 3.73-3.65 0-1.25-.63-2.36-1.59-3.03-.23-.16-.54-.08-.66.17-.18.37-.47.88-.93 1.13-.23.12-.51-.01-.56-.27-.14-.73-.08-1.52.17-2.31.06-.2-.1-.41-.31-.41-.53 0-1.15.42-1.72.97-1.12 1.09-1.86 2.44-1.86 3.77 0 2.02 1.67 3.65 3.73 3.65z" />
-  </svg>
-);
-
-// Compact Circular Progress
-const CompactCircularProgress = ({ value, max, size = 60, strokeWidth = 6 }: { value: number, max: number, size?: number, strokeWidth?: number }) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const progress = Math.min(value / max, 1);
-  const dashoffset = circumference - progress * circumference;
-
-  return (
-    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="transform -rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} stroke="currentColor" strokeWidth={strokeWidth} fill="transparent" className="text-white/10" />
-        <circle cx={size / 2} cy={size / 2} r={radius} stroke="currentColor" strokeWidth={strokeWidth} fill="transparent" strokeDasharray={circumference} strokeDashoffset={dashoffset} strokeLinecap="round" className="text-juice-orange transition-all duration-1000 ease-out" />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center text-juice-cream">
-        <span className="text-sm font-bold">{Math.round((value / max) * 100)}%</span>
-      </div>
-    </div>
-  );
-};
-
 export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'orange' }) => {
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [tempGoal, setTempGoal] = useState(15);
-  const [tabs, setTabs] = useState(['Tech', 'Design', 'Culture', 'Science']);
+  const [tabs, setTabs] = useState(['Tech', 'Design', 'Culture', 'Science', 'Chronicle']);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -85,11 +50,6 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   const router = useRouter();
   const pathname = usePathname();
   const { profile } = useProfile();
-
-  const textColor = theme === 'orange' ? 'text-juice-cream' : 'text-juice-cream';
-  const bgColor = theme === 'orange' ? 'bg-juice-orange' : 'bg-juice-green';
-  const borderColor = theme === 'orange' ? 'border-juice-cream/10' : 'border-juice-cream/10';
-  const navTextColor = theme === 'orange' ? 'text-juice-cream/60 hover:text-juice-cream' : 'text-juice-cream/60 hover:text-juice-cream';
 
   useEffect(() => {
     const handleOpenImport = () => setIsImportOpen(true);
@@ -112,20 +72,6 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
     return () => clearInterval(interval);
   }, []);
 
-  // First-time visitor automatic guide trigger
-  useEffect(() => {
-    if (profile) {
-      const alreadyDone = profile.has_completed_onboarding || 
-        (typeof window !== 'undefined' && localStorage.getItem('odysseus_onboarding_completed') === 'true');
-      if (!alreadyDone) {
-        const timer = setTimeout(() => {
-          setIsOnboardingOpen(true);
-        }, 1400);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [profile]);
-
   const habitSpread = getWeekHabitSpread(profile?.minutes_read_today || 0, tempGoal);
   const rank = getExplorerRank(profile?.total_reading_minutes || 0, profile?.streak_count || 1);
   const milestone = getMilestoneProgress(profile?.streak_count || 1);
@@ -141,11 +87,8 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   }, []);
 
   useEffect(() => {
-    if (profile) {
-      setTempGoal(prev => {
-        if (prev !== profile.daily_goal_minutes) return profile.daily_goal_minutes;
-        return prev;
-      });
+    if (profile?.daily_goal_minutes) {
+      setTempGoal(profile.daily_goal_minutes);
     }
   }, [profile]);
 
@@ -174,393 +117,273 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   }, [isStatsOpen]);
 
   return (
-    <header className={`sticky top-0 z-50 border-b transition-colors duration-500 ${bgColor} ${borderColor}`}>
-      <div className="max-w-[1920px] w-full mx-auto px-4 md:px-8 lg:px-12 h-14 md:h-20 flex items-center justify-between gap-3 md:gap-6">
-        
-        {/* Brand Logo */}
-        <Link href="/feed" className="flex items-center gap-2 md:gap-3 group shrink-0">
-          <StaticOrangeCompass className="w-7 h-7 md:w-8 md:h-8 group-hover:rotate-45 transition-transform duration-500 shrink-0" />
-          <span className={`font-serif text-lg md:text-xl font-bold tracking-wide transition-colors duration-500 whitespace-nowrap ${textColor}`}>ODYSSEUS</span>
-        </Link>
-
-        {/* Desks Navigation (Visible on desktop and laptop widths) */}
-        <nav 
-          className="hidden md:flex items-center shrink-0" 
-          style={{ gap: '20px' }}
-        >
-          <Link 
-            href="/feed" 
-            className={`text-xs xl:text-sm font-mono font-bold tracking-widest whitespace-nowrap transition-colors duration-300 relative py-1 px-1 ${
-              pathname === '/feed' 
-                ? 'text-juice-cream' 
-                : 'text-juice-cream/60 hover:text-juice-cream'
-            }`}
-            style={{ textTransform: 'uppercase', letterSpacing: '0.14em' }}
-          >
-            FOR YOU
-            {pathname === '/feed' && (
-              <span className="absolute -bottom-1 left-1 right-1 h-0.5 bg-juice-orange rounded-full" />
-            )}
-          </Link>
-          {tabs.map((item) => {
-            const cleanItem = String(item).trim();
-            const isActive = pathname === `/feed/${cleanItem.toLowerCase()}`;
-            return (
-              <Link 
-                key={cleanItem} 
-                href={`/feed/${cleanItem.toLowerCase()}`}
-                className={`text-xs xl:text-sm font-mono font-bold tracking-widest whitespace-nowrap transition-colors duration-300 relative py-1 px-1 ${
-                  isActive 
-                    ? 'text-juice-cream' 
-                    : navTextColor
-                } hover:text-juice-orange`}
-                style={{ textTransform: 'uppercase', letterSpacing: '0.14em' }}
-              >
-                {cleanItem.toUpperCase()}
-                {isActive && (
-                  <span className="absolute -bottom-1 left-1 right-1 h-0.5 bg-juice-orange rounded-full" />
-                )}
-              </Link>
-            );
-          })}
-          <button 
-            onClick={() => setIsCustomizeOpen(true)} 
-            className={`w-6 h-6 rounded-full border border-juice-cream/25 hover:border-juice-cream flex items-center justify-center transition-all shrink-0 ${navTextColor} hover:text-juice-cream hover:bg-juice-cream/10`} 
-            title="Customize Desks"
-            aria-label="Customize Desks"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
-        </nav>
-
-        {/* Right Action Controls */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+    <>
+      <header className="sticky top-0 z-50 bg-[#131E15] text-[#F7F5F0] border-b border-white/10 shadow-sm transition-colors duration-300">
+        <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between gap-4">
           
-          {/* Custom Article Import Button */}
-          <button
-            onClick={() => setIsImportOpen(true)}
-            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-juice-cream/25 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream flex items-center justify-center shrink-0 transition-all duration-200 group"
-            title="Import Custom Article (Pocket & Instapaper Clean Reader)"
-            aria-label="Import Article"
-          >
-            <svg 
-              width="15" 
-              height="15" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2.2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-              className="text-juice-orange group-hover:scale-110 transition-transform"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-          </button>
+          {/* Brand Logo */}
+          <Link href="/feed" className="flex items-center gap-2.5 group shrink-0">
+            <StaticOrangeCompass className="w-8 h-8 group-hover:rotate-45 transition-transform duration-500 shrink-0" />
+            <span className="font-serif text-lg tracking-wider font-bold uppercase text-white">
+              ODYSSEUS
+            </span>
+          </Link>
 
-          {/* Traveler's Field Guide button */}
-          <button
-            onClick={() => setIsOnboardingOpen(true)}
-            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-juice-cream/25 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream flex items-center justify-center shrink-0 transition-all duration-200 group"
-            title="Traveler's Field Guide"
-            aria-label="Open Traveler's Guide"
-          >
-            <svg 
-              width="15" 
-              height="15" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2.2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-              className="text-juice-cream/80 group-hover:text-juice-cream group-hover:scale-110 transition-transform"
+          {/* Channels Navigation */}
+          <nav className="hidden md:flex items-center gap-6 xl:gap-8 shrink-0">
+            <Link 
+              href="/feed" 
+              className={`text-xs font-mono font-bold tracking-widest uppercase transition-colors relative py-1.5 ${
+                pathname === '/feed' 
+                  ? 'text-white' 
+                  : 'text-white/60 hover:text-white'
+              }`}
             >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          </button>
+              FOR YOU
+              {pathname === '/feed' && (
+                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#EA580C] rounded-full" />
+              )}
+            </Link>
 
-          {/* Streak button */}
-          {profile && (
-            <div className="relative shrink-0" ref={statsRef}>
-              <button 
-                onClick={() => setIsStatsOpen(!isStatsOpen)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 h-8 md:h-9 rounded-full shrink-0 whitespace-nowrap transition-all duration-200 border ${
-                  isStatsOpen 
-                    ? 'bg-juice-cream text-juice-green border-juice-cream shadow-sm' 
-                    : 'bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream border-juice-cream/30'
-                }`}
-                title="Open Traveler's Chamber"
-                aria-label="Open Traveler's Chamber"
-              >
-                <FireIcon size={14} />
-                <span className="font-mono text-xs font-bold tracking-wider leading-none">{profile.streak_count || 1}D</span>
-                {multiplier.isBonusActive && (
-                  <span className="text-[9px] font-mono font-bold bg-juice-orange text-white px-1.5 py-0.5 rounded-full hidden xl:inline-block leading-none">
-                    {multiplier.multiplier}x
-                  </span>
+            {tabs.map((item) => {
+              const cleanItem = String(item).trim();
+              const isActive = pathname === `/feed/${cleanItem.toLowerCase()}`;
+              return (
+                <Link 
+                  key={cleanItem} 
+                  href={`/feed/${cleanItem.toLowerCase()}`}
+                  className={`text-xs font-mono font-bold tracking-widest uppercase transition-colors relative py-1.5 ${
+                    isActive 
+                      ? 'text-white' 
+                      : 'text-white/60 hover:text-white'
+                  }`}
+                >
+                  {cleanItem.toUpperCase()}
+                  {isActive && (
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#EA580C] rounded-full" />
+                  )}
+                </Link>
+              );
+            })}
+
+            <button 
+              onClick={() => setIsCustomizeOpen(true)} 
+              className="w-5 h-5 rounded-full border border-white/20 hover:border-white text-white/50 hover:text-white flex items-center justify-center transition-colors shrink-0" 
+              title="Customize Channels"
+              aria-label="Customize Channels"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+          </nav>
+
+          {/* Right Utilities */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            
+            {/* Search Button */}
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+              title="Search Articles (⌘K)"
+              aria-label="Search"
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+
+            {/* Custom Article Import Button */}
+            <button
+              onClick={() => setIsImportOpen(true)}
+              className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-white/90 hover:text-white border border-white/15 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-xs"
+              title="Import Article (Pocket & Instapaper Clean Reader)"
+              aria-label="Import Article"
+            >
+              <span className="text-[#EA580C]">✦</span>
+              <span className="hidden sm:inline">Import</span>
+            </button>
+
+            {/* Traveler's Field Guide */}
+            <button
+              onClick={() => setIsOnboardingOpen(true)}
+              className="w-8 h-8 rounded-full border border-white/15 hover:border-white/30 text-white/70 hover:text-white flex items-center justify-center transition-colors text-xs font-serif font-bold"
+              title="Traveler's Field Guide"
+              aria-label="Guide"
+            >
+              ?
+            </button>
+
+            {/* Streak Popover */}
+            {profile && (
+              <div className="relative shrink-0" ref={statsRef}>
+                <button 
+                  onClick={() => setIsStatsOpen(!isStatsOpen)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-all text-xs font-mono font-bold tracking-wider ${
+                    isStatsOpen 
+                      ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-sm' 
+                      : 'bg-white/10 hover:bg-white/15 text-white border-white/20'
+                  }`}
+                  title="Traveler's Chamber"
+                  aria-label="Streak"
+                >
+                  <span className="text-amber-400">✦</span>
+                  <span>{profile.streak_count || 1}D</span>
+                </button>
+
+                {/* Sleek Floating Chamber Popover */}
+                {isStatsOpen && (
+                  <div className="absolute right-0 top-full mt-3 w-80 bg-white text-stone-900 rounded-2xl p-5 shadow-2xl border border-stone-200 z-50 origin-top-right animate-in fade-in zoom-in-95 duration-150">
+                    
+                    {/* Header */}
+                    <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400 font-bold block">
+                          TRAVELER DOSSIER
+                        </span>
+                        <h4 className="font-serif font-bold text-base text-stone-900">
+                          {rank.title}
+                        </h4>
+                      </div>
+                      <Link 
+                        href="/profile" 
+                        onClick={() => setIsStatsOpen(false)}
+                        className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-700 hover:text-amber-800"
+                      >
+                        Ledger →
+                      </Link>
+                    </div>
+
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 gap-2.5 mb-4">
+                      <div className="bg-stone-50 rounded-xl p-3 border border-stone-100 text-center">
+                        <span className="font-serif font-bold text-2xl text-amber-600 block">
+                          {profile.streak_count || 1}
+                        </span>
+                        <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider font-bold">
+                          Day Streak
+                        </span>
+                      </div>
+                      <div className="bg-stone-50 rounded-xl p-3 border border-stone-100 text-center">
+                        <span className="font-serif font-bold text-2xl text-stone-900 block">
+                          {minutesToday}m
+                        </span>
+                        <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider font-bold">
+                          Today ({tempGoal}m goal)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 7-Day Habit Ledger */}
+                    <div className="bg-stone-50 p-3 rounded-xl border border-stone-100 mb-4">
+                      <div className="flex items-center justify-between text-[10px] font-mono uppercase text-stone-400 mb-2 font-bold">
+                        <span>7-Day Spread</span>
+                        <span>Mon – Sun</span>
+                      </div>
+                      <div className="grid grid-cols-7 gap-1">
+                        {habitSpread.map((day, idx) => (
+                          <div key={idx} className="flex flex-col items-center">
+                            <span className="text-[9px] font-mono text-stone-400 mb-1">{day.dayShort}</span>
+                            <div 
+                              className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-mono font-bold transition-all ${
+                                day.status === 'completed' || day.status === 'today-done'
+                                  ? 'bg-[#EA580C] text-white shadow-xs'
+                                  : day.status === 'shielded'
+                                  ? 'bg-stone-200 text-stone-700'
+                                  : day.isToday
+                                  ? 'border-2 border-[#EA580C] text-[#EA580C] bg-white font-bold'
+                                  : 'bg-stone-200/50 text-stone-300'
+                              }`}
+                            >
+                              {day.status === 'completed' || day.status === 'today-done' ? '✓' : '•'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Daily Goal Adjuster */}
+                    <div className="pt-1">
+                      <div className="flex items-center justify-between text-[10px] font-mono uppercase text-stone-500 mb-1 font-bold">
+                        <span>Daily Pace</span>
+                        <span className="text-amber-700">{tempGoal} min / day</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="5" 
+                        max="60" 
+                        step="5" 
+                        value={tempGoal}
+                        onChange={(e) => updateGoal(parseInt(e.target.value))}
+                        className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-stone-200 accent-[#EA580C]"
+                      />
+                    </div>
+
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Profile Dropdown */}
+            <div className="relative group hidden md:block">
+              <button className="w-9 h-9 rounded-full bg-stone-800 text-white flex items-center justify-center font-serif font-bold text-sm ring-2 ring-transparent group-hover:ring-[#EA580C] transition-all overflow-hidden">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{profile?.first_name?.[0] || 'S'}</span>
                 )}
               </button>
-
-              {/* Stats Dropdown — The Traveler's Chamber */}
-              <div 
-                className={`absolute right-0 top-full mt-3 rounded-3xl p-5 md:p-6 transform transition-all duration-300 origin-top-right z-50 overflow-hidden bg-[#FAF7F0] border border-juice-green/20 shadow-2xl w-[370px] max-w-[90vw] ${
-                  isStatsOpen 
-                    ? 'opacity-100 scale-100 visible translate-y-0' 
-                    : 'opacity-0 scale-95 invisible -translate-y-4'
-                }`}
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between mb-4 border-b border-juice-green/10 pb-3">
-                  <div className="flex items-center gap-2">
-                    <FireIcon size={16} />
-                    <div>
-                      <h3 className="font-serif text-sm font-bold text-juice-green">Traveler&apos;s Chamber</h3>
-                      <span className="text-[9px] font-mono text-juice-green/60 uppercase tracking-widest">
-                        {rank.badgeIcon} {rank.title}
-                      </span>
-                    </div>
+              
+              <div className="absolute right-0 top-full mt-3 w-56 bg-white rounded-2xl shadow-xl border border-stone-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50 overflow-hidden">
+                {profile && (
+                  <div className="p-4 border-b border-stone-100 bg-stone-50">
+                    <p className="font-bold text-stone-900 text-sm truncate">{profile.first_name} {profile.last_name}</p>
+                    <p className="text-[11px] text-stone-400 font-mono mt-0.5">@{profile.username}</p>
                   </div>
-                  <Link 
-                    href="/profile" 
-                    onClick={() => setIsStatsOpen(false)} 
-                    className="text-[9px] font-bold uppercase tracking-widest text-juice-green/60 hover:text-juice-orange transition-colors flex items-center gap-1 font-mono"
-                  >
-                    Ledger →
+                )}
+                <div className="p-1.5 text-xs font-mono">
+                  <Link href="/profile" className="flex items-center gap-2.5 px-3.5 py-2.5 text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-xl transition-colors">
+                    <UserIcon className="w-4 h-4 text-stone-400" />
+                    <span>Traveler Profile</span>
                   </Link>
-                </div>
-
-                {/* Active Multiplier Banner (Minimalist Typographic) */}
-                <div className={`p-3 rounded-2xl mb-4 border transition-all ${
-                  multiplier.isBonusActive 
-                    ? 'bg-juice-orange/10 border-juice-orange/30 text-juice-green' 
-                    : 'bg-juice-green/5 border-juice-green/15 text-juice-green'
-                }`}>
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-1.5 font-bold text-xs font-mono uppercase tracking-wider">
-                      <span className="text-juice-orange font-bold">✦</span>
-                      <span>{multiplier.label}</span>
-                    </div>
-                    <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                      multiplier.isBonusActive 
-                        ? 'bg-juice-orange text-white' 
-                        : 'bg-juice-green/15 text-juice-green'
-                    }`}>
-                      {multiplier.badge}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-juice-green/75 leading-tight">
-                    {multiplier.description}
-                  </p>
-                  {multiplier.endsAtText && (
-                    <span className="text-[9px] font-mono text-juice-green/50 mt-1 block">
-                      • {multiplier.endsAtText}
-                    </span>
-                  )}
-                </div>
-
-                {/* Main Stats: Streak & Minutes Today */}
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="flex flex-col items-center p-3 bg-white/80 rounded-2xl border border-juice-green/10">
-                    <span className="text-2xl font-black text-juice-orange mb-0.5 font-serif">{profile.streak_count || 1}</span>
-                    <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-juice-green/60">Day Streak</span>
-                  </div>
-                  <div className="flex flex-col items-center p-3 bg-white/80 rounded-2xl border border-juice-green/10">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-black text-juice-green mb-0.5 font-serif">{minutesToday}</span>
-                      <span className="text-[10px] text-juice-green/40 font-mono">/ {tempGoal}m</span>
-                    </div>
-                    <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-juice-green/60">
-                      {percentOfGoal >= 100 ? 'Goal Reached ✓' : `${Math.max(1, tempGoal - minutesToday)}m to goal`}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Streak Freeze Shields */}
-                <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white/60 border border-juice-green/10 mb-4 text-xs">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-juice-green/10 flex items-center justify-center text-juice-green font-mono text-[10px] font-bold">
-                      ◈
-                    </div>
-                    <div>
-                      <span className="font-bold text-juice-green text-[11px] block">Streak Shields</span>
-                      <span className="text-[9px] text-juice-green/60">Auto-shields missed days</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 font-mono">
-                    {[1, 2].map((slot) => (
-                      <div 
-                        key={slot} 
-                        className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-[10px] ${
-                          slot <= freezesAvailable 
-                            ? 'bg-juice-green text-juice-cream shadow-xs' 
-                            : 'bg-juice-green/5 text-juice-green/20 border border-dashed border-juice-green/25'
-                        }`}
-                        title={slot <= freezesAvailable ? 'Active shield' : 'Empty slot (earned every 7 days)'}
-                      >
-                        {slot <= freezesAvailable ? '◈' : '○'}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 7-Day Magazine Weekly Spread */}
-                <div className="mb-4 w-full bg-white/70 p-3 rounded-2xl border border-juice-green/10">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-juice-green/70">7-Day Habit Ledger</span>
-                    <span className="text-[9px] font-mono text-juice-green/50">Mon – Sun</span>
-                  </div>
-                  <div className="grid grid-cols-7 gap-1.5 w-full">
-                    {habitSpread.map((day, idx) => (
-                      <div key={idx} className="flex flex-col items-center min-w-0">
-                        <span className="text-[9px] font-mono font-bold text-juice-green/60 mb-1">{day.dayShort}</span>
-                        <div 
-                          className={`w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-mono font-bold transition-all ${
-                            day.status === 'completed' || day.status === 'today-done'
-                              ? 'bg-juice-orange text-white shadow-xs'
-                              : day.status === 'shielded'
-                              ? 'bg-juice-green/20 text-juice-green border border-juice-green/40'
-                              : day.isToday
-                              ? 'border-2 border-juice-orange text-juice-orange animate-pulse bg-white'
-                              : 'bg-juice-green/5 text-juice-green/30 border border-juice-green/10'
-                          }`}
-                          title={`${day.dayName}: ${day.minutes} min`}
-                        >
-                          {day.status === 'completed' || day.status === 'today-done' ? (
-                            '✓'
-                          ) : day.status === 'shielded' ? (
-                            '◈'
-                          ) : (
-                            day.dayShort
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Milestone Track */}
-                <div className="mb-4 p-2.5 rounded-2xl bg-white/70 border border-juice-green/10">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-juice-green mb-1.5">
-                    <span className="flex items-center gap-1.5 font-mono">
-                      <span className="text-juice-orange">{milestone.nextIcon}</span>
-                      <span>{milestone.nextPerk}</span>
-                    </span>
-                    <span className="text-juice-orange font-mono">{milestone.daysRemaining}d away</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-juice-green/10 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-juice-orange transition-all duration-500 rounded-full"
-                      style={{ width: `${milestone.progressPercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Daily Goal Slider */}
-                <div className="pt-1 border-t border-juice-green/10">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-juice-green/60">Pace Commitment</span>
-                    <span className="text-[10px] font-bold text-juice-orange font-mono">{tempGoal} min / day</span>
-                  </div>
-                  <input 
-                    type="range" 
-                    min="5" 
-                    max="60" 
-                    step="5" 
-                    value={tempGoal}
-                    onChange={(e) => updateGoal(parseInt(e.target.value))}
-                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-juice-green/10 accent-juice-orange"
-                  />
-                  <div className="flex justify-between text-[8px] font-bold text-juice-green/50 mt-1 uppercase font-mono">
-                    <span>5m Voyager</span>
-                    <span>30m Scholar</span>
-                    <span>60m Master</span>
-                  </div>
+                  <Link href="/saved" className="flex items-center gap-2.5 px-3.5 py-2.5 text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-xl transition-colors">
+                    <BookmarkIcon className="w-4 h-4 text-stone-400" />
+                    <span>Saved Library</span>
+                  </Link>
+                  <Link href="/settings" className="flex items-center gap-2.5 px-3.5 py-2.5 text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-xl transition-colors">
+                    <SettingsIcon className="w-4 h-4 text-stone-400" />
+                    <span>Preferences</span>
+                  </Link>
+                  <div className="h-px bg-stone-100 my-1" />
+                  <button onClick={handleSignOut} className="w-full text-left flex items-center gap-2.5 px-3.5 py-2.5 text-red-600 hover:bg-red-50 rounded-xl transition-colors">
+                    <LogOutIcon className="w-4 h-4 text-red-400" />
+                    <span>Sign Out</span>
+                  </button>
                 </div>
               </div>
             </div>
-          )}
 
-          <button 
-            onClick={() => setIsSearchOpen(true)}
-            className="p-2 transition-colors text-juice-cream/60 hover:text-juice-cream"
-            aria-label="Search articles"
-          >
-            <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-          
-          {/* Desktop profile dropdown */}
-          <div className="relative group hidden md:block">
-            <button className="w-10 h-10 rounded-full bg-juice-green text-juice-cream flex items-center justify-center font-serif font-bold text-lg hover:bg-juice-orange transition-colors overflow-hidden ring-2 ring-transparent hover:ring-juice-orange">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 text-white/70 hover:text-white"
+              aria-label="Menu"
+            >
+              {isMobileMenuOpen ? (
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
               ) : (
-                <span>{profile?.first_name?.[0] || 'S'}</span>
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
               )}
             </button>
-            
-            {/* Modern Dropdown */}
-            <div className="absolute right-0 top-full mt-4 w-64 bg-juice-cream rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-juice-green/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50 overflow-hidden">
-              
-              {profile && (
-                <div className="p-5 border-b border-juice-green/10 bg-juice-green/5">
-                  <p className="font-bold text-juice-green truncate text-lg">{profile.first_name} {profile.last_name}</p>
-                  <p className="text-xs text-juice-green/60 font-medium mt-0.5">@{profile.username}</p>
-                </div>
-              )}
 
-              <div className="p-2">
-                <Link href="/profile" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-green/80 hover:text-juice-green hover:bg-juice-green/10 rounded-xl transition-all group/item">
-                  <UserIcon className="w-4 h-4 text-juice-green/40 group-hover/item:text-juice-orange transition-colors" />
-                  Profile
-                </Link>
-                <Link href="/saved" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-green/80 hover:text-juice-green hover:bg-juice-green/10 rounded-xl transition-all group/item">
-                  <BookmarkIcon className="w-4 h-4 text-juice-green/40 group-hover/item:text-juice-orange transition-colors" />
-                  Saved Stories
-                </Link>
-                <Link href="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-green/80 hover:text-juice-green hover:bg-juice-green/10 rounded-xl transition-all group/item">
-                  <SettingsIcon className="w-4 h-4 text-juice-green/40 group-hover/item:text-juice-orange transition-colors" />
-                  Settings
-                </Link>
-                <div className="h-px bg-juice-green/10 my-2 mx-2" />
-                <button onClick={handleSignOut} className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-all group/item">
-                  <LogOutIcon className="w-4 h-4 text-red-400 group-hover/item:text-red-500 transition-colors" />
-                  Sign Out
-                </button>
-              </div>
-            </div>
           </div>
-
-          {/* Mobile hamburger */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 text-juice-cream/60 hover:text-juice-cream transition-colors"
-            aria-label="Menu"
-          >
-            {isMobileMenuOpen ? (
-              <svg style={{ width: 22, height: 22 }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            ) : (
-              <svg style={{ width: 22, height: 22 }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            )}
-          </button>
         </div>
-      </div>
 
-      {/* Mobile Menu Drawer */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-juice-cream/10" style={{ backgroundColor: '#5D8246' }}>
-          <nav className="px-4 py-3 space-y-1">
+        {/* Mobile Navigation Drawer */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-white/10 bg-[#131E15] px-4 py-4 space-y-1">
             <Link 
               href="/feed" 
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`block px-4 py-3 rounded-xl text-sm font-mono font-bold tracking-widest transition-colors ${pathname === '/feed' ? 'text-juice-cream bg-white/10' : 'text-juice-cream/60'}`}
-              style={{ textTransform: 'uppercase', letterSpacing: '0.14em' }}
+              className={`block px-4 py-2.5 rounded-xl text-xs font-mono font-bold tracking-widest uppercase ${pathname === '/feed' ? 'bg-white/15 text-white' : 'text-white/70'}`}
             >
               FOR YOU
             </Link>
@@ -572,74 +395,56 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                   key={cleanItem} 
                   href={`/feed/${cleanItem.toLowerCase()}`}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-xl text-sm font-mono font-bold tracking-widest transition-colors ${isActive ? 'text-juice-cream bg-white/10' : 'text-juice-cream/60'}`}
-                  style={{ textTransform: 'uppercase', letterSpacing: '0.14em' }}
+                  className={`block px-4 py-2.5 rounded-xl text-xs font-mono font-bold tracking-widest uppercase ${isActive ? 'bg-white/15 text-white' : 'text-white/70'}`}
                 >
                   {cleanItem.toUpperCase()}
                 </Link>
               );
             })}
-            <div className="h-px bg-juice-cream/10 my-2" />
+            <div className="h-px bg-white/10 my-2" />
             <button 
               onClick={() => { setIsImportOpen(true); setIsMobileMenuOpen(false); }} 
-              className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-cream hover:text-juice-orange rounded-xl w-full text-left"
+              className="flex items-center gap-2 px-4 py-2.5 text-xs font-mono text-white/90 hover:text-white w-full text-left"
             >
-              <span className="text-juice-orange font-bold text-base leading-none">✦</span> Import Custom Article
+              <span className="text-[#EA580C]">✦</span> Import Web Article
             </button>
-            <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-cream/60 rounded-xl">
-              <UserIcon className="w-4 h-4" /> Profile
+            <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs font-mono text-white/70">
+              Profile
             </Link>
-            <Link href="/saved" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-cream/60 rounded-xl">
-              <BookmarkIcon className="w-4 h-4" /> Saved Stories
+            <Link href="/saved" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs font-mono text-white/70">
+              Saved Library
             </Link>
-            <Link href="/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-cream/60 rounded-xl">
-              <SettingsIcon className="w-4 h-4" /> Settings
+            <Link href="/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs font-mono text-white/70">
+              Preferences
             </Link>
-            <div className="h-px bg-juice-cream/10 my-2" />
-            <button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-300 rounded-xl w-full">
-              <LogOutIcon className="w-4 h-4" /> Sign Out
+            <div className="h-px bg-white/10 my-2" />
+            <button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} className="px-4 py-2 text-xs font-mono text-red-400 w-full text-left">
+              Sign Out
             </button>
-          </nav>
-        </div>
-      )}
+          </div>
+        )}
+      </header>
+
+      {/* Modals */}
       <CustomizeTabsModal 
         isOpen={isCustomizeOpen} 
         onClose={() => setIsCustomizeOpen(false)} 
-        currentTabs={tabs} 
+        currentTabs={tabs}
         onSave={(newTabs) => {
           setTabs(newTabs);
           localStorage.setItem('nav_tabs', JSON.stringify(newTabs));
-        }} 
-      />
-      <SearchModal 
-        isOpen={isSearchOpen} 
-        onClose={() => setIsSearchOpen(false)} 
-      />
-      <OnboardingModal 
-        isOpen={isOnboardingOpen} 
-        onClose={() => setIsOnboardingOpen(false)} 
-        userId={profile?.id}
-        userName={profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : 'Traveler'}
-      />
-      <ImportArticleModal 
-        isOpen={isImportOpen} 
-        onClose={() => setIsImportOpen(false)} 
-        userId={profile?.id}
-        onReadArticle={(art) => {
-          setReaderArticle(art);
-          setIsImportOpen(false);
-        }}
-        onSavedSuccess={() => {
-          if (pathname === '/saved') {
-            window.location.reload();
-          }
         }}
       />
-      <ReadingModal 
-        isOpen={!!readerArticle} 
-        onClose={() => setReaderArticle(null)} 
-        article={readerArticle} 
-      />
-    </header>
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <OnboardingModal isOpen={isOnboardingOpen} onClose={() => setIsOnboardingOpen(false)} userId={profile?.id} userName={profile?.first_name} />
+      <ImportArticleModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} userId={profile?.id} onReadArticle={(art) => setReaderArticle(art)} />
+      {readerArticle && (
+        <ReadingModal 
+          isOpen={!!readerArticle} 
+          onClose={() => setReaderArticle(null)} 
+          article={readerArticle}
+        />
+      )}
+    </>
   );
 };
