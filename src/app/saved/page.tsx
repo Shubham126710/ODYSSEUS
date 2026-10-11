@@ -1,47 +1,127 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { Footer } from '@/components/Footer';
 import { useProfile } from '@/hooks/useProfile';
 import { useSavedStories } from '@/hooks/useSavedStories';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Toast } from '@/components/Toast';
+import { ReadingModal } from '@/components/ReadingModal';
+import { ImportArticleModal } from '@/components/ImportArticleModal';
 
 export default function SavedPage() {
   const { profile } = useProfile();
-  const { savedStories, loading, removeSavedStory } = useSavedStories(profile?.id);
+  const { savedStories, loading, removeSavedStory, refetch } = useSavedStories(profile?.id);
   const [toast, setToast] = useState({ message: '', isVisible: false });
   const [headerTheme, setHeaderTheme] = useState<'light' | 'dark' | 'orange'>('light');
+  const [activeStory, setActiveStory] = useState<any | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [quickUrl, setQuickUrl] = useState('');
+  const [isPurifyingQuick, setIsPurifyingQuick] = useState(false);
+  const [activeTab, setActiveTab] = useState<'all' | 'imported' | 'prestige'>('all');
 
-  useEffect(() => {
-    console.log('SavedPage: savedStories updated', savedStories);
-  }, [savedStories]);
-
-  const handleRemove = async (story: any) => {
+  const handleRemove = async (story: any, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     try {
       await removeSavedStory(story);
-      setToast({ message: 'Removed from saved stories', isVisible: true });
-    } catch (e) {
+      setToast({ message: 'Story removed from your offline salon', isVisible: true });
+    } catch {
       setToast({ message: 'Failed to remove story', isVisible: true });
     }
+  };
+
+  const handleQuickImport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickUrl.trim()) return;
+
+    try {
+      new URL(quickUrl);
+    } catch {
+      setToast({ message: 'Please enter a valid web URL starting with https://', isVisible: true });
+      return;
+    }
+
+    setIsPurifyingQuick(true);
+    try {
+      const res = await fetch(`/api/read-mode?url=${encodeURIComponent(quickUrl.trim())}&t=${Date.now()}`);
+      const data = await res.json();
+
+      if (data.success && data.article?.content) {
+        const article = {
+          title: data.article.title || 'Imported Story',
+          content: data.article.content,
+          excerpt: data.article.textContent?.slice(0, 240) + '...',
+          link: quickUrl.trim(),
+          source: data.article.siteName || new URL(quickUrl).hostname.replace('www.', ''),
+          readTime: data.article.readTime || `${Math.ceil((data.article.wordCount || 500) / 220)} min read`,
+          date: 'Imported Just Now',
+          wordCount: data.article.wordCount,
+          isImported: true,
+        };
+
+        // Open in reader
+        setActiveStory(article);
+        setQuickUrl('');
+
+        // Also save to library
+        if (profile?.id) {
+          await fetch('/api/read-later', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: profile.id,
+              url: article.link,
+              title: article.title,
+              excerpt: article.excerpt,
+              source_name: article.source,
+              content: article.content,
+            }),
+          });
+          refetch();
+        }
+      } else {
+        setToast({ message: data.error || 'Could not extract clean prose. Try another URL.', isVisible: true });
+      }
+    } catch {
+      setToast({ message: 'Extraction timed out. Try again or open via standard link.', isVisible: true });
+    } finally {
+      setIsPurifyingQuick(false);
+    }
+  };
+
+  const handleOpenReader = (story: any) => {
+    const article = {
+      title: story.title,
+      link: story.url || story.link,
+      source: story.source || story.source_name || 'Odysseus Library',
+      excerpt: story.excerpt,
+      content: story.content,
+      imageUrl: story.image_url || story.imageUrl,
+      date: 'Saved Offline',
+      readTime: story.read_time || '5 min read',
+    };
+    setActiveStory(article);
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const scrollTop = e.currentTarget.scrollTop;
     const viewportHeight = e.currentTarget.clientHeight;
     const sectionIndex = Math.round(scrollTop / viewportHeight);
-
-    // Section 0: Saved Stories (Cream) -> Light Theme
-    // Section 1: Footer (Green) -> Dark Theme
-    
-    if (sectionIndex === 0) {
-      setHeaderTheme('light');
-    } else {
-      setHeaderTheme('dark');
-    }
+    setHeaderTheme(sectionIndex === 0 ? 'light' : 'dark');
   };
+
+  // Filter logic
+  const filteredStories = savedStories.filter((story) => {
+    if (activeTab === 'imported') {
+      return story.isImported || story.source?.includes('.') || story.url?.includes('medium') || story.url?.includes('substack');
+    }
+    if (activeTab === 'prestige') {
+      return !story.isImported && !story.source?.includes('.');
+    }
+    return true;
+  });
 
   return (
     <div 
@@ -54,111 +134,251 @@ export default function SavedPage() {
       </div>
       
       {/* Saved Stories Section */}
-      <section className="min-h-screen snap-start pt-20 md:pt-24 pb-10 px-4 md:px-8 max-w-[1400px] mx-auto flex flex-col">
+      <section className="min-h-screen snap-start pt-20 md:pt-24 pb-16 px-4 md:px-8 lg:px-12 max-w-[1440px] mx-auto flex flex-col">
+        
+        {/* Editorial Dateline & Masthead */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 md:mb-12"
+          className="mb-8 md:mb-10 border-b border-juice-green/15 pb-6"
         >
-          <h1 className="font-serif text-3xl md:text-4xl lg:text-6xl font-bold mb-3 md:mb-4 text-juice-green">
-            Saved Stories
-          </h1>
-          <p className="text-sm md:text-lg opacity-60 font-mono uppercase tracking-widest">
-            Your personal collection
-          </p>
+          <div className="flex items-center justify-between text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-juice-green/60 mb-3">
+            <span className="font-bold text-juice-orange">THE OFFLINE SALON • VOL. IV</span>
+            <span>{savedStories.length} {savedStories.length === 1 ? 'STORY' : 'STORIES'} CURATED</span>
+          </div>
+
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold text-juice-green leading-tight">
+                Saved Stories & Pure Prose
+              </h1>
+              <p className="text-xs sm:text-sm text-juice-green/70 mt-2 max-w-xl font-sans leading-relaxed">
+                Your personal reading sanctuary. Purified essays stripped of author bios, social follow cards, newsletters, and web clutter.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="self-start md:self-auto px-5 py-3 rounded-2xl bg-juice-orange hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0"
+            >
+              <span className="text-base leading-none">✦</span>
+              <span>Import Any Article</span>
+            </button>
+          </div>
         </motion.div>
 
-        {loading ? (
-           <div className="flex items-center justify-center flex-grow">
-             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-juice-green"></div>
-           </div>
-        ) : savedStories.length === 0 ? (
-          <div className="flex flex-col items-center justify-center flex-grow text-center opacity-60">
-            <p className="text-2xl font-serif mb-4">No saved stories yet.</p>
-            <Link href="/feed" className="text-juice-orange hover:underline font-bold uppercase tracking-widest">
-              Explore the Feed
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 pb-20">
-            {savedStories.map((story, index) => (
-              <motion.div
-                key={story.id || story.url || index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ 
-                  delay: index * 0.05, 
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 20
-                }}
-                className="group relative flex flex-col bg-juice-cream rounded-2xl md:rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-juice-green/5 hover:-translate-y-3 hover:rotate-1 hover:shadow-2xl transition-all duration-300 h-auto md:h-[480px]"
+        {/* Pocket / Instapaper Custom Article Quick Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8 p-4 md:p-6 rounded-3xl bg-white border border-juice-green/15 shadow-sm"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-juice-orange block">
+                Pocket & Instapaper Clean Reader Protocol
+              </span>
+              <h3 className="font-serif text-base md:text-lg font-bold text-juice-green">
+                Purify Any Web Article In Seconds
+              </h3>
+              <p className="text-xs text-juice-green/70">
+                Paste any link from Substack, Medium, blogs, or news sites to read pure text in Odysseus.
+              </p>
+            </div>
+
+            <form onSubmit={handleQuickImport} className="flex-1 max-w-xl flex items-center gap-2">
+              <input
+                type="url"
+                value={quickUrl}
+                onChange={(e) => setQuickUrl(e.target.value)}
+                placeholder="https://example.com/essay-or-article..."
+                className="w-full bg-juice-cream/60 border border-juice-green/20 focus:border-juice-orange rounded-xl px-4 py-2.5 text-xs text-juice-green placeholder:text-juice-green/30 focus:outline-none transition-all"
+              />
+              <button
+                type="submit"
+                disabled={isPurifyingQuick || !quickUrl.trim()}
+                className="px-5 py-2.5 rounded-xl bg-juice-green hover:bg-[#4b6a38] disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider shrink-0 shadow-xs transition-all flex items-center gap-1.5"
               >
-                {/* Decorative Top Gradient */}
-                <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-juice-orange/20 to-juice-green/20" />
+                {isPurifyingQuick ? (
+                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  'Purify & Read'
+                )}
+              </button>
+            </form>
+          </div>
+        </motion.div>
 
-                {/* Header: Source & Date */}
-                <div className="px-4 md:px-6 pt-4 md:pt-6 flex items-center justify-between mb-3 md:mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-juice-green/10 flex items-center justify-center text-juice-orange font-black text-xs">
-                      {(story.source || story.source_name || 'S').charAt(0)}
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-juice-green truncate max-w-[100px]">{story.source || story.source_name}</span>
-                      <span className="text-[9px] font-bold text-juice-green/40 uppercase tracking-wide">Saved</span>
-                    </div>
-                  </div>
-                </div>
+        {/* Filter Desk Pills */}
+        <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all ${
+              activeTab === 'all'
+                ? 'bg-juice-green text-juice-cream shadow-xs'
+                : 'bg-white/70 text-juice-green/60 hover:text-juice-green hover:bg-white border border-juice-green/10'
+            }`}
+          >
+            All Saved ({savedStories.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('imported')}
+            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all ${
+              activeTab === 'imported'
+                ? 'bg-juice-orange text-white shadow-xs'
+                : 'bg-white/70 text-juice-green/60 hover:text-juice-orange hover:bg-white border border-juice-green/10'
+            }`}
+          >
+            ✦ Imported Web Prose
+          </button>
+          <button
+            onClick={() => setActiveTab('prestige')}
+            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all ${
+              activeTab === 'prestige'
+                ? 'bg-juice-green text-juice-cream shadow-xs'
+                : 'bg-white/70 text-juice-green/60 hover:text-juice-green hover:bg-white border border-juice-green/10'
+            }`}
+          >
+            Prestige Publications
+          </button>
+        </div>
 
-                {/* Body: Title */}
-                <div className="px-4 md:px-6 mb-3 md:mb-4">
-                  <h3 className="font-serif text-lg md:text-xl lg:text-2xl font-bold text-juice-green leading-tight group-hover:text-juice-orange transition-colors duration-300 line-clamp-2 md:line-clamp-3">
-                    {story.title}
-                  </h3>
-                </div>
-
-                {/* Image (Compact but Premium) */}
-                <div className="px-4 md:px-6 mb-3 md:mb-4">
-                  {story.image_url ? (
-                    <div className="w-full h-24 md:h-32 rounded-xl overflow-hidden relative shadow-inner shrink-0">
-                      <img 
-                        src={story.image_url} 
-                        alt={story.title} 
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-xl" />
-                    </div>
-                  ) : (
-                    <div className="w-full h-24 md:h-32 rounded-xl overflow-hidden relative shadow-inner shrink-0 bg-juice-green/5 flex items-center justify-center">
-                       <span className="text-4xl font-black text-juice-green/10">{(story.source || story.source_name || 'S').charAt(0)}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Excerpt (Short) */}
-                <div className="px-4 md:px-6 flex-grow">
-                  <p className="text-juice-green/70 text-xs leading-relaxed line-clamp-3 font-medium">
-                    {story.excerpt}
-                  </p>
-                </div>
-
-                {/* Footer: Actions */}
-                <div className="px-4 md:px-6 pb-4 md:pb-6 pt-3 md:pt-4 mt-auto border-t border-juice-green/10 flex items-center justify-between">
-                  <Link href={story.url || '#'} target="_blank" className="flex items-center gap-2 text-juice-green/40 hover:text-juice-orange transition-colors">
-                    <span className="text-xs font-bold uppercase tracking-wider">Read Story</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                  </Link>
-                  
-                  <button 
-                    onClick={() => handleRemove(story)}
-                    className="text-juice-orange hover:text-red-500 transition-colors hover:scale-110 transform duration-200"
-                    title="Remove from saved"
+        {/* Stories Content */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-28 gap-4 flex-grow">
+            <div className="w-10 h-10 border-3 border-juice-orange/20 border-t-juice-orange rounded-full animate-spin" />
+            <p className="font-mono text-xs uppercase tracking-widest text-juice-green/60">
+              Retrieving your offline salon...
+            </p>
+          </div>
+        ) : filteredStories.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center flex-grow text-center py-20 px-6 rounded-3xl bg-white/60 border border-dashed border-juice-green/20"
+          >
+            <div className="w-16 h-16 rounded-full bg-juice-orange/10 flex items-center justify-center text-juice-orange text-2xl font-serif font-bold mb-4 shadow-inner">
+              ✦
+            </div>
+            <h3 className="font-serif text-2xl font-bold text-juice-green mb-2">
+              Your Offline Salon Awaits
+            </h3>
+            <p className="text-xs sm:text-sm text-juice-green/70 max-w-md mb-6 leading-relaxed">
+              Bookmark stories while browsing the Odysseus feed or paste any web URL to curate pure, distraction-free prose.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                onClick={() => setIsImportModalOpen(true)}
+                className="px-6 py-3 rounded-2xl bg-juice-orange text-white font-bold text-xs uppercase tracking-wider hover:bg-orange-600 transition-all shadow-md"
+              >
+                ✦ Import Custom Web Article
+              </button>
+              <Link
+                href="/feed"
+                className="px-6 py-3 rounded-2xl bg-juice-green text-juice-cream font-bold text-xs uppercase tracking-wider hover:bg-[#4b6a38] transition-all shadow-sm"
+              >
+                Explore Live Feed →
+              </Link>
+            </div>
+          </motion.div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+            <AnimatePresence>
+              {filteredStories.map((story, index) => {
+                const sourceInitial = (story.source || story.source_name || 'O').charAt(0).toUpperCase();
+                return (
+                  <motion.div
+                    key={story.id || story.url || index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: index * 0.04, duration: 0.3 }}
+                    onClick={() => handleOpenReader(story)}
+                    className="group relative flex flex-col bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl border border-juice-green/10 hover:border-juice-orange/40 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex-1"
                   >
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+                    {/* Top Decorative Border Accent */}
+                    <div className="h-1.5 w-full bg-gradient-to-r from-juice-orange via-juice-green to-amber-500 opacity-80 group-hover:opacity-100 transition-opacity" />
+
+                    {/* Card Header: Source & Un-save Stamp */}
+                    <div className="p-6 pb-3 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-juice-green/10 text-juice-green font-serif font-black text-xs flex items-center justify-center shadow-xs">
+                          {sourceInitial}
+                        </div>
+                        <div>
+                          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-juice-green block truncate max-w-[130px]">
+                            {story.source || story.source_name || 'Web Article'}
+                          </span>
+                          <span className="text-[9px] font-mono text-juice-green/40">
+                            {story.read_time || '5 min read'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Wax Seal Bookmark Button */}
+                      <button
+                        onClick={(e) => handleRemove(story, e)}
+                        className="w-8 h-8 rounded-full bg-juice-orange/10 hover:bg-red-50 text-juice-orange hover:text-red-500 flex items-center justify-center transition-all duration-200"
+                        title="Remove from saved stories"
+                        aria-label="Remove story"
+                      >
+                        <span className="text-sm font-bold">✕</span>
+                      </button>
+                    </div>
+
+                    {/* Card Title */}
+                    <div className="px-6 py-2">
+                      <h3 className="font-serif text-lg md:text-xl font-bold text-juice-green leading-snug group-hover:text-juice-orange transition-colors line-clamp-2">
+                        {story.title}
+                      </h3>
+                    </div>
+
+                    {/* Optional Hero Image */}
+                    {story.image_url && (
+                      <div className="px-6 py-2">
+                        <div className="w-full h-36 rounded-2xl overflow-hidden relative shadow-inner">
+                          <img
+                            src={story.image_url}
+                            alt={story.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Excerpt */}
+                    <div className="px-6 py-2 flex-grow">
+                      <p className="text-xs text-juice-green/75 leading-relaxed line-clamp-3 font-medium">
+                        {story.excerpt || 'Pure prose archived for focused offline reading.'}
+                      </p>
+                    </div>
+
+                    {/* Card Footer: Zen Chamber Button & Original Link */}
+                    <div className="p-6 pt-4 mt-auto border-t border-juice-green/10 flex items-center justify-between text-xs font-mono">
+                      <span className="font-bold text-juice-orange flex items-center gap-1 group-hover:underline">
+                        <span>Read In Chamber</span>
+                        <span>→</span>
+                      </span>
+
+                      {story.url && (
+                        <a
+                          href={story.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[10px] text-juice-green/40 hover:text-juice-green transition-colors uppercase tracking-wider"
+                          title="Open original website"
+                        >
+                          Source ↗
+                        </a>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
         )}
       </section>
@@ -167,6 +387,28 @@ export default function SavedPage() {
       <section className="snap-start shrink-0">
         <Footer />
       </section>
+
+      {/* Zen Chamber Reading Modal */}
+      <ReadingModal
+        isOpen={!!activeStory}
+        onClose={() => setActiveStory(null)}
+        article={activeStory}
+      />
+
+      {/* Import Article Modal */}
+      <ImportArticleModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        userId={profile?.id}
+        onReadArticle={(art) => {
+          setActiveStory(art);
+          setIsImportModalOpen(false);
+        }}
+        onSavedSuccess={() => {
+          refetch();
+          setToast({ message: 'Story purified and added to your salon!', isVisible: true });
+        }}
+      />
 
       <Toast 
         message={toast.message} 

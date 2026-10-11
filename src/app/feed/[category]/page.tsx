@@ -35,6 +35,14 @@ export default function CategoryFeedPage() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [toast, setToast] = useState({ message: '', isVisible: false });
   const [activeArticle, setActiveArticle] = useState<any | null>(null);
+  const [headerTheme, setHeaderTheme] = useState<'light' | 'dark' | 'orange'>('light');
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    const viewportHeight = e.currentTarget.clientHeight;
+    const sectionIndex = Math.round(scrollTop / viewportHeight);
+    setHeaderTheme(sectionIndex === 0 ? 'light' : 'dark');
+  };
 
   // Eliminate flicker by enforcing minimum loading time
   useEffect(() => {
@@ -169,10 +177,16 @@ export default function CategoryFeedPage() {
   };
 
   return (
-    <div className={`flex flex-col min-h-screen ${bgColor}`}> 
-      <AppHeader />
+    <div 
+      onScroll={handleScroll}
+      data-lenis-prevent
+      className={`h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth ${bgColor} text-juice-green font-sans selection:bg-juice-orange selection:text-juice-cream`}
+    > 
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <AppHeader theme={headerTheme} />
+      </div>
       
-      <main className="flex-1 pt-20 md:pt-24 pb-16 md:pb-20 px-4 md:px-12 lg:px-16 max-w-[1920px] mx-auto w-full">
+      <section className="min-h-screen snap-start pt-20 md:pt-24 pb-16 md:pb-20 px-4 md:px-12 lg:px-16 max-w-[1920px] mx-auto w-full flex flex-col justify-between">
         <div className="flex items-center gap-4 mb-4 md:hidden">
           <button 
             onClick={() => router.back()}
@@ -220,7 +234,7 @@ export default function CategoryFeedPage() {
         </div>
 
         {filteredStories.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8 pb-12">
             <AnimatePresence mode="popLayout">
               {filteredStories.map((story) => (
                 <motion.div
@@ -258,9 +272,11 @@ export default function CategoryFeedPage() {
             </p>
           </div>
         )}
-      </main>
+      </section>
 
-      <Footer />
+      <section className="snap-start shrink-0">
+        <Footer />
+      </section>
 
       <ReadingModal 
         isOpen={!!activeArticle} 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { JSDOM } from 'jsdom';
 import { Readability } from '@mozilla/readability';
+import { purifyExtractedArticle } from '@/lib/cleanArticleExtraction';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -245,9 +246,23 @@ export async function GET(request: Request) {
     // 1. Jina AI Reader (works for most non-opted-out sites)
     const jinaResult = await fetchViaJina(url);
     if (jinaResult?.content) {
+      const purified = purifyExtractedArticle({
+        title: jinaResult.title,
+        content: jinaResult.content,
+        url,
+      });
+
       return NextResponse.json({
         success: true,
-        article: { title: jinaResult.title, content: jinaResult.content, textContent: jinaResult.textContent, byline: null, siteName: null },
+        article: {
+          title: purified.title,
+          content: purified.cleanHtml,
+          textContent: purified.plainText,
+          readTime: purified.readTime,
+          wordCount: purified.wordCount,
+          byline: null,
+          siteName: null,
+        },
       });
     }
 
@@ -290,9 +305,23 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'Failed to parse article content' }, { status: 422 });
     }
 
+    const purified = purifyExtractedArticle({
+      title: result.title,
+      content: result.content,
+      url,
+    });
+
     return NextResponse.json({
       success: true,
-      article: { title: result.title, content: result.content, textContent: result.textContent, byline: result.byline || null, siteName: result.siteName || null },
+      article: {
+        title: purified.title,
+        content: purified.cleanHtml,
+        textContent: purified.plainText,
+        readTime: purified.readTime,
+        wordCount: purified.wordCount,
+        byline: null,
+        siteName: result.siteName || null,
+      },
     });
 
   } catch (error: any) {

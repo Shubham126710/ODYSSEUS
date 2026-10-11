@@ -9,6 +9,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { CustomizeTabsModal } from './CustomizeTabsModal';
 import { SearchModal } from './SearchModal';
 import { OnboardingModal } from './OnboardingModal';
+import { ImportArticleModal } from './ImportArticleModal';
+import { ReadingModal } from './ReadingModal';
 import { 
   getCurrentMultiplier, 
   getExplorerRank, 
@@ -67,6 +69,8 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   const [tabs, setTabs] = useState(['Tech', 'Design', 'Culture', 'Science']);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [readerArticle, setReaderArticle] = useState<any | null>(null);
   const [multiplier, setMultiplier] = useState<MultiplierInfo>(getCurrentMultiplier());
   const router = useRouter();
   const pathname = usePathname();
@@ -76,6 +80,19 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   const bgColor = theme === 'orange' ? 'bg-juice-orange' : 'bg-juice-green';
   const borderColor = theme === 'orange' ? 'border-juice-cream/10' : 'border-juice-cream/10';
   const navTextColor = theme === 'orange' ? 'text-juice-cream/60 hover:text-juice-cream' : 'text-juice-cream/60 hover:text-juice-cream';
+
+  useEffect(() => {
+    const handleOpenImport = () => setIsImportOpen(true);
+    const handleOpenReader = (e: any) => {
+      if (e.detail) setReaderArticle(e.detail);
+    };
+    window.addEventListener('odysseus:open-import', handleOpenImport);
+    window.addEventListener('odysseus:open-reader', handleOpenReader);
+    return () => {
+      window.removeEventListener('odysseus:open-import', handleOpenImport);
+      window.removeEventListener('odysseus:open-reader', handleOpenReader);
+    };
+  }, []);
 
   useEffect(() => {
     setMultiplier(getCurrentMultiplier());
@@ -191,8 +208,19 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           </button>
         </nav>
 
-        <div className="flex items-center gap-2.5 md:gap-5">
+        <div className="flex items-center gap-2 md:gap-4">
           
+          {/* Custom Article Import Button (Pocket / Instapaper Style) */}
+          <button
+            onClick={() => setIsImportOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-full border border-juice-cream/25 hover:border-juice-orange bg-white/10 hover:bg-juice-orange text-juice-cream text-xs font-mono uppercase tracking-wider transition-all duration-300 shadow-xs hover:scale-105"
+            title="Import Article (Pocket & Instapaper Clean Reader)"
+            aria-label="Import Article"
+          >
+            <span className="font-bold text-sm leading-none text-juice-orange hover:text-white">✦</span>
+            <span className="hidden sm:inline">Import</span>
+          </button>
+
           {/* Traveler's Guide (?) button — available on all devices */}
           <button
             onClick={() => setIsOnboardingOpen(true)}
@@ -502,6 +530,12 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
               );
             })}
             <div className="h-px bg-juice-cream/10 my-2" />
+            <button 
+              onClick={() => { setIsImportOpen(true); setIsMobileMenuOpen(false); }} 
+              className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-cream hover:text-juice-orange rounded-xl w-full text-left"
+            >
+              <span className="text-juice-orange font-bold text-base leading-none">✦</span> Import Custom Article
+            </button>
             <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-juice-cream/60 rounded-xl">
               <UserIcon className="w-4 h-4" /> Profile
             </Link>
@@ -536,6 +570,25 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
         onClose={() => setIsOnboardingOpen(false)} 
         userId={profile?.id}
         userName={profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : 'Traveler'}
+      />
+      <ImportArticleModal 
+        isOpen={isImportOpen} 
+        onClose={() => setIsImportOpen(false)} 
+        userId={profile?.id}
+        onReadArticle={(art) => {
+          setReaderArticle(art);
+          setIsImportOpen(false);
+        }}
+        onSavedSuccess={() => {
+          if (pathname === '/saved') {
+            window.location.reload();
+          }
+        }}
+      />
+      <ReadingModal 
+        isOpen={!!readerArticle} 
+        onClose={() => setReaderArticle(null)} 
+        article={readerArticle} 
       />
     </header>
   );

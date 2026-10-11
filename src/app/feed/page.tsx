@@ -155,6 +155,12 @@ export default function FeedPage() {
 
   useEffect(() => {
     fetchTrending();
+
+    const handleReaderEvent = (e: any) => {
+      if (e.detail) setReadingArticle(e.detail);
+    };
+    window.addEventListener('odysseus:open-reader', handleReaderEvent);
+    return () => window.removeEventListener('odysseus:open-reader', handleReaderEvent);
   }, []);
 
   const handleSaveForLater = async (story: any) => {
@@ -432,6 +438,19 @@ export default function FeedPage() {
               <span>The Collection</span>
               <span className="text-juice-orange font-mono">({stories.length})</span>
               <span>→</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('odysseus:open-import'));
+                }
+              }}
+              className="px-4 py-2.5 rounded-full bg-juice-orange hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-xs hover:scale-105 transition-all flex items-center gap-1.5"
+              title="Import custom article from web"
+            >
+              <span>✦</span>
+              <span>Import URL</span>
             </button>
           </motion.div>
 

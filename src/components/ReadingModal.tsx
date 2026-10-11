@@ -7,19 +7,31 @@ import { ReactLenis } from 'lenis/react';
 import { decodeHtmlEntities } from '@/lib/textUtils';
 import { useProfile } from '@/hooks/useProfile';
 import { getCurrentMultiplier, recordReadingProgress } from '@/lib/gamification';
+import { sanitizeArticleProse } from '@/lib/cleanArticleExtraction';
 
 const calculateReadTime = (text: string) => {
   const words = text.trim().split(/\s+/).length;
   return `${Math.ceil(words / 130)} min`;
 };
 
-/** Radial Scroll Progress Wheel */
-const RadialScrollWheel = ({ progress, accent, size = 32 }: { progress: number; accent: string; size?: number }) => {
-  const strokeWidth = 3;
+/** High-fashion Radial Scroll Progress Wheel */
+const RadialScrollWheel = ({ 
+  progress, 
+  accent, 
+  size = 36,
+  showLabel = true 
+}: { 
+  progress: number; 
+  accent: string; 
+  size?: number;
+  showLabel?: boolean;
+}) => {
+  const strokeWidth = 3.5;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (Math.min(100, Math.max(0, progress)) / 100) * circumference;
-  const isComplete = progress >= 98;
+  const clampedProgress = Math.min(100, Math.max(0, progress));
+  const strokeDashoffset = circumference - (clampedProgress / 100) * circumference;
+  const isComplete = clampedProgress >= 95;
 
   return (
     <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
@@ -31,7 +43,7 @@ const RadialScrollWheel = ({ progress, accent, size = 32 }: { progress: number; 
           stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="transparent"
-          className="opacity-20"
+          className="opacity-15"
         />
         <circle
           cx={size / 2}
@@ -43,16 +55,19 @@ const RadialScrollWheel = ({ progress, accent, size = 32 }: { progress: number; 
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className="transition-all duration-150 ease-out"
+          className="transition-all duration-200 ease-out"
+          style={{ filter: isComplete ? `drop-shadow(0 0 6px ${accent})` : undefined }}
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center font-mono text-[9px] font-bold">
-        {isComplete ? (
-          <span className="text-[11px] font-black" style={{ color: accent }}>✓</span>
-        ) : (
-          <span className="opacity-80">{Math.round(progress)}%</span>
-        )}
-      </div>
+      {showLabel && (
+        <div className="absolute inset-0 flex items-center justify-center font-mono text-[9px] font-black">
+          {isComplete ? (
+            <span className="text-[12px] font-black animate-bounce" style={{ color: accent }}>✓</span>
+          ) : (
+            <span className="opacity-90">{Math.round(clampedProgress)}%</span>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -166,14 +181,15 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     setIsLoading(true);
 
     try {
-      // CREATIVE SOLUTION: Try client-side fetch via Jina AI first to bypass Vercel server IP blocking
+      // 1. Client-side fetch via Jina AI
       const jinaRes = await fetch(`https://r.jina.ai/${encodeURIComponent(article.link)}`, {
         headers: { 'Accept': 'application/json' }
       });
       if (jinaRes.ok) {
         const jinaData = await jinaRes.json();
         if (jinaData.code === 200 && jinaData.data?.content && jinaData.data.content.length > 500) {
-          setFullContent(markdownToHtml(jinaData.data.content));
+          const pureHtml = sanitizeArticleProse(markdownToHtml(jinaData.data.content));
+          setFullContent(pureHtml);
           setIsLoading(false);
           return;
         }
@@ -181,18 +197,16 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     } catch { /* fall through */ }
 
     try {
-      // CREATIVE SOLUTION 2: Try client-side proxy to bypass server IP block
+      // 2. Client-side proxy fallback
       const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(article.link)}`;
       const res = await fetch(proxyUrl);
       if (res.ok) {
         const html = await res.text();
         if (html.length > 1000) {
-          // Dynamic import of Readability to avoid bundle size bloat
           const { Readability } = await import('@mozilla/readability');
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
           
-          // Cleanup common annoying elements before parsing
           const removeSelectors = ['script', 'style', 'nav', 'footer', 'aside', '.ads', '.cookie-banner'];
           removeSelectors.forEach(sel => {
             doc.querySelectorAll(sel).forEach(el => el.remove());
@@ -202,7 +216,8 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
           const parsed = reader.parse();
           
           if (parsed && parsed.content && parsed.content.length > 500) {
-            setFullContent(parsed.content);
+            const pureHtml = sanitizeArticleProse(parsed.content);
+            setFullContent(pureHtml);
             setIsLoading(false);
             return;
           }
@@ -211,7 +226,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     } catch { /* fall through */ }
 
     try {
-      // Fallback 3: Our server API (which might be blocked by the site or Jina rate limits)
+      // 3. Server API fallback
       const res = await fetch(`/api/read-mode?url=${encodeURIComponent(article.link)}&t=${Date.now()}`, {
         cache: 'no-store',
         headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' },
@@ -219,16 +234,17 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
       const data = await res.json();
 
       if (data.success && data.article?.content && data.article.content.length > 500) {
-        setFullContent(data.article.content);
+        const pureHtml = sanitizeArticleProse(data.article.content);
+        setFullContent(pureHtml);
         setIsLoading(false);
         return;
       }
     } catch { /* fall through */ }
 
-    // API failed — try rich RSS content
+    // 4. API failed — try rich RSS content
     const rssContent = article['content:encoded'] || article.contentEncoded || article.content;
     if (rssContent && rssContent.replace(/<[^>]*>/g, '').trim().length > 250) {
-      setFullContent(rssContent);
+      setFullContent(sanitizeArticleProse(rssContent));
     } else {
       setPreviewOnly(true);
     }
@@ -238,7 +254,14 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
   useEffect(() => {
     if (isOpen && article) {
-      fetchContent();
+      // If article is imported or already has purified full content, display immediately
+      if (article.isImported || (article.content && article.content.length > 600)) {
+        setFullContent(sanitizeArticleProse(article.content));
+        setIsLoading(false);
+        setPreviewOnly(false);
+      } else {
+        fetchContent();
+      }
       setScrollProgress(0);
     } else {
       stopSpeaking();
@@ -404,20 +427,17 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
               <div ref={scrollContainerRef} onScroll={handleScroll} className="h-full overflow-y-auto">
                 <div className="max-w-2xl mx-auto px-5 py-8 md:px-0 md:py-16 pb-24" ref={contentRef}>
 
-                {/* Title & meta */}
+                {/* Title & meta (Pristine typography, no author details) */}
                 <header className="mb-10 text-center">
-                  <div className="flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-widest mb-5 opacity-60">
-                    <span>{decodeHtmlEntities(article.source)}</span>
+                  <div className="flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-widest mb-4 opacity-60">
+                    <span className="font-bold text-juice-orange">{decodeHtmlEntities(article.source)}</span>
                     <span>•</span>
                     <span>{article.date}</span>
                     {readTime && (<><span>•</span><span>{readTime} read</span></>)}
                   </div>
-                  <h1 className="font-serif font-bold leading-tight mb-5" style={{ fontSize: `${fontSize * 2.2}px` }}>
+                  <h1 className="font-serif font-bold leading-tight mb-4" style={{ fontSize: `${fontSize * 2.2}px` }}>
                     {decodeHtmlEntities(article.title)}
                   </h1>
-                  {article.author && (
-                    <p className="text-sm font-medium opacity-70">By {decodeHtmlEntities(article.author)}</p>
-                  )}
                 </header>
 
                 {/* Hero image */}
@@ -510,19 +530,43 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
             </div>
             </ReactLenis>
 
-            {/* Floating Reading Progress HUD Wheel */}
-            <div 
-              className="absolute bottom-6 right-6 z-30 flex items-center gap-3 px-4 py-2.5 rounded-full shadow-2xl backdrop-blur-xl border transition-all duration-300 pointer-events-auto"
+            {/* High-Fashion Floating Reading Progress HUD Wheel */}
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                if (scrollContainerRef.current) {
+                  scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
+              title="Click to scroll to top"
+              className={`absolute bottom-6 right-6 z-30 flex items-center gap-3 px-4 py-2.5 rounded-full shadow-2xl backdrop-blur-xl border cursor-pointer select-none transition-all duration-300 pointer-events-auto ${
+                scrollProgress >= 95 
+                  ? 'ring-2 ring-juice-orange/50 shadow-juice-orange/20' 
+                  : 'hover:shadow-xl'
+              }`}
               style={{ backgroundColor: `${currentTheme.header}f0`, borderColor: currentTheme.border }}
             >
-              <RadialScrollWheel progress={scrollProgress} accent={currentTheme.accent} size={32} />
+              <RadialScrollWheel progress={scrollProgress} accent={currentTheme.accent} size={36} />
               <div className="flex flex-col text-left">
-                <span className="text-[9px] font-bold uppercase tracking-widest opacity-60">Reading Progress</span>
-                <span className="text-xs font-serif font-bold">
-                  {scrollProgress >= 98 ? 'Completed 🎉' : `${Math.round(scrollProgress)}% read`}
+                <span className="text-[9px] font-bold uppercase tracking-widest opacity-60 flex items-center gap-1">
+                  <span>Reading Dial</span>
+                  {readSeconds > 0 && <span className="opacity-40">• {Math.floor(readSeconds / 60)}m</span>}
+                </span>
+                <span className="text-xs font-serif font-bold flex items-center gap-1.5">
+                  {scrollProgress >= 95 ? (
+                    <span className="text-juice-orange font-black flex items-center gap-1">
+                      <span>Completed</span>
+                      <span>✦</span>
+                    </span>
+                  ) : (
+                    <span>{Math.round(scrollProgress)}% read</span>
+                  )}
                 </span>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </>
       )}
