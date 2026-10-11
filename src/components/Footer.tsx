@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Footer = () => {
   return (
-    <footer id="hub-colophon" className="w-full bg-[#5D8246] text-[#FFFDD0] border-t border-[#FFFDD0]/20 py-16 md:py-20 px-6 sm:px-10">
+    <footer id="hub-colophon" className="scroll-mt-20 w-full bg-[#5D8246] text-[#FFFDD0] border-t border-[#FFFDD0]/20 py-16 md:py-20 px-6 sm:px-10">
       <div className="max-w-4xl mx-auto text-center space-y-8">
         
         <div className="space-y-2">

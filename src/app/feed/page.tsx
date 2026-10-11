@@ -15,9 +15,17 @@ import { EditorialMonogramPoster } from "@/components/EditorialMonogramPoster";
 import { StaticOrangeCompass } from "@/components/StaticOrangeCompass";
 import { decodeHtmlEntities } from "@/lib/textUtils";
 import { getExplorerRank, getCurrentMultiplier } from "@/lib/gamification";
-import { CompassScrollWheel } from "@/components/CompassScrollWheel";
+import { ScrollRail } from "@/components/ScrollRail";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from 'next/link';
+
+const HUB_SECTIONS = [
+  { id: 'hub-dispatch', label: 'DISPATCH' },
+  { id: 'hub-lead', label: 'COVER' },
+  { id: 'hub-desks', label: 'DESKS' },
+  { id: 'hub-salon', label: 'SALON' },
+  { id: 'hub-colophon', label: 'COLOPHON' },
+];
 
 export default function FeedPage() {
   const { profile } = useProfile();
@@ -157,14 +165,14 @@ export default function FeedPage() {
       {/* Sticky Masthead Navigation */}
       <AppHeader />
 
-      {/* Navigational Compass Scroll Wheel (Graduated horizontal markers on right side) */}
-      <CompassScrollWheel />
+      {/* Premium Vertical Scroll Progress & Navigation Rail (ArtCraft Interaction Pattern) */}
+      <ScrollRail sections={HUB_SECTIONS} navOffset={72} />
 
       {/* Main Continuous Editorial Broadsheet */}
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:pl-10 lg:pr-24 xl:pr-28 2xl:pr-32 py-8 sm:py-12 space-y-12 sm:space-y-16 relative z-10">
         
         {/* SECTION 1: EDITORIAL WELCOME & MASTHEAD DISPATCH */}
-        <section id="hub-dispatch" className="border-b border-[#FFFDD0]/15 pb-10 sm:pb-12 space-y-6">
+        <section id="hub-dispatch" className="scroll-mt-20 border-b border-[#FFFDD0]/15 pb-10 sm:pb-12 space-y-6">
           
           {/* Top Folio Dateline */}
           <div className="flex flex-wrap items-center justify-between gap-3 text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-[#FFFDD0]/70 border-b border-[#FFFDD0]/15 pb-4">
@@ -257,7 +265,7 @@ export default function FeedPage() {
         {featuredStory && (
           <section 
             id="hub-lead" 
-            className="bg-white/5 text-[#FFFDD0] border border-[#FFFDD0]/25 rounded-3xl p-6 sm:p-8 lg:p-12 shadow-2xl hover:border-[#EA580C]/60 transition-all backdrop-blur-xs"
+            className="scroll-mt-20 bg-white/5 text-[#FFFDD0] border border-[#FFFDD0]/25 rounded-3xl p-6 sm:p-8 lg:p-12 shadow-2xl hover:border-[#EA580C]/60 transition-all backdrop-blur-xs"
           >
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-12 items-center">
               
@@ -375,7 +383,7 @@ export default function FeedPage() {
         )}
 
         {/* SECTION 3: THE 5 CURATED PRESTIGE DESKS */}
-        <section id="hub-desks" className="space-y-6">
+        <section id="hub-desks" className="scroll-mt-20 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-[#FFFDD0]/15 pb-4">
             <div>
               <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#EA580C] font-bold block mb-1">
@@ -478,7 +486,7 @@ export default function FeedPage() {
         </section>
 
         {/* SECTION 4: THE LIVE SALON COLLECTION */}
-        <section id="hub-salon" className="space-y-6 pt-4">
+        <section id="hub-salon" className="scroll-mt-20 space-y-6 pt-4">
           
           {/* Header & Source Filter Chips */}
           <div className="space-y-4 border-b border-[#FFFDD0]/15 pb-6">
