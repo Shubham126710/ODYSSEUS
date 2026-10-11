@@ -3126,6 +3126,43 @@ body {
 .border-forest {
   border-color: rgba(255, 253, 208, 0.15) !important;
 }
+/* Stacking Context & Modal Armor */
+.z-modal {
+  z-index: 9999 !important;
+}
+.z-modal-backdrop {
+  z-index: 9998 !important;
+}
+.modal-parchment {
+  background-color: #FAF7EE !important;
+  color: #131E15 !important;
+}
+/* Fallback utilities for missing Tailwind v4 classes */
+.text-stone-900 { color: #1c1917 !important; }
+.text-stone-800 { color: #292524 !important; }
+.text-stone-700 { color: #44403c !important; }
+.text-stone-600 { color: #57534e !important; }
+.text-stone-500 { color: #78716c !important; }
+.text-stone-400 { color: #a8a29e !important; }
+.text-stone-300 { color: #d6d3d1 !important; }
+.text-stone-200 { color: #e7e5e4 !important; }
+.text-stone-100 { color: #f5f5f4 !important; }
+.bg-stone-50 { background-color: #fafaf9 !important; }
+.bg-stone-100 { background-color: #f5f5f4 !important; }
+.bg-stone-200 { background-color: #e7e5e4 !important; }
+.bg-stone-300 { background-color: #d6d3d1 !important; }
+.bg-stone-800 { background-color: #292524 !important; }
+.bg-stone-900 { background-color: #1c1917 !important; }
+.border-stone-100 { border-color: #f5f5f4 !important; }
+.border-stone-200 { border-color: #e7e5e4 !important; }
+.border-stone-300 { border-color: #d6d3d1 !important; }
+.border-stone-400 { border-color: #a8a29e !important; }
+/* Arbitrary z-indexes that were missing in compiled CSS */
+.z-60 { z-index: 9998 !important; }
+.z-70 { z-index: 9999 !important; }
+.z-80 { z-index: 9998 !important; }
+.z-90 { z-index: 9999 !important; }
+.z-120 { z-index: 9999 !important; }
 @property --tw-translate-x {
   syntax: "*";
   inherits: false;

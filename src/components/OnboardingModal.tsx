@@ -181,13 +181,17 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md">
+      <div 
+        style={{ zIndex: 9999 }}
+        className="fixed inset-0 z-modal flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md"
+      >
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="relative w-full max-w-2xl bg-white rounded-2xl sm:rounded-3xl border border-stone-200/90 shadow-2xl overflow-hidden flex flex-col max-h-[88vh]"
+          style={{ backgroundColor: '#FAF7EE', color: '#131E15' }}
+          className="relative w-full max-w-2xl rounded-2xl sm:rounded-3xl border border-[#131E15]/15 shadow-2xl overflow-hidden flex flex-col max-h-[88vh]"
         >
           {/* Top Editorial Bar */}
           <div className="px-6 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/70 shrink-0">

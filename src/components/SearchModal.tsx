@@ -65,7 +65,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-60 bg-black/60 backdrop-blur-md"
+            style={{ zIndex: 9998 }}
+            className="fixed inset-0 z-modal-backdrop bg-black/60 backdrop-blur-md"
           />
 
           {/* Search Panel */}
@@ -74,9 +75,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed top-0 left-0 right-0 z-70 pt-8 px-4"
+            style={{ zIndex: 9999 }}
+            className="fixed top-0 left-0 right-0 z-modal pt-8 px-4"
           >
-            <div className="max-w-[580px] mx-auto bg-white rounded-2xl border border-stone-200/90 shadow-2xl overflow-hidden">
+            <div 
+              style={{ backgroundColor: '#FAF7EE', color: '#131E15' }}
+              className="max-w-[580px] mx-auto rounded-2xl border border-[#131E15]/15 shadow-2xl overflow-hidden"
+            >
               {/* Search Input Row */}
               <div className="flex items-center gap-3 px-5 py-4 border-b border-stone-100">
                 <svg className="w-5 h-5 shrink-0 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

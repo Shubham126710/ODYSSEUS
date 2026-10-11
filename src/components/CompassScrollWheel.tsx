@@ -6,23 +6,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface SectionMilestone {
   id: string;
+  num: string;
+  name: string;
   label: string;
   cardinal: string;
-  degrees: number;
 }
 
 const MILESTONES: SectionMilestone[] = [
-  { id: 'hub-dispatch', label: 'Folio Dispatch', cardinal: 'N', degrees: 0 },
-  { id: 'hub-lead', label: 'Lead Cover', cardinal: 'E', degrees: 90 },
-  { id: 'hub-desks', label: 'Curated Desks', cardinal: 'S', degrees: 180 },
-  { id: 'hub-salon', label: 'Salon Archive', cardinal: 'W', degrees: 270 },
-  { id: 'hub-colophon', label: 'Colophon', cardinal: 'N', degrees: 360 },
+  { id: 'hub-dispatch', num: '01', name: 'DISPATCH', label: 'Folio Dispatch', cardinal: 'N' },
+  { id: 'hub-lead', num: '02', name: 'COVER', label: 'Lead Cover', cardinal: 'E' },
+  { id: 'hub-desks', num: '03', name: 'DESKS', label: 'Curated Desks', cardinal: 'S' },
+  { id: 'hub-salon', num: '04', name: 'SALON', label: 'Salon Collection', cardinal: 'W' },
+  { id: 'hub-colophon', num: '05', name: 'COLOPHON', label: 'Colophon', cardinal: 'N' },
 ];
 
-export const CompassScrollWheel = () => {
+export const CompassScrollWheel: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState(0); // 0 to 1
   const [degrees, setDegrees] = useState(0); // 0 to 360
-  const [activeMilestone, setActiveMilestone] = useState(MILESTONES[0]);
+  const [activeMilestone, setActiveMilestone] = useState<SectionMilestone>(MILESTONES[0]);
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -76,181 +77,244 @@ export const CompassScrollWheel = () => {
     }
   };
 
-  // Interactive scrubbing on the wheel track
-  const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!trackRef.current) return;
+  // Scrubbing logic for clicking / dragging
+  const scrubToClientY = useCallback((clientY: number, smooth: boolean = false) => {
+    if (!trackRef.current || typeof window === 'undefined') return;
     const rect = trackRef.current.getBoundingClientRect();
-    const clickY = e.clientY - rect.top;
-    const percent = Math.min(Math.max(clickY / rect.height, 0), 1);
-    
+    const relativeY = clientY - rect.top;
+    const percent = Math.min(Math.max(relativeY / rect.height, 0), 1);
+
     const docElem = document.documentElement;
     const totalHeight = docElem.scrollHeight - docElem.clientHeight;
     window.scrollTo({
       top: percent * totalHeight,
-      behavior: 'smooth'
+      behavior: smooth ? 'smooth' : 'auto',
     });
+  }, []);
+
+  const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    scrubToClientY(e.clientY, true);
   };
 
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    scrubToClientY(e.clientY, false);
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      scrubToClientY(e.clientY, false);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, scrubToClientY]);
+
+  // 41 ticks from 0% to 100% (every 2.5%)
+  const TICK_COUNT = 41;
+
   return (
-    <aside 
-      className="hidden xl:flex fixed right-4 2xl:right-8 top-1/2 -translate-y-1/2 z-40 flex-col items-center select-none"
-      aria-label="Compass Navigational Wheel"
+    <aside
+      className="hidden lg:flex fixed right-0 top-20 bottom-5 z-40 w-16 sm:w-20 select-none pointer-events-auto flex-col items-center justify-between py-2 pr-1.5 pl-1"
+      aria-label="Precision Navigation Ruler"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Outer Shell Card */}
-      <div className="relative flex flex-col items-center bg-[#5D8246]/95 backdrop-blur-md border border-[#FFFDD0]/30 rounded-full py-4 px-2 shadow-[0_12px_36px_rgba(0,0,0,0.35)] hover:shadow-[0_16px_45px_rgba(234,88,12,0.35)] hover:border-[#EA580C]/70 transition-all duration-300 text-white">
-        
-        {/* Top Mini Compass Astrolabe (Rotating Needle) */}
-        <button
-          onClick={() => scrollToMilestone('hub-dispatch')}
-          className="group relative flex flex-col items-center justify-center p-1 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
-          title="Scroll to top of broadsheet"
+      {/* Top Astrolabe Mini Compass */}
+      <button
+        onClick={() => scrollToMilestone('hub-dispatch')}
+        className="group relative flex flex-col items-center justify-center p-1.5 rounded-full bg-black/20 hover:bg-black/35 border border-white/20 transition-all cursor-pointer mb-2 shrink-0 shadow-lg"
+        title="Scroll to broadsheet head (01 DISPATCH)"
+      >
+        <div
+          className="w-6 h-6 transition-transform duration-150 ease-out"
+          style={{ transform: `rotate(${degrees}deg)` }}
         >
-          <div 
-            className="w-7 h-7 transition-transform duration-200 ease-out"
-            style={{ transform: `rotate(${degrees}deg)` }}
-          >
-            <StaticOrangeCompass className="w-full h-full drop-shadow-xs" />
-          </div>
-          <span className="font-mono text-[9px] font-bold text-white/80 uppercase tracking-widest mt-1">
-            {degrees.toString().padStart(3, '0')}°
-          </span>
-          <span className="font-mono text-[8px] font-black text-[#EA580C] uppercase tracking-wider">
-            {getCardinal(degrees)}
-          </span>
-        </button>
+          <StaticOrangeCompass className="w-full h-full drop-shadow-xs" />
+        </div>
+        <span className="font-mono text-[7px] font-black text-white/70 uppercase tracking-wider mt-0.5">
+          {degrees}°
+        </span>
+      </button>
 
-        {/* Divider hairline */}
-        <div className="w-4 h-px bg-white/15 my-2" />
+      {/* Main Track: Vertical Ruler with Rotated Section Markers */}
+      <div className="relative flex-1 w-full flex items-stretch justify-between my-1">
+        
+        {/* Left Column: Vertical Rotated Section Milestone Tags */}
+        <div className="flex flex-col justify-between py-1 items-center pr-1">
+          {MILESTONES.map((m) => {
+            const isActive = activeMilestone.id === m.id;
+            return (
+              <button
+                key={m.id}
+                onClick={() => scrollToMilestone(m.id)}
+                className={`group flex items-center gap-1 transition-all duration-200 cursor-pointer text-left py-1 ${
+                  isActive
+                    ? 'text-[#EA580C] font-black scale-105'
+                    : 'text-white/40 hover:text-white/90 font-semibold'
+                }`}
+                title={`Jump to ${m.num} / ${m.label}`}
+              >
+                {/* Active Orange Pip */}
+                <span
+                  className={`w-1.5 h-1.5 rounded-full transition-all shrink-0 ${
+                    isActive
+                      ? 'bg-[#EA580C] shadow-[0_0_6px_#EA580C]'
+                      : 'bg-white/20 group-hover:bg-white/60'
+                  }`}
+                />
 
-        {/* The Vertical Compass Ruler / Horizontal Tick Marks Tape */}
-        <div 
+                {/* Vertical Rotated Text (Swiss Technical Label) */}
+                <span
+                  style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+                  className="font-mono text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap"
+                >
+                  {m.num} {m.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right Rail: Precision Technical Graduated Ruler Tape */}
+        <div
           ref={trackRef}
           onClick={handleTrackClick}
-          className="relative w-8 h-56 my-1 flex flex-col items-center justify-center cursor-pointer group"
-          title="Click to scrub navigational position"
+          onMouseDown={handleMouseDown}
+          className="relative flex-1 max-w-[28px] h-full flex flex-col items-end cursor-pointer group pr-0.5"
+          title="Click or drag to scrub scroll position"
         >
-          {/* Subtle vertical spine track */}
-          <div className="absolute top-0 bottom-0 w-[1px] bg-white/20 group-hover:bg-white/30 transition-colors" />
+          {/* Subtle Vertical Hairline Axis */}
+          <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-white/20 group-hover:bg-white/35 transition-colors" />
 
-          {/* Active Progress Fill Spine */}
-          <div 
-            className="absolute top-0 w-[2px] bg-[#EA580C] transition-[height] duration-150 ease-out"
+          {/* Active Fill Spine (Hermès Orange progress tape) */}
+          <div
+            className="absolute right-0 top-0 w-[2px] bg-[#EA580C] transition-[height] duration-75 ease-out shadow-[0_0_8px_rgba(234,88,12,0.8)]"
             style={{ height: `${scrollProgress * 100}%` }}
           />
 
-          {/* 25 Horizontal Compass Tick Lines (Gauge markers) */}
-          <div className="relative w-full h-full flex flex-col justify-between py-1 pointer-events-none">
-            {Array.from({ length: 25 }).map((_, index) => {
-              const markerProgress = index / 24;
-              const isMajor = index % 6 === 0; // 0, 6, 12, 18, 24 (Major Cardinal ticks)
-              const isMedium = index % 3 === 0 && !isMajor; // Intermediate ticks
-              const isActive = Math.abs(scrollProgress - markerProgress) < 0.04;
+          {/* Graduated Horizontal Tick Lines */}
+          <div className="relative w-full h-full flex flex-col justify-between pointer-events-none py-0.5">
+            {Array.from({ length: TICK_COUNT }).map((_, index) => {
+              const tickPercent = index / (TICK_COUNT - 1);
+              const isMajor = index % 8 === 0; // 0%, 20%, 40%, 60%, 80%, 100%
+              const isMedium = index % 4 === 0 && !isMajor;
+              const isNearActive = Math.abs(scrollProgress - tickPercent) < 0.02;
 
               return (
-                <div 
-                  key={index} 
-                  className="flex items-center justify-center w-full relative"
+                <div
+                  key={index}
+                  className="flex items-center justify-end w-full relative"
                 >
-                  <span
-                    className={`transition-all duration-200 rounded-full ${
-                      isActive
-                        ? 'w-7 h-[2px] bg-[#EA580C] shadow-[0_0_8px_rgba(234,88,12,0.9)]'
-                        : isMajor
-                        ? 'w-5 h-[1.5px] bg-white/90'
-                        : isMedium
-                        ? 'w-3.5 h-[1px] bg-white/50'
-                        : 'w-2 h-[1px] bg-white/25'
-                    }`}
-                  />
-                  {/* Subtle Major Cardinal Letter Indicator */}
+                  {/* Major Tick Percentage Numeric Label */}
                   {isMajor && (
-                    <span 
-                      className={`absolute right-[-10px] text-[7px] font-mono font-bold ${
-                        isActive ? 'text-[#EA580C]' : 'text-white/40'
+                    <span
+                      className={`absolute right-4 font-mono text-[7px] font-bold transition-colors ${
+                        isNearActive ? 'text-[#EA580C]' : 'text-white/40'
                       }`}
                     >
-                      {index === 0 ? 'N' : index === 6 ? 'E' : index === 12 ? 'S' : index === 18 ? 'W' : 'N'}
+                      {Math.round(tickPercent * 100).toString().padStart(2, '0')}
                     </span>
                   )}
+
+                  {/* Horizontal Ruler Tick Mark */}
+                  <span
+                    className={`transition-all duration-150 rounded-full ${
+                      isNearActive
+                        ? 'w-5 h-[2px] bg-[#EA580C] shadow-[0_0_8px_rgba(234,88,12,0.9)]'
+                        : isMajor
+                        ? 'w-3.5 h-[1.5px] bg-white/80'
+                        : isMedium
+                        ? 'w-2.5 h-[1px] bg-white/50'
+                        : 'w-1.5 h-[1px] bg-white/25'
+                    }`}
+                  />
                 </div>
               );
             })}
           </div>
 
-          {/* Precision Active Indicator Needle (Orange Center Crosshair) */}
-          <div 
-            className="absolute left-0 right-0 pointer-events-none flex items-center justify-between transition-all duration-100 ease-out"
+          {/* Highlighted Active Position Marker & Attached Precision Badge */}
+          <div
+            className="absolute right-0 pointer-events-none flex items-center justify-end transition-all duration-75 ease-out"
             style={{ top: `${scrollProgress * 100}%`, transform: 'translateY(-50%)' }}
           >
-            <div className="w-1.5 h-1.5 rounded-full bg-[#EA580C] shadow-[0_0_8px_#EA580C]" />
-            <div className="flex-1 h-[2px] bg-[#EA580C] mx-0.5 shadow-[0_0_6px_rgba(234,88,12,0.8)]" />
-            <div className="w-1.5 h-1.5 rounded-full bg-[#EA580C] shadow-[0_0_8px_#EA580C]" />
+            {/* Attached Live Numerical Readout Pill (inspired by getartcraft 085%✦) */}
+            <div className="mr-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/75 border border-[#EA580C]/70 shadow-lg backdrop-blur-md">
+              <span className="font-mono text-[8px] sm:text-[9px] font-black text-[#EA580C] tracking-tight">
+                {Math.round(scrollProgress * 100).toString().padStart(3, '0')}%
+              </span>
+              <span className="text-[7px] text-[#EA580C]">✦</span>
+            </div>
+
+            {/* Glowing Active Slider Line */}
+            <div className="w-5 h-[2.5px] rounded-full bg-[#EA580C] shadow-[0_0_10px_#EA580C]" />
           </div>
-        </div>
-
-        {/* Divider hairline */}
-        <div className="w-4 h-px bg-white/15 my-2" />
-
-        {/* Bottom Percentage Readout */}
-        <div className="flex flex-col items-center">
-          <span className="font-mono text-[9px] font-bold text-white">
-            {Math.round(scrollProgress * 100)}%
-          </span>
-          <span className="font-mono text-[7px] font-bold uppercase tracking-widest text-white/50">
-            HEAD
-          </span>
         </div>
 
       </div>
 
-      {/* Expanded Astrolabe Section Popout Drawer on Hover */}
+      {/* Bottom Cardinal Readout */}
+      <div className="mt-2 shrink-0 flex flex-col items-center">
+        <span className="font-mono text-[8px] font-black text-[#EA580C] uppercase tracking-wider">
+          {getCardinal(degrees)}
+        </span>
+        <span className="font-mono text-[7px] text-white/50 uppercase tracking-widest">
+          AXIS
+        </span>
+      </div>
+
+      {/* Expanded Quick-Jump Drawer on Hover (Optional Popout) */}
       <AnimatePresence>
         {isHovered && (
           <motion.div
             initial={{ opacity: 0, x: 10, scale: 0.95 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 10, scale: 0.95 }}
-            transition={{ duration: 0.18 }}
-            className="absolute right-14 top-1/2 -translate-y-1/2 w-48 bg-[#5D8246]/95 backdrop-blur-xl border border-[#FFFDD0]/30 rounded-2xl p-3.5 shadow-2xl text-white pointer-events-auto"
+            transition={{ duration: 0.16 }}
+            className="absolute right-18 top-1/2 -translate-y-1/2 w-48 bg-[#4D6E39]/95 backdrop-blur-xl border border-[#FFFDD0]/30 rounded-2xl p-3 shadow-2xl text-white pointer-events-auto"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/15 pb-2 mb-2.5">
-              <span className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#EA580C]">
-                ✦ Compass Index
+            <div className="flex items-center justify-between border-b border-white/15 pb-2 mb-2">
+              <span className="text-[9px] font-mono font-bold uppercase tracking-[0.18em] text-[#EA580C]">
+                ✦ Chrono Nav
               </span>
-              <span className="text-[9px] font-mono font-bold text-white/70">
-                {degrees}° {getCardinal(degrees)}
+              <span className="text-[9px] font-mono font-bold text-white/80">
+                {Math.round(scrollProgress * 100)}%
               </span>
             </div>
 
-            {/* Quick-jump milestone links */}
-            <div className="space-y-1 font-mono text-xs">
+            <div className="space-y-1">
               {MILESTONES.map((m) => {
                 const isActive = activeMilestone.id === m.id;
                 return (
                   <button
                     key={m.id}
                     onClick={() => scrollToMilestone(m.id)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all ${
+                    className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-left transition-all ${
                       isActive
                         ? 'bg-[#EA580C] text-white font-bold shadow-md'
                         : 'text-white/80 hover:bg-white/10 hover:text-white'
                     }`}
                   >
-                    <span className="text-[11px] truncate">{m.label}</span>
-                    <span className={`text-[9px] font-bold ${isActive ? 'text-white' : 'text-white/40'}`}>
-                      {m.cardinal} {m.degrees}°
+                    <span className="font-mono text-[10px] truncate">
+                      {m.num} {m.label}
+                    </span>
+                    <span className={`text-[9px] font-mono ${isActive ? 'text-white' : 'text-white/50'}`}>
+                      {m.cardinal}
                     </span>
                   </button>
                 );
               })}
-            </div>
-
-            {/* Footer advice */}
-            <div className="mt-2.5 pt-2 border-t border-white/10 text-[9px] font-mono text-white/40 text-center uppercase tracking-wider">
-              Click marker to navigate
             </div>
           </motion.div>
         )}

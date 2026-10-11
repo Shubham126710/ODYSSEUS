@@ -300,7 +300,8 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => { stopSpeaking(); onClose(); }}
-            className="fixed inset-0 bg-black/65 backdrop-blur-md z-[80]"
+            style={{ zIndex: 9998 }}
+            className="fixed inset-0 bg-black/65 backdrop-blur-md z-modal-backdrop"
           />
 
           <motion.div
@@ -310,8 +311,8 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
             transition={{ type: 'spring', damping: 28, stiffness: 240 }}
             data-lenis-prevent="true"
             data-lenis-prevent
-            style={{ backgroundColor: currentTheme.bg, color: currentTheme.text }}
-            className="fixed inset-0 top-2 md:top-6 md:inset-x-8 md:bottom-3 rounded-t-3xl md:rounded-3xl shadow-2xl z-[90] overflow-hidden flex flex-col transition-colors duration-300"
+            style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, zIndex: 9999 }}
+            className="fixed inset-0 top-2 md:top-6 md:inset-x-8 md:bottom-3 rounded-t-3xl md:rounded-3xl shadow-2xl z-modal overflow-hidden flex flex-col transition-colors duration-300"
           >
             {/* Top Linear Reading Progress Meter (Clean indicator at the top of the article) */}
             <div className="w-full h-1 z-50 bg-black/10 shrink-0 relative overflow-hidden">

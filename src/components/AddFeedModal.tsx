@@ -128,15 +128,20 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[60]"
+            style={{ zIndex: 9998 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-modal-backdrop"
           />
           <motion.div 
             initial={{ opacity: 0, scale: 0.96, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 15 }}
-            className="fixed inset-0 m-auto w-full max-w-3xl h-fit max-h-[90vh] z-[70] px-4"
+            style={{ zIndex: 9999 }}
+            className="fixed inset-0 m-auto w-full max-w-3xl h-fit max-h-[90vh] z-modal px-4"
           >
-            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-stone-200/90">
+            <div 
+              style={{ backgroundColor: '#FAF7EE', color: '#131E15' }}
+              className="rounded-3xl shadow-2xl overflow-hidden border border-[#131E15]/15"
+            >
               
               {/* Header */}
               <div className="p-6 sm:p-8 pb-0 flex justify-between items-start">

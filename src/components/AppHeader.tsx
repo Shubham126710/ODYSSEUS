@@ -234,7 +234,10 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
 
                 {/* Sleek Floating Chamber Popover */}
                 {isStatsOpen && (
-                  <div className="absolute right-0 top-full mt-3 w-80 bg-white text-stone-900 rounded-2xl p-5 shadow-2xl border border-stone-200 z-50 origin-top-right animate-in fade-in zoom-in-95 duration-150">
+                  <div 
+                    style={{ zIndex: 9999, backgroundColor: '#FAF7EE', color: '#131E15' }}
+                    className="absolute right-0 top-full mt-3 w-80 rounded-2xl p-5 shadow-2xl border border-[#131E15]/15 z-modal origin-top-right animate-in fade-in zoom-in-95 duration-150"
+                  >
                     
                     {/* Header */}
                     <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">

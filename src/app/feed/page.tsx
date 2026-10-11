@@ -161,7 +161,7 @@ export default function FeedPage() {
       <CompassScrollWheel />
 
       {/* Main Continuous Editorial Broadsheet */}
-      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 xl:pr-24 2xl:pr-28 py-8 sm:py-12 space-y-12 sm:space-y-16 relative z-10">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:pl-10 lg:pr-24 xl:pr-28 2xl:pr-32 py-8 sm:py-12 space-y-12 sm:space-y-16 relative z-10">
         
         {/* SECTION 1: EDITORIAL WELCOME & MASTHEAD DISPATCH */}
         <section id="hub-dispatch" className="border-b border-[#FFFDD0]/15 pb-10 sm:pb-12 space-y-6">
