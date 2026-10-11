@@ -3,26 +3,44 @@
 @theme {
   --color-juice-green: #5D8246;
   --color-juice-cream: #FFFDD0;
-  --color-juice-orange: #FF6B4A;
-  --color-juice-blue: #A0D2EB;
-  --font-serif: Georgia, "Times New Roman", Cambria, serif;
+  --color-juice-orange: #EA580C;
+  --color-vellum: #F6F3EB;
+  --color-paper: #FAF7F0;
+  --color-ink: #181715;
+  --font-serif: "Iowan Old Style", "Apple Garamond", Baskerville, "Times New Roman", "Droid Serif", Times, Source Serif Pro, Georgia, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 :root {
-  --background: #FAF9F6;
-  --foreground: #141518;
+  --background: #F6F3EB;
+  --foreground: #181715;
 }
 
 html, body {
-  background-color: #FAF9F6;
-  color: #141518;
+  background-color: #F6F3EB;
+  color: #181715;
   font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle, tactile archival paper micro-texture pattern */
+.bg-vellum-texture {
+  background-color: #F6F3EB;
+  background-image: radial-gradient(rgba(50, 40, 30, 0.06) 0.75px, transparent 0.75px);
+  background-size: 20px 20px;
+}
+
+/* Editorial double hairline borders */
+.border-editorial-double {
+  border-bottom: 3px double rgba(40, 32, 24, 0.22);
+}
+
+.border-editorial-top-double {
+  border-top: 3px double rgba(40, 32, 24, 0.22);
 }
 
 @keyframes marquee {
