@@ -27,7 +27,7 @@ export const TrendingTicker: React.FC<TrendingTickerProps> = ({
     >
       {/* Static "TRENDING" Label */}
       <div className="h-full flex items-center px-3 sm:px-4 bg-juice-orange shrink-0 border-r border-juice-cream/20 z-10">
-        <div className="flex items-center gap-1.5 font-mono font-bold text-[10px] tracking-widest uppercase text-juice-cream">
+        <div className="flex items-center gap-4 font-mono font-bold text-[10px] tracking-widest uppercase text-juice-cream">
           <span className="w-1.5 h-1.5 rounded-full bg-juice-cream animate-pulse shrink-0" />
           <span>TRENDING</span>
         </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { StaticOrangeCompass } from './StaticOrangeCompass';
+import { CompassNavBar } from './CompassNavBar';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter, usePathname } from 'next/navigation';
@@ -135,52 +136,10 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
             </span>
           </Link>
 
-          {/* Channels Navigation */}
-          <nav className="hidden md:flex items-center gap-6 xl:gap-8 shrink-0">
-            <Link 
-              href="/feed" 
-              className={`text-xs font-mono font-bold tracking-widest uppercase transition-colors relative py-1.5 ${
-                pathname === '/feed' 
-                  ? 'text-white' 
-                  : 'text-white/60 hover:text-white'
-              }`}
-            >
-              FOR YOU
-              {pathname === '/feed' && (
-                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FF6B4A] rounded-full" />
-              )}
-            </Link>
-
-            {tabs.map((item) => {
-              const cleanItem = String(item).trim();
-              const isActive = pathname === `/feed/${cleanItem.toLowerCase()}`;
-              return (
-                <Link 
-                  key={cleanItem} 
-                  href={`/feed/${cleanItem.toLowerCase()}`}
-                  className={`text-xs font-mono font-bold tracking-widest uppercase transition-colors relative py-1.5 ${
-                    isActive 
-                      ? 'text-white' 
-                      : 'text-white/60 hover:text-white'
-                  }`}
-                >
-                  {cleanItem.toUpperCase()}
-                  {isActive && (
-                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FF6B4A] rounded-full" />
-                  )}
-                </Link>
-              );
-            })}
-
-            <button 
-              onClick={() => setIsCustomizeOpen(true)} 
-              className="w-5 h-5 rounded-full border border-white/20 hover:border-white text-white/50 hover:text-white flex items-center justify-center transition-colors shrink-0" 
-              title="Customize Channels"
-              aria-label="Customize Channels"
-            >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </button>
-          </nav>
+          {/* Center Compass Navigation Bar */}
+          <div className="flex-1 flex justify-center px-2 min-w-0">
+            <CompassNavBar />
+          </div>
 
           {/* Right Utilities */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">

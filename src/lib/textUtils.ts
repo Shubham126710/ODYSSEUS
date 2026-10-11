@@ -49,3 +49,79 @@ export function cleanExcerpt(raw: string, maxLength: number = 180): string {
   if (sanitized.length <= maxLength) return sanitized;
   return sanitized.substring(0, maxLength).trim() + '...';
 }
+
+/**
+ * Cleans raw source names: strips feed breadcrumbs (e.g. "NYT > TOP STORIES" -> "NYT")
+ */
+export function cleanSource(raw?: string): string {
+  if (!raw) return 'DISPATCH';
+  let s = raw.trim();
+  // Strip breadcrumbs like "> Top Stories" or "| Tech"
+  if (s.includes('>')) s = s.split('>')[0].trim();
+  if (s.includes('|')) s = s.split('|')[0].trim();
+  if (s.includes(' - ')) s = s.split(' - ')[0].trim();
+  
+  // Specific normalization for popular sources
+  const upper = s.toUpperCase();
+  if (upper.includes('NEW YORK TIMES') || upper === 'NYT') return 'NYT';
+  if (upper.includes('THE VERGE') || upper === 'VERGE') return 'THE VERGE';
+  if (upper.includes('TECHCRUNCH')) return 'TECHCRUNCH';
+  if (upper.includes('WIRED')) return 'WIRED';
+  if (upper.includes('BLOOMBERG')) return 'BLOOMBERG';
+  if (upper.includes('BBC')) return 'BBC NEWS';
+  if (upper.includes('REUTERS')) return 'REUTERS';
+  if (upper.includes('ATLANTIC')) return 'THE ATLANTIC';
+  if (upper.includes('ARS TECHNICA')) return 'ARS TECHNICA';
+  if (upper.includes('QUANTA')) return 'QUANTA';
+  if (upper.includes('NATURE')) return 'NATURE';
+
+  return s.toUpperCase();
+}
+
+const VALID_REAL_CATEGORIES = new Set([
+  'TECH',
+  'DESIGN',
+  'CULTURE',
+  'SCIENCE',
+  'SPORTS',
+]);
+
+/**
+ * Returns category only when it is a recognized real editorial category (Tech, Design, Culture, Science, Sports).
+ * Filters out raw feeds like "GENERAL", "TOP STORIES", "NEWS", etc.
+ */
+export function cleanCategory(raw?: string): string | null {
+  if (!raw) return null;
+  const upper = raw.trim().toUpperCase();
+  if (VALID_REAL_CATEGORIES.has(upper)) {
+    return upper;
+  }
+  // Check substring matches
+  for (const cat of VALID_REAL_CATEGORIES) {
+    if (upper.includes(cat)) {
+      return cat;
+    }
+  }
+  return null;
+}
+
+/**
+ * Hides read time unless it is computed from actual article content (> 1 min).
+ * "1 MIN" placeholder on every RSS item is suppressed.
+ */
+export function computeReadTime(story: { content?: string; excerpt?: string; readTime?: string }): string | null {
+  if (story.content && story.content.length > 500) {
+    const words = story.content.replace(/<[^>]+>/g, ' ').split(/\s+/).length;
+    const minutes = Math.ceil(words / 200);
+    if (minutes >= 2) {
+      return `${minutes} MIN`;
+    }
+  }
+  if (story.readTime) {
+    const trimmed = story.readTime.trim().toUpperCase();
+    if (trimmed !== '1 MIN' && trimmed !== '1 MIN READ' && trimmed !== '1M' && !trimmed.startsWith('1 ')) {
+      return story.readTime.toUpperCase();
+    }
+  }
+  return null;
+}

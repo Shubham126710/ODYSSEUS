@@ -125,10 +125,11 @@ export default function CategoryFeedPage() {
         {/* 2. Story List */}
         {visibleStories.length > 0 && (
           <section aria-label={`${category} Stories`} className="space-y-0">
-            {visibleStories.map((story) => (
+            {visibleStories.map((story, idx) => (
               <StoryListRow
                 key={story.id || story.link}
                 story={story}
+                index={idx}
                 onSelectStory={setActiveArticle}
                 onToggleSave={handleToggleSave}
                 isSaved={isSaved}
@@ -136,11 +137,11 @@ export default function CategoryFeedPage() {
             ))}
 
             {hasMoreStories && (
-              <div className="text-center pt-10 pb-6">
+              <div className="text-center pt-8 pb-4">
                 <button
                   type="button"
                   onClick={() => setVisibleCount((c) => c + 8)}
-                  className="font-mono text-xs uppercase tracking-widest text-juice-cream/70 hover:text-juice-cream underline underline-offset-8 transition-colors cursor-pointer"
+                  className="font-mono text-xs uppercase tracking-widest text-juice-cream/70 hover:text-juice-cream transition-colors cursor-pointer"
                 >
                   Load more stories ↓
                 </button>
@@ -150,7 +151,7 @@ export default function CategoryFeedPage() {
         )}
 
         {/* Editorial Colophon Line */}
-        <footer className="border-t border-juice-cream/15 pt-8 pb-12 text-center text-juice-cream/40 font-mono text-[10px] sm:text-[11px] uppercase tracking-widest">
+        <footer className="border-t border-juice-cream/15 pt-8 pb-12 text-center text-juice-cream/60 font-mono text-[10px] sm:text-[11px] uppercase tracking-widest">
           Odysseus · {category.toUpperCase()} · Curated slow journalism
         </footer>
 
