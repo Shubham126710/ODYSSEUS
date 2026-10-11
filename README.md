@@ -3,10 +3,10 @@
   <img src="public/logo.svg" alt="Odysseus Compass Logo" width="108" height="108" />
 
   # ODYSSEUS
-  ### *The Slow-Journalism Salon & High-Fashion News Aggregator*
+  ### *The Living Book Salon & Slow-Journalism Broadsheet*
 
   <p align="center">
-    <strong>An ultra-premium, gamified broadside magazine designed for curiosity, deep reading, and distraction-free prose.</strong>
+    <strong>An ultra-premium, bookish editorial broadside designed for intellectual curiosity, deep reading, and distraction-free prose.</strong>
   </p>
 
   <p align="center">
@@ -14,41 +14,83 @@
     <img src="https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Tailwind_CSS_v4-Juice_Theme-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
     <img src="https://img.shields.io/badge/Supabase-Auth_%26_PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
-    <img src="https://img.shields.io/badge/GSAP_%26_Motion-Kinetic_Spreads-88CE02?style=for-the-badge&logo=greensock&logoColor=white" alt="GSAP" />
+    <img src="https://img.shields.io/badge/Edge_Image_Proxy-Anti--Hotlinking_Bypass-243624?style=for-the-badge" alt="Image Proxy" />
     <img src="https://img.shields.io/badge/Chrome_Extension-Manifest_V3-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Chrome Extension" />
   </p>
 
   <p align="center">
     <a href="#-the-odysseus-philosophy">Philosophy</a> •
+    <a href="#-the-living-book-aesthetic--curated-desks">Living Book & 5 Desks</a> •
+    <a href="#-backend-pipeline--image-proxy-engine">Backend & Image Proxy</a> •
     <a href="#-feature-showcase-deep-dive">Feature Showcase</a> •
-    <a href="#-the-odyssey-chrome-extension">Odyssey Companion Extension</a> •
-    <a href="#-reading-chamber--radial-dial">Zen Chamber & Radial Dial</a> •
+    <a href="#-the-odyssey-chrome-companion">Odyssey Companion Extension</a> •
+    <a href="#-reading-chamber--zen-interface">Zen Chamber</a> •
     <a href="#-gamification--the-travelers-passport">Gamification & Ledger</a> •
-    <a href="#-architecture--tech-stack">Tech Stack</a> •
-    <a href="#-getting-started">Getting Started</a>
+    <a href="#-architecture--tech-stack">Tech Stack</a>
   </p>
 
 </div>
 
 ---
 
-## 🏛️ The Odysseus Philosophy
+## ✦ The Odysseus Philosophy
 
-The modern web is inundated with algorithmic rage-bait, aggressive newsletter popups, intrusive cookie walls, auto-playing video sidebars, and cluttered clickbait. Reading thoughtful, longform journalism has become an obstacle course.
+The modern web is inundated with algorithmic rage-bait, aggressive newsletter popups, intrusive cookie walls, auto-playing video sidebars, and cluttered clickbait. Reading thoughtful, slow journalism has become an obstacle course.
 
 **Odysseus is our antidote.**
 
-Built as an **ultra-premium, colorful, high-fashion editorial magazine**, Odysseus merges the physical tactility of independent print broadsides (*The New Yorker*, *Monocle*, *Kinfolk*, *Wired*) with modern web performance:
+Built as a **tactile, ultra-premium living book**, Odysseus merges the physical tactility of independent prestige print broadsides (*The New Yorker*, *The Paris Review*, *Monocle*, *Wired*, *Bloomberg Markets*) with cutting-edge web performance:
 - **Zero Noise**: No author bylines, author bios, social follow cards, newsletter subscription boxes, or tracking pixels inside your articles. Pure narrative prose only.
-- **Saturated Magazine Aesthetics**: High-fashion color palettes featuring **Juice Orange** (`#FF6B4A`), **Deep Forest Green** (`#5D8246`), **Warm Cream** (`#F5F2EB`), and vibrant gold accents.
-- **Mindful Gamification**: Cultivating a lifelong habit of daily reading through time-of-day multipliers, explorer rank elevations, streak freeze shields, and wax seal habit ledgers.
-- **True Companion Ecosystem**: Supported by **Odyssey**, a companion Chromium extension that purifies and imports any webpage into your salon with a single click.
+- **Living Book Editorial Palette**: Architectural warm parchment (`#FAF7F0` / `#F5F2EB`), pressroom forest green (`#243624` / `#5D8246`), cadmium orange accents (`#FF6B4A`), and deckle edge rules.
+- **Strict Typographic Glyph Discipline**: Zero emojis throughout all editorial interfaces. Replaced by timeless glyphs (`✦`, `◈`, `◆`, `❖`, `⬡`, `—`) and bespoke SVG vector monograms.
+- **Resilient Media Architecture**: Backed by an Edge Image Proxy and vector `EditorialMonogramPoster` fallback engine that guarantees zero broken cards or missing thumbnails across all feeds.
+- **Mindful Habit Cultivation**: Daily reading rhythm rewarded through quiet contemplation multipliers, explorer rank elevations, streak freeze shields, and a weekly print habit ledger.
 
 ---
 
-## ✨ Feature Showcase (Deep-Dive)
+## ❖ The Living Book Aesthetic & The 5 Curated Desks
 
-### 1. ✦ Instapaper & Pocket-Style Pure Prose Purification Engine
+Odysseus organizes global slow journalism across 5 prestigious editorial desks, styled like an architectural anthology:
+
+1. **The Vanguard (`/feed/tech`)** — `◈`
+   - *Domain*: Frontier computation, artificial minds, edge cryptography & digital craft.
+   - *Sources*: TechCrunch, The Verge, Wired, Ars Technica, Hacker News.
+2. **The Atelier (`/feed/design`)** — `◆`
+   - *Domain*: Typographic discipline, visual ergonomics, physical architecture & interactive form.
+   - *Sources*: Smashing Magazine, UX Collective, A List Apart, Dezeen, It's Nice That.
+3. **The Forum (`/feed/culture`)** — `✦`
+   - *Domain*: Contemporary criticism, transatlantic essays, philosophy & human affairs.
+   - *Sources*: The Atlantic, The New Yorker, Paris Review, Harper's Magazine, The Dial.
+4. **The Chronicle (`/feed/chronicle`)** — `❖`
+   - *Domain*: Global finance, macroeconomic architecture, institutional statecraft & markets.
+   - *Sources*: Bloomberg, Financial Times, The Wall Street Journal, Reuters, The Economist.
+5. **The Observatory (`/feed/science`)** — `⬡`
+   - *Domain*: Fundamental astrophysics, cosmic expeditions, quantum physics & biological frontiers.
+   - *Sources*: Scientific American, Nature, Quanta Magazine, NASA Dispatches, MIT Tech Review.
+
+---
+
+## ◈ Backend Pipeline & Image Proxy Engine
+
+On modern serverless platforms like Vercel, traditional RSS scrapers routinely fail due to 10-second edge timeouts and publisher anti-hotlinking defenses. Odysseus solves this with a **4-tier media resiliency architecture**:
+
+1. **Anti-Hotlinking Edge Proxy (`/api/image-proxy`)**:
+   - Bypasses HTTP 403 Forbidden restrictions enforced by prestige publishers (NYT, Bloomberg, Wired) by injecting dynamic `Referer: ${origin}/` and user-agent headers.
+   - Streams optimized binary images with 7-day immutable edge caching (`Cache-Control: public, s-maxage=604800, stale-while-revalidate=86400`).
+2. **Throttled Ingestion & XML Parsing (`/api/rss`)**:
+   - Extracts images across all RSS variants: `<media:content>`, `<media:thumbnail>`, `<enclosure>`, and `<media:group>`.
+   - Validates MIME types to prevent podcast/audio MP3s from being parsed as article artwork.
+   - Limits concurrent OpenGraph HTML scrapes to 4 per feed, eliminating Vercel serverless timeouts.
+3. **Automatic Client-Side Proxy Retry**:
+   - When an image fails to load on a reader's browser, `StoryCard` and `SavedStoryCard` immediately attempt fallback retrieval via the edge proxy.
+4. **Editorial Monogram Poster Engine (`EditorialMonogramPoster.tsx`)**:
+   - If a story lacks artwork or if publisher CDNs are unavailable, cards automatically render a bespoke SVG collector's print featuring the publication's monogram, architectural coordinate lines, category glyph, and deckle frame. **100% card presentation coverage is guaranteed.**
+
+---
+
+## ✦ Feature Showcase (Deep-Dive)
+
+### 1. Instapaper & Pocket-Style Pure Prose Purification Engine
 Odysseus does not simply scrape a web page and dump noisy HTML. It features an aggressive content isolation and purification pipeline:
 - **Author Byline & Bio Purging**: Strips all `By [Author]`, contributor cards, author headshots, and social follow cards. You receive only the story.
 - **Web Cruft Removal**: Purges newsletter signup forms, Substack subscription embeds, cookie banners, navigation breadcrumbs, related article link farms, and ad sidebars.
@@ -58,7 +100,7 @@ Odysseus does not simply scrape a web page and dump noisy HTML. It features an a
 
 ---
 
-### 2. 🧭 The Odyssey Chromium Companion Extension (Manifest V3)
+### 2. The Odyssey Chromium Companion Extension (Manifest V3)
 A standalone Chrome/Chromium companion extension located in [`/extension`](extension/) that turns your entire browser into an Odysseus feeder:
 - **1-Click Save**: Click the orange compass icon on your toolbar or press `Alt + Shift + S` (`Cmd + Shift + S` on Mac) to save the current page immediately.
 - **In-Page Luxury Toast Notification**: A floating cream-and-orange magazine toast appears on the webpage confirming your save with a direct link: `Read in Zen Chamber →`.
@@ -71,11 +113,11 @@ A standalone Chrome/Chromium companion extension located in [`/extension`](exten
 
 ---
 
-### 3. 📖 The Zen Chamber Reading Interface & Radial Progress Dial
+### 3. The Zen Chamber Reading Interface & Reading Progress
 Reading inside Odysseus is designed to feel like an evening in a private library:
-- **High-Fashion Radial Scroll Wheel**:
-  - **Header Dial**: Live SVG circular progress arc displaying `0%` to `100%` and a celebratory completion checkmark `✓`.
-  - **Floating Bottom-Right HUD Dial**: A tactile floating pill that shows live percentage read, elapsed minutes, and celebratory gold seal (`Completed ✦`) upon finishing the article. Clicking the HUD smoothly scrolls back to the top of the story.
+- **Clean Reading Progress Indicator**:
+  - **Header Meter**: Elegant slim reading progress indicator tracking exact percentage down the story.
+  - **Floating Tactical HUD**: A tactile floating pill that shows live percentage read, elapsed minutes, and celebratory stamp (`Completed ✦`) upon finishing the article. Clicking the HUD smoothly scrolls back to the top of the story.
 - **Typography & Theme Switcher**:
   - **Zen Night** (`#0f1117`), **Parchment Sepia** (`#f4ecd8`), and **Gallery Light** (`#ffffff`).
   - Fluid font sizing (`A-` / `A+`) and typography with generous line heights and pull quotes.
@@ -84,20 +126,20 @@ Reading inside Odysseus is designed to feel like an evening in a private library
 
 ---
 
-### 4. 🏆 Gamification Engine & The Traveler's Passport
+### 4. Gamification Engine & The Traveler's Passport
 Odysseus turns reading into a mindful, rewarding habit without gimmicks:
 - **Time-of-Day Multipliers**:
-  - 🌅 **Early Bird Boost (1.5x)**: Active 6:00 AM – 9:00 AM for mindful morning readers.
-  - 🦉 **Night Owl Salon (1.5x)**: Active 10:00 PM – 2:00 AM for late-night scholars.
-  - 🌿 **Weekend Explorer (1.25x)**: Active all day Saturday & Sunday.
+  - ✦ **Early Bird Boost (1.5x)**: Active 6:00 AM – 9:00 AM for mindful morning readers.
+  - ◆ **Night Owl Salon (1.5x)**: Active 10:00 PM – 2:00 AM for late-night scholars.
+  - ◈ **Weekend Explorer (1.25x)**: Active all day Saturday & Sunday.
 - **5 Explorer Ranks**:
   1. `Novice Wanderer` (0 – 60 mins read)
   2. `Wayfarer` (60 – 240 mins read)
   3. `Cartographer` (240 – 600 mins read)
   4. `Odyssey Vanguard` (600 – 1,200 mins read)
   5. `Grand Odyssey Master` (1,200+ mins read)
-- **Streak Shield Vault**: Dual-slot freeze vault holding streak freeze shields (`🧊`) that automatically protect your streak when traveling or offline.
-- **Interactive 7-Day Habit Ledger**: Weekly spread tracking daily read times with wax seal completion stamps (`✦`).
+- **Streak Shield Vault**: Dual-slot freeze vault holding streak freeze shields (`◈`) that automatically protect your streak when traveling or offline.
+- **Interactive 7-Day Habit Ledger**: Weekly spread tracking daily read times with wax seal completion stamps (`✓`).
 - **Hall of Odyssey Medals (8 Unlockable Achievements)**:
   - *Inaugural Voyage* (First read)
   - *Dawn Patrol* (Early morning session)
@@ -200,7 +242,8 @@ Odysseus is engineered for zero-latency interactions and bulletproof reliability
 |---|---|
 | **Core Framework** | **Next.js 16** (App Router, Turbopack, React 19) |
 | **Language** | **TypeScript 5.0** (Strict Mode) |
-| **Design Tokens & Styling** | **Tailwind CSS v4** with custom Juice palette tokens |
+| **Design Tokens & Palette** | **Tailwind CSS v4** (Living Book: `#FAF7F0`, `#243624`, `#FF6B4A`) |
+| **Media & Proxy Engine** | **Edge Image Proxy** (`/api/image-proxy`) with Referer injection & Vector Monograms |
 | **Kinetic Animations** | **GSAP 3.15**, **@gsap/react**, **Framer Motion 12** |
 | **Scrolling Engine** | **Lenis 1.3** paired with native CSS scroll-snapping (`data-lenis-prevent`) |
 | **Content Purification** | **Mozilla Readability**, **isomorphic-dompurify**, JSDOM heuristics |
@@ -210,7 +253,7 @@ Odysseus is engineered for zero-latency interactions and bulletproof reliability
 
 ---
 
-## 📁 Repository Structure
+## ✦ Repository Structure
 
 ```bash
 Odysseus/
@@ -227,24 +270,26 @@ Odysseus/
 ├── src/
 │   ├── app/
 │   │   ├── api/
+│   │   │   ├── image-proxy/   # ✦ Edge image proxy with anti-hotlinking bypass & edge cache
 │   │   │   ├── read-mode/     # Pure prose extraction & sanitation endpoint
 │   │   │   ├── read-later/    # Saved articles sync API
-│   │   │   └── rss/           # Multi-source RSS feed fetcher & clustering
-│   │   ├── feed/              # The Main Broadside Feed & Hero spread
-│   │   │   └── [category]/    # Individual category spreads (Tech, Design, etc.)
-│   │   ├── saved/             # The Pocket / Instapaper Offline Salon
-│   │   ├── profile/           # The Traveler's Ledger & Grand Odyssey Passport
+│   │   │   └── rss/           # Multi-source RSS feed fetcher with XML parsers & OG throttler
+│   │   ├── feed/              # The Main Living Book Broadsheet Feed & Hero spread
+│   │   │   └── [category]/    # The 5 Prestige Desks (Vanguard, Atelier, Forum, Chronicle, Observatory)
+│   │   ├── saved/             # The Offline Salon with Pocket/Instapaper quick purifier
+│   │   ├── profile/           # The Traveler's Dossier & Grand Odyssey Passport
 │   │   ├── settings/          # Configuration Atelier
 │   │   └── layout.tsx         # Root layout with fonts and metadata
 │   ├── components/
 │   │   ├── AppHeader.tsx      # Sticky magazine navbar & Traveler's Chamber HUD
-│   │   ├── ReadingModal.tsx   # Zen Chamber reader with Radial Scroll HUD Dial
+│   │   ├── ReadingModal.tsx   # Zen Chamber reader with progress indicator & HUD dial
+│   │   ├── EditorialMonogramPoster.tsx # ✦ Bespoke SVG graphic typography & monogram fallback
 │   │   ├── ImportArticleModal.tsx # Universal URL purification modal
 │   │   ├── OnboardingModal.tsx # 4-step cinematic traveler calibration
-│   │   └── StoryCard.tsx      # Saturated broadside article cards
+│   │   └── StoryCard.tsx      # Living book broadside cards with proxy retry & monogram fallback
 │   ├── data/
 │   │   └── prestigeSources.ts # 100+ publication directory across 5 desks
-│   ├── hooks/                 # Custom React hooks (useProfile, useSavedStories)
+│   ├── hooks/                 # Custom React hooks (useProfile, useSavedStories, useFeedFetcher)
 │   └── lib/
 │       ├── cleanArticleExtraction.ts # Instapaper/Pocket purification engine
 │       ├── gamification.ts    # Multipliers, explorer ranks, and streak ledger
@@ -254,7 +299,7 @@ Odysseus/
 
 ---
 
-## 🚀 Getting Started
+## ✦ Getting Started
 
 Follow these steps to run the complete Odysseus salon locally on your machine.
 

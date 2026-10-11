@@ -10,6 +10,134 @@ import Link from 'next/link';
 import { Toast } from '@/components/Toast';
 import { ReadingModal } from '@/components/ReadingModal';
 import { ImportArticleModal } from '@/components/ImportArticleModal';
+import { EditorialMonogramPoster } from '@/components/EditorialMonogramPoster';
+
+const SavedStoryCard = ({
+  story,
+  index,
+  onOpen,
+  onRemove,
+}: {
+  story: any;
+  index: number;
+  onOpen: () => void;
+  onRemove: (e: React.MouseEvent) => void;
+}) => {
+  const initialImg = story.image_url || story.imageUrl || null;
+  const [imgSrc, setImgSrc] = useState<string | null>(initialImg);
+  const [triedProxy, setTriedProxy] = useState(false);
+  const [imgFailed, setImgFailed] = useState(!initialImg);
+
+  const handleImgError = () => {
+    if (!triedProxy && imgSrc && (imgSrc.startsWith('http://') || imgSrc.startsWith('https://'))) {
+      setTriedProxy(true);
+      setImgSrc(`/api/image-proxy?url=${encodeURIComponent(imgSrc)}`);
+    } else {
+      setImgFailed(true);
+    }
+  };
+
+  const sourceName = story.source || story.source_name || 'Odysseus Library';
+  const sourceInitial = sourceName.charAt(0).toUpperCase();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ delay: index * 0.04, duration: 0.3 }}
+      onClick={onOpen}
+      className="group relative flex flex-col bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl border border-juice-green/10 hover:border-juice-orange/40 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex-1"
+    >
+      {/* Top Decorative Border Accent */}
+      <div className="h-1.5 w-full bg-gradient-to-r from-juice-orange via-juice-green to-amber-500 opacity-80 group-hover:opacity-100 transition-opacity" />
+
+      {/* Card Header: Source & Un-save Stamp */}
+      <div className="p-6 pb-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-juice-green/10 text-juice-green font-serif font-black text-xs flex items-center justify-center shadow-xs">
+            {sourceInitial}
+          </div>
+          <div>
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-juice-green block truncate max-w-[130px]">
+              {sourceName}
+            </span>
+            <span className="text-[9px] font-mono text-juice-green/40">
+              {story.read_time || '5 min read'}
+            </span>
+          </div>
+        </div>
+
+        {/* Wax Seal Bookmark Button */}
+        <button
+          onClick={onRemove}
+          className="w-8 h-8 rounded-full bg-juice-orange/10 hover:bg-red-50 text-juice-orange hover:text-red-500 flex items-center justify-center transition-all duration-200"
+          title="Remove from saved stories"
+          aria-label="Remove story"
+        >
+          <span className="text-sm font-bold">✕</span>
+        </button>
+      </div>
+
+      {/* Card Title */}
+      <div className="px-6 py-2">
+        <h3 className="font-serif text-lg md:text-xl font-bold text-juice-green leading-snug group-hover:text-juice-orange transition-colors line-clamp-2">
+          {story.title}
+        </h3>
+      </div>
+
+      {/* Hero Visual: Image with Proxy Retry OR Editorial Monogram Poster */}
+      <div className="px-6 py-2">
+        <div className="w-full h-36 rounded-2xl overflow-hidden relative shadow-inner bg-juice-cream/50">
+          {!imgFailed && imgSrc ? (
+            <img
+              src={imgSrc}
+              alt={story.title}
+              onError={handleImgError}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
+          ) : (
+            <EditorialMonogramPoster
+              source={sourceName}
+              category={story.category || 'culture'}
+              title={story.title}
+              className="w-full h-full"
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Excerpt */}
+      <div className="px-6 py-2 flex-grow">
+        <p className="text-xs text-juice-green/75 leading-relaxed line-clamp-3 font-medium">
+          {story.excerpt || 'Pure prose archived for focused offline reading.'}
+        </p>
+      </div>
+
+      {/* Card Footer: Zen Chamber Button & Original Link */}
+      <div className="p-6 pt-4 mt-auto border-t border-juice-green/10 flex items-center justify-between text-xs font-mono">
+        <span className="font-bold text-juice-orange flex items-center gap-1 group-hover:underline">
+          <span>Read In Chamber</span>
+          <span>→</span>
+        </span>
+
+        {story.url && (
+          <a
+            href={story.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="text-[10px] text-juice-green/40 hover:text-juice-green transition-colors uppercase tracking-wider"
+            title="Open original website"
+          >
+            Source ↗
+          </a>
+        )}
+      </div>
+    </motion.div>
+  );
+};
 
 export default function SavedPage() {
   const { profile } = useProfile();
@@ -323,99 +451,15 @@ export default function SavedPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
             <AnimatePresence>
-              {filteredStories.map((story, index) => {
-                const sourceInitial = (story.source || story.source_name || 'O').charAt(0).toUpperCase();
-                return (
-                  <motion.div
-                    key={story.id || story.url || index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ delay: index * 0.04, duration: 0.3 }}
-                    onClick={() => handleOpenReader(story)}
-                    className="group relative flex flex-col bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl border border-juice-green/10 hover:border-juice-orange/40 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex-1"
-                  >
-                    {/* Top Decorative Border Accent */}
-                    <div className="h-1.5 w-full bg-gradient-to-r from-juice-orange via-juice-green to-amber-500 opacity-80 group-hover:opacity-100 transition-opacity" />
-
-                    {/* Card Header: Source & Un-save Stamp */}
-                    <div className="p-6 pb-3 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-juice-green/10 text-juice-green font-serif font-black text-xs flex items-center justify-center shadow-xs">
-                          {sourceInitial}
-                        </div>
-                        <div>
-                          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-juice-green block truncate max-w-[130px]">
-                            {story.source || story.source_name || 'Web Article'}
-                          </span>
-                          <span className="text-[9px] font-mono text-juice-green/40">
-                            {story.read_time || '5 min read'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Wax Seal Bookmark Button */}
-                      <button
-                        onClick={(e) => handleRemove(story, e)}
-                        className="w-8 h-8 rounded-full bg-juice-orange/10 hover:bg-red-50 text-juice-orange hover:text-red-500 flex items-center justify-center transition-all duration-200"
-                        title="Remove from saved stories"
-                        aria-label="Remove story"
-                      >
-                        <span className="text-sm font-bold">✕</span>
-                      </button>
-                    </div>
-
-                    {/* Card Title */}
-                    <div className="px-6 py-2">
-                      <h3 className="font-serif text-lg md:text-xl font-bold text-juice-green leading-snug group-hover:text-juice-orange transition-colors line-clamp-2">
-                        {story.title}
-                      </h3>
-                    </div>
-
-                    {/* Optional Hero Image */}
-                    {story.image_url && (
-                      <div className="px-6 py-2">
-                        <div className="w-full h-36 rounded-2xl overflow-hidden relative shadow-inner">
-                          <img
-                            src={story.image_url}
-                            alt={story.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            loading="lazy"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Excerpt */}
-                    <div className="px-6 py-2 flex-grow">
-                      <p className="text-xs text-juice-green/75 leading-relaxed line-clamp-3 font-medium">
-                        {story.excerpt || 'Pure prose archived for focused offline reading.'}
-                      </p>
-                    </div>
-
-                    {/* Card Footer: Zen Chamber Button & Original Link */}
-                    <div className="p-6 pt-4 mt-auto border-t border-juice-green/10 flex items-center justify-between text-xs font-mono">
-                      <span className="font-bold text-juice-orange flex items-center gap-1 group-hover:underline">
-                        <span>Read In Chamber</span>
-                        <span>→</span>
-                      </span>
-
-                      {story.url && (
-                        <a
-                          href={story.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-[10px] text-juice-green/40 hover:text-juice-green transition-colors uppercase tracking-wider"
-                          title="Open original website"
-                        >
-                          Source ↗
-                        </a>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })}
+              {filteredStories.map((story, index) => (
+                <SavedStoryCard
+                  key={story.id || story.url || index}
+                  story={story}
+                  index={index}
+                  onOpen={() => handleOpenReader(story)}
+                  onRemove={(e) => handleRemove(story, e)}
+                />
+              ))}
             </AnimatePresence>
           </div>
         )}

@@ -10,7 +10,9 @@ const parser = new Parser({
     item: [
       ['media:content', 'media:content', {keepArray: true}],
       ['media:thumbnail', 'media:thumbnail', {keepArray: true}],
+      ['media:group', 'mediaGroup'],
       ['content:encoded', 'contentEncoded'],
+      ['image', 'image'],
     ]
   }
 });
@@ -43,31 +45,46 @@ const OG_CACHE_TTL = 60 * 60 * 1000;
 
 // Extract image from RSS item without any network requests
 function extractImageFromItem(item: any): string | null {
-  // 1. Enclosure
-  let imageUrl = item.enclosure?.url;
+  let imageUrl: string | null = null;
 
-  // 2. media:content
-  if (!imageUrl && item['media:content']) {
-    if (Array.isArray(item['media:content'])) {
-      const imageMedia = item['media:content'].find((m: any) =>
+  // 1. Enclosure (validate it's actually an image, not a podcast MP3)
+  if (item.enclosure?.url) {
+    const encUrl = String(item.enclosure.url);
+    const encType = String(item.enclosure.type || '').toLowerCase();
+    if (encType.startsWith('image/') || /\.(jpe?g|png|webp|avif|gif)(\?|$)/i.test(encUrl)) {
+      imageUrl = encUrl;
+    }
+  }
+
+  // 2. media:content (direct or inside media:group)
+  const mediaContent = item['media:content'] || item.mediaGroup?.['media:content'];
+  if (!imageUrl && mediaContent) {
+    if (Array.isArray(mediaContent)) {
+      const imageMedia = mediaContent.find((m: any) =>
         m['$']?.medium === 'image' || m['$']?.type?.startsWith('image') || m.medium === 'image' || m.type?.startsWith('image')
       );
-      imageUrl = imageMedia?.['$']?.url || imageMedia?.url || item['media:content'][0]?.['$']?.url || item['media:content'][0]?.url;
+      imageUrl = imageMedia?.['$']?.url || imageMedia?.url || mediaContent[0]?.['$']?.url || mediaContent[0]?.url;
     } else {
-      imageUrl = item['media:content']?.['$']?.url || item['media:content']?.url;
+      imageUrl = mediaContent?.['$']?.url || mediaContent?.url;
     }
   }
 
-  // 3. media:thumbnail
-  if (!imageUrl && item['media:thumbnail']) {
-    if (Array.isArray(item['media:thumbnail'])) {
-      imageUrl = item['media:thumbnail'][0]?.['$']?.url || item['media:thumbnail'][0]?.url;
+  // 3. media:thumbnail (direct or inside media:group)
+  const mediaThumbnail = item['media:thumbnail'] || item.mediaGroup?.['media:thumbnail'];
+  if (!imageUrl && mediaThumbnail) {
+    if (Array.isArray(mediaThumbnail)) {
+      imageUrl = mediaThumbnail[0]?.['$']?.url || mediaThumbnail[0]?.url;
     } else {
-      imageUrl = item['media:thumbnail']?.['$']?.url || item['media:thumbnail']?.url;
+      imageUrl = mediaThumbnail?.['$']?.url || mediaThumbnail?.url;
     }
   }
 
-  // 4. Extract from content HTML or description (both raw and entity-encoded)
+  // 4. item.image
+  if (!imageUrl && item.image) {
+    imageUrl = typeof item.image === 'string' ? item.image : item.image?.url || null;
+  }
+
+  // 5. Extract from content HTML or description (both raw and entity-encoded)
   if (!imageUrl) {
     const textSources = [
       item.contentEncoded,
@@ -80,7 +97,7 @@ function extractImageFromItem(item: any): string | null {
       if (typeof raw !== 'string') continue;
       // Direct <img> tag
       const imgMatch = raw.match(/<img[^>]+src=["']([^"']+)["']/i);
-      if (imgMatch && !imgMatch[1].includes('feedburner') && !imgMatch[1].includes('1x1')) {
+      if (imgMatch && !imgMatch[1].includes('feedburner') && !imgMatch[1].includes('1x1') && !imgMatch[1].includes('tracking')) {
         imageUrl = imgMatch[1];
         break;
       }
@@ -91,11 +108,19 @@ function extractImageFromItem(item: any): string | null {
         break;
       }
       // Markdown image ![...](...)
-      const mdMatch = raw.match(/!\[.*?\]\((https?:\/\/[^\s)]+\.(?:jpg|jpeg|png|webp)[^\s)]*)\)/i);
+      const mdMatch = raw.match(/!\[.*?\]\((https?:\/\/[^\s)]+\.(?:jpg|jpeg|png|webp|avif)[^\s)]*)\)/i);
       if (mdMatch) {
         imageUrl = mdMatch[1];
         break;
       }
+    }
+  }
+
+  // Sanitize and clean URL
+  if (imageUrl && typeof imageUrl === 'string') {
+    imageUrl = imageUrl.trim().replace(/&amp;/g, '&');
+    if (imageUrl.startsWith('//')) {
+      imageUrl = 'https:' + imageUrl;
     }
   }
 
@@ -281,9 +306,9 @@ export async function GET(request: Request) {
           imageUrl: extractImageFromItem(item),
         }));
 
-        // OG fetch for items without images (up to 10 per feed, in parallel)
+        // OG fetch for items without images (up to 4 per feed, fast parallel)
         const noImage = processed.filter((p: any) => !p.imageUrl && p.link);
-        const ogTargets = noImage.slice(0, 10);
+        const ogTargets = noImage.slice(0, 4);
         if (ogTargets.length > 0) {
           const ogResults = await Promise.all(
             ogTargets.map((p: any) => fetchOgImage(p.link).then(url => ({ link: p.link, url })))

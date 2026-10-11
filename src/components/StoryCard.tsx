@@ -1,5 +1,6 @@
 import React from 'react';
 import { StaticOrangeCompass } from './StaticOrangeCompass';
+import { EditorialMonogramPoster } from './EditorialMonogramPoster';
 
 interface StoryCardProps {
   title: string;
@@ -26,30 +27,47 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   isSaved,
   onShare
 }) => {
-  const [imageError, setImageError] = React.useState(false);
+  const [useProxy, setUseProxy] = React.useState(false);
+  const [imageFailed, setImageFailed] = React.useState(false);
+
+  const handleImageError = () => {
+    if (!useProxy && imageUrl && !imageUrl.startsWith('/api/image-proxy')) {
+      // First try streaming through edge image proxy to bypass CDN anti-hotlink
+      setUseProxy(true);
+    } else {
+      // Gracefully switch to bespoke editorial monogram poster
+      setImageFailed(true);
+    }
+  };
+
+  const activeSrc = useProxy && imageUrl 
+    ? `/api/image-proxy?url=${encodeURIComponent(imageUrl)}` 
+    : imageUrl;
 
   return (
-    <div className="group relative flex flex-col h-full bg-juice-cream text-juice-green border border-juice-green/10 hover:border-juice-orange/50 transition-all duration-300 rounded-xl overflow-hidden hover:shadow-xl hover:shadow-juice-green/5">
+    <div className="group relative flex flex-col h-full bg-juice-cream text-juice-green border border-juice-green/10 hover:border-juice-orange/50 transition-all duration-300 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-juice-green/5">
       
-      {/* Image Section with Resilient Fallback */}
-      {imageUrl && !imageError ? (
+      {/* Image Section with 4-Tier Resilient Fallback */}
+      {activeSrc && !imageFailed ? (
         <div className="relative h-36 sm:h-48 w-full overflow-hidden bg-juice-green/5">
           <img 
-            src={imageUrl} 
+            src={activeSrc} 
             alt={title} 
-            onError={() => setImageError(true)}
+            onError={handleImageError}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-juice-cream/90 backdrop-blur-sm px-2.5 md:px-3 py-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-juice-green">
+          <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-juice-cream/90 backdrop-blur-sm px-2.5 md:px-3 py-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-juice-green shadow-xs">
             {category}
           </div>
         </div>
       ) : (
-        <div className="relative h-28 sm:h-36 w-full overflow-hidden bg-juice-green/5 flex items-center justify-between px-6 border-b border-juice-green/10">
-          <span className="font-serif font-black text-5xl text-juice-green/15 select-none">{source.charAt(0)}</span>
-          <div className="bg-juice-cream px-2.5 py-1 rounded-full text-[9px] font-mono font-bold uppercase tracking-widest text-juice-green border border-juice-green/10">
-            {category}
-          </div>
+        <div className="relative h-36 sm:h-48 w-full overflow-hidden">
+          <EditorialMonogramPoster 
+            source={source} 
+            category={category} 
+            title={title} 
+            className="w-full h-full" 
+          />
         </div>
       )}
 

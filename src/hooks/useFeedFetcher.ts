@@ -30,11 +30,24 @@ const CLIENT_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 // Helper to map feed titles to categories (fallback)
 const getCategoryForFeed = (source: string) => {
   const s = source.toLowerCase();
-  if (s.includes('verge') || s.includes('tech') || s.includes('wired') || s.includes('hacker')) return 'tech';
-  if (s.includes('design') || s.includes('smashing') || s.includes('ux')) return 'design';
-  if (s.includes('culture') || s.includes('atlantic') || s.includes('new yorker')) return 'culture';
-  if (s.includes('science') || s.includes('space') || s.includes('nature')) return 'science';
+  if (s.includes('verge') || s.includes('tech') || s.includes('wired') || s.includes('hacker') || s.includes('ars')) return 'tech';
+  if (s.includes('design') || s.includes('smashing') || s.includes('ux') || s.includes('apart') || s.includes('nice that')) return 'design';
+  if (s.includes('culture') || s.includes('atlantic') || s.includes('new yorker') || s.includes('paris') || s.includes('harper')) return 'culture';
+  if (s.includes('chronicle') || s.includes('bloomberg') || s.includes('financial') || s.includes('wsj') || s.includes('reuters') || s.includes('economist') || s.includes('business')) return 'chronicle';
+  if (s.includes('science') || s.includes('space') || s.includes('nature') || s.includes('nasa') || s.includes('quanta') || s.includes('scientific')) return 'science';
   return 'general';
+};
+
+// Helper to normalize desk slugs and synonyms
+const normalizeCategory = (cat?: string) => {
+  if (!cat) return '';
+  const c = cat.toLowerCase();
+  if (c === 'vanguard') return 'tech';
+  if (c === 'atelier') return 'design';
+  if (c === 'forum') return 'culture';
+  if (c === 'observatory') return 'science';
+  if (c === 'business' || c === 'finance') return 'chronicle';
+  return c;
 };
 
 // Helper to calculate read time
@@ -68,8 +81,9 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
     // Check client-side cache first
     if (!bypassCache && storyCache.data && storyCache.userId === cacheKey && Date.now() - storyCache.timestamp < CLIENT_CACHE_TTL) {
       console.log('useFeedFetcher: Using client cache');
-      const cached = options?.category 
-        ? storyCache.data.filter(s => s.category.toLowerCase() === options.category?.toLowerCase())
+      const targetCat = normalizeCategory(options?.category);
+      const cached = targetCat 
+        ? storyCache.data.filter(s => normalizeCategory(s.category) === targetCat)
         : storyCache.data;
       setStories(cached);
       setLoading(false);
@@ -182,7 +196,10 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
             relatedPerspectives: item.relatedPerspectives || [],
           };
         });
-        const filteredStories = options?.category ? processedStories.filter((s:any) => s.category.toLowerCase() === options.category?.toLowerCase()) : processedStories;
+        const targetCat = normalizeCategory(options?.category);
+        const filteredStories = targetCat 
+          ? processedStories.filter((s:any) => normalizeCategory(s.category) === targetCat) 
+          : processedStories;
         
         // Populate client cache with all stories
         storyCache.data = processedStories;

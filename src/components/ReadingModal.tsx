@@ -71,6 +71,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
   const [isLoading, setIsLoading] = useState(false);
   const [previewOnly, setPreviewOnly] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [useProxy, setUseProxy] = useState(false);
   
   // New features state
   const [theme, setTheme] = useState<'dark' | 'sepia' | 'light'>('dark');
@@ -212,6 +213,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
   useEffect(() => {
     if (isOpen && article) {
       setImageError(false);
+      setUseProxy(false);
       // If article is imported or already has purified full content, display immediately
       if (article.isImported || (article.content && article.content.length > 600)) {
         setFullContent(sanitizeArticleProse(article.content));
@@ -410,13 +412,22 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                   </h1>
                 </header>
 
-                {/* Hero image with resilient error fallback */}
+                {/* Hero image with resilient edge proxy retry */}
                 {(article.imageUrl || article.enclosure?.url) && !imageError && (
                   <figure className="mb-12 rounded-2xl overflow-hidden shadow-xl" style={{ border: `1px solid ${currentTheme.border}` }}>
                     <img 
-                      src={article.imageUrl || article.enclosure?.url} 
+                      src={useProxy 
+                        ? `/api/image-proxy?url=${encodeURIComponent(article.imageUrl || article.enclosure?.url)}`
+                        : (article.imageUrl || article.enclosure?.url)} 
                       alt="" 
-                      onError={() => setImageError(true)}
+                      onError={() => {
+                        const rawUrl = article.imageUrl || article.enclosure?.url;
+                        if (!useProxy && rawUrl && !rawUrl.startsWith('/api/image-proxy')) {
+                          setUseProxy(true);
+                        } else {
+                          setImageError(true);
+                        }
+                      }}
                       className="w-full h-auto max-h-[500px] object-cover" 
                     />
                   </figure>

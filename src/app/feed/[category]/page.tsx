@@ -55,58 +55,68 @@ export default function CategoryFeedPage() {
   const getCategoryDetails = (catString: string) => {
     const c = (catString || "").toLowerCase();
     
-    if (c === "tech") {
+    if (c === "tech" || c === "vanguard") {
       return {
-        title: "Tech",
-        subtitle: "THE LATEST IN TECHNOLOGY AND INNOVATION.",
-        pills: ["TECHCRUNCH", "THE VERGE", "WIRED"],
-        bgColor: "bg-[#5A874F]", // Deep Green
-        textColor: "text-[#FEFBEA]", // Cream/White
-        logoColor: "text-[#D96C4A]" // Orange
+        number: "DESK 01",
+        glyph: "◈",
+        name: "The Vanguard",
+        title: "Tech & Frontier Computation",
+        subtitle: "Artificial minds, edge computing & the mechanics of digital civilization.",
+        pills: ["TECHCRUNCH", "THE VERGE", "WIRED", "ARS TECHNICA"],
       };
     }
-    if (c === "design") {
-       return {
-        title: "Design",
-        subtitle: "TRENDS IN VISUAL AND INTERACTIVE DESIGN.",
-        pills: ["SMASHING MAG", "UX COLLECTIVE", "A LIST APART"],
-        bgColor: "bg-[#E6D5B8]", // Tan/Beige
-        textColor: "text-[#2A4038]", // Dark Green
-        logoColor: "text-[#D96C4A]"
+    if (c === "design" || c === "atelier") {
+      return {
+        number: "DESK 02",
+        glyph: "◆",
+        name: "The Atelier",
+        title: "Design & Visual Form",
+        subtitle: "Typographic discipline, ergonomic interfaces & aesthetic philosophy.",
+        pills: ["SMASHING MAG", "UX COLLECTIVE", "A LIST APART", "IT'S NICE THAT"],
       };
     }
-    if (c === "culture") {
-       return {
-        title: "Culture",
-        subtitle: "SOCIETY, ART, AND DIGITAL LIFE.",
-        pills: ["THE ATLANTIC", "NEW YORKER", "VICE"],
-        bgColor: "bg-[#F2E8DC]", // Light Cream
-        textColor: "text-[#2A4038]",
-        logoColor: "text-[#D96C4A]"
+    if (c === "culture" || c === "forum") {
+      return {
+        number: "DESK 03",
+        glyph: "✦",
+        name: "The Forum",
+        title: "Culture & Critical Thought",
+        subtitle: "Modern essays, transatlantic commentary & literary examination.",
+        pills: ["THE ATLANTIC", "NEW YORKER", "PARIS REVIEW", "HARPER'S"],
       };
     }
-    if (c === "science") {
-       return {
-        title: "Science",
-        subtitle: "DISCOVERING THE UNIVERSE AND BEYOND.",
-        pills: ["NASA", "SCIENTIFIC AMERICAN", "NATURE"],
-        bgColor: "bg-[#E0E8F0]", // Light Blue
-        textColor: "text-[#1A202C]",
-        logoColor: "text-[#D96C4A]"
+    if (c === "chronicle" || c === "business" || c === "finance") {
+      return {
+        number: "DESK 04",
+        glyph: "❖",
+        name: "The Chronicle",
+        title: "Finance & Global Statecraft",
+        subtitle: "Market dynamics, macro structures & institutional architecture.",
+        pills: ["BLOOMBERG", "FINANCIAL TIMES", "WSJ", "REUTERS"],
       };
     }
-    // Default
+    if (c === "science" || c === "observatory") {
+      return {
+        number: "DESK 05",
+        glyph: "⬡",
+        name: "The Observatory",
+        title: "Science & Living Systems",
+        subtitle: "Cosmic exploration, fundamental physics & biological frontiers.",
+        pills: ["SCIENTIFIC AMERICAN", "NATURE", "QUANTA", "MIT TECH REVIEW"],
+      };
+    }
+    // Default fallback
     return {
-      title: catString ? catString.charAt(0).toUpperCase() + catString.slice(1) : "Stories",
-      subtitle: "LATEST STORIES",
+      number: "DESK SPECIAL",
+      glyph: "✦",
+      name: catString ? catString.toUpperCase() : "STORIES",
+      title: catString ? `${catString.charAt(0).toUpperCase() + catString.slice(1)} Desk` : "Curated Desk",
+      subtitle: "Selected dispatches and longform editorial reads.",
       pills: [],
-      bgColor: "bg-juice-cream",
-      textColor: "text-juice-green",
-      logoColor: "text-juice-orange"
     };
   };
 
-  const { title, subtitle, pills, bgColor, textColor } = getCategoryDetails(category);
+  const { number: deskNumber, glyph, name: deskName, title, subtitle, pills } = getCategoryDetails(category);
 
   // Filter Logic
   const filteredStories = activeFilter 
@@ -122,16 +132,20 @@ export default function CategoryFeedPage() {
 
   if (error) {
     return (
-      <div className={`flex flex-col min-h-screen ${bgColor}`}>
-        <AppHeader />
+      <div className="flex flex-col min-h-screen bg-juice-cream text-juice-green">
+        <AppHeader theme="light" />
         <main className="flex-1 flex flex-col items-center justify-center p-4">
-          <div className="text-center space-y-4">
-            <p className="text-red-500 font-medium">Unable to load stories</p>
+          <div className="text-center space-y-4 max-w-md p-8 bg-white/70 border border-juice-green/15 rounded-3xl shadow-sm">
+            <span className="text-2xl font-serif text-juice-orange">✦</span>
+            <h3 className="text-xl font-serif font-bold text-juice-green">Unable to Load Desk Wire</h3>
+            <p className="text-xs text-juice-green/70 font-sans">
+              The editorial network encountered a temporary delay. Please retry to reconnect with the RSS wires.
+            </p>
             <button 
               onClick={refetch}
-              className="px-4 py-2 bg-juice-orange text-white rounded-full hover:bg-orange-600 transition-colors"
+              className="px-6 py-2.5 bg-juice-orange text-white rounded-full font-mono text-xs uppercase tracking-wider hover:bg-orange-600 transition-colors shadow-sm"
             >
-              Try Again
+              Retry Connection
             </button>
           </div>
         </main>
@@ -180,57 +194,85 @@ export default function CategoryFeedPage() {
     <div 
       onScroll={handleScroll}
       data-lenis-prevent
-      className={`h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth ${bgColor} text-juice-green font-sans selection:bg-juice-orange selection:text-juice-cream`}
+      className="h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-juice-cream text-juice-green font-sans selection:bg-juice-orange selection:text-juice-cream"
     > 
       <div className="fixed top-0 left-0 right-0 z-50">
         <AppHeader theme={headerTheme} />
       </div>
       
       <section className="min-h-screen snap-start pt-20 md:pt-24 pb-16 md:pb-20 px-4 md:px-12 lg:px-16 max-w-[1920px] mx-auto w-full flex flex-col justify-between">
-        <div className="flex items-center gap-4 mb-4 md:hidden">
-          <button 
-            onClick={() => router.back()}
-            className={`p-2 -ml-2 ${textColor} hover:opacity-70 rounded-full transition-colors`}
-            aria-label="Go back"
+        {/* Back link & Folio Meta */}
+        <div className="flex items-center justify-between gap-4 mb-6 pt-2">
+          <Link 
+            href="/feed"
+            className="inline-flex items-center gap-2 text-[11px] md:text-xs font-mono font-bold uppercase tracking-widest text-juice-green/60 hover:text-juice-orange transition-colors"
           >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Return to Broadsheet</span>
+          </Link>
+          <div className="flex items-center gap-2 text-[10px] md:text-xs font-mono uppercase tracking-widest text-juice-green/60">
+            <span className="font-bold text-juice-orange">{deskNumber}</span>
+            <span>•</span>
+            <span className="font-bold">{glyph} {deskName}</span>
+            <span>•</span>
+            <span>{filteredStories.length} {filteredStories.length === 1 ? 'DISPATCH' : 'DISPATCHES'}</span>
+          </div>
         </div>
 
-        {/* Header Section */}
-        <div className="mb-12">
-            <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6 mb-8">
-                <h1 className={`text-4xl sm:text-6xl md:text-8xl font-serif font-bold ${textColor} tracking-tight`}>
-                    {title}
-                </h1>
-                <div className={`h-auto md:h-16 w-1 ${category.toLowerCase() === 'tech' ? 'bg-white/30' : 'bg-juice-green/30'} hidden md:block`}></div>
-                
-                <div className="flex flex-col justify-center">
-                    <p className={`text-sm md:text-base font-mono uppercase tracking-widest ${textColor} opacity-80 max-w-md`}>
-                        {subtitle}
-                    </p>
-                </div>
+        {/* Editorial Desk Header */}
+        <div className="mb-10 border-b border-juice-green/15 pb-8">
+          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4 mb-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-2xl font-serif text-juice-orange">{glyph}</span>
+                <span className="text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-juice-green/70">
+                  {deskName}
+                </span>
+              </div>
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif font-black text-juice-green tracking-tight leading-tight">
+                {title}
+              </h1>
             </div>
             
-            {/* Pills */}
-            <div className="flex flex-wrap gap-2 md:gap-3">
-                {pills.map((pill) => {
-                    const isActive = activeFilter === pill;
-                    return (
-                        <button 
-                            key={pill}
-                            onClick={() => setActiveFilter(isActive ? null : pill)}
-                            className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-current text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${
-                                isActive 
-                                ? 'bg-current text-juice-cream opacity-100' 
-                                : `${textColor} opacity-60 hover:opacity-100`
-                            }`}
-                        >
-                            {pill}
-                        </button>
-                    );
-                })}
+            <p className="text-xs md:text-sm font-sans text-juice-green/70 max-w-md leading-relaxed">
+              {subtitle}
+            </p>
+          </div>
+          
+          {/* Letterpress Source Filter Pills */}
+          {pills.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-juice-green/50 mr-1">
+                Filter Source:
+              </span>
+              <button
+                onClick={() => setActiveFilter(null)}
+                className={`px-3 md:px-4 py-1.5 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 ${
+                  activeFilter === null
+                    ? 'bg-juice-green text-juice-cream shadow-xs'
+                    : 'bg-white/70 text-juice-green/60 hover:text-juice-green hover:bg-white border border-juice-green/15'
+                }`}
+              >
+                All Sources
+              </button>
+              {pills.map((pill) => {
+                const isActive = activeFilter === pill;
+                return (
+                  <button 
+                    key={pill}
+                    onClick={() => setActiveFilter(isActive ? null : pill)}
+                    className={`px-3 md:px-4 py-1.5 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-juice-green text-juice-cream shadow-xs' 
+                        : 'bg-white/70 text-juice-green/60 hover:text-juice-green hover:bg-white border border-juice-green/15'
+                    }`}
+                  >
+                    {pill}
+                  </button>
+                );
+              })}
             </div>
+          )}
         </div>
 
         {filteredStories.length > 0 ? (
@@ -260,16 +302,30 @@ export default function CategoryFeedPage() {
             </AnimatePresence>
           </div>
         ) : (
-          <div className={`flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-current/20 rounded-3xl ${textColor}`}>
-            <div className="w-20 h-20 bg-current/5 rounded-full flex items-center justify-center mb-6">
-              <span className="text-3xl font-serif font-black">✦</span>
+          <div className="flex flex-col items-center justify-center py-24 text-center border border-dashed border-juice-green/20 rounded-3xl bg-white/40 text-juice-green">
+            <div className="w-16 h-16 bg-juice-orange/10 rounded-full flex items-center justify-center mb-4 text-juice-orange">
+              <span className="text-2xl font-serif font-black">{glyph}</span>
             </div>
-            <h3 className="text-2xl font-serif font-bold mb-3">
-              No stories found
+            <h3 className="text-2xl font-serif font-bold mb-2 text-juice-green">
+              No dispatches currently on wire
             </h3>
-            <p className="opacity-70 max-w-md mx-auto">
-              We couldn't find any stories in this category right now. Check back later!
+            <p className="text-xs sm:text-sm text-juice-green/70 max-w-md mx-auto mb-6">
+              Our curators are surveying new dispatches for {deskName}. Refresh your wire or return to the main broadsheet.
             </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={refetch}
+                className="px-5 py-2.5 rounded-full bg-juice-green text-juice-cream font-mono text-xs uppercase tracking-wider hover:bg-[#4b6a38] transition-colors"
+              >
+                Refresh Wire
+              </button>
+              <Link
+                href="/feed"
+                className="px-5 py-2.5 rounded-full bg-white border border-juice-green/20 text-juice-green font-mono text-xs uppercase tracking-wider hover:border-juice-green transition-colors"
+              >
+                Return to Feed
+              </Link>
+            </div>
           </div>
         )}
       </section>

@@ -64,6 +64,7 @@ const FeedLoadingScreen = () => {
 import { AddFeedModal } from '@/components/AddFeedModal';
 import { ReadingModal } from '@/components/ReadingModal';
 import { Toast } from '@/components/Toast';
+import { EditorialMonogramPoster } from '@/components/EditorialMonogramPoster';
 import { formatDistanceToNow, format } from 'date-fns';
 import { decodeHtmlEntities } from '@/lib/textUtils';
 import { getCurrentMultiplier, getExplorerRank } from '@/lib/gamification';
@@ -218,17 +219,15 @@ export default function FeedPage() {
     const viewportHeight = e.currentTarget.clientHeight;
     const sectionIndex = Math.round(scrollTop / viewportHeight);
 
-    // Section 0: Hero (Cream) -> Light Theme
-    // Section 1: Featured (Green) -> Dark Theme
-    // Section 2: Feed (Orange) -> Orange Theme
-    // Section 3: Desks (Cream) -> Light Theme
-    // Section 4: Footer (Green) -> Dark Theme
-    if (sectionIndex === 0 || sectionIndex === 3) {
-      setHeaderTheme('light');
-    } else if (sectionIndex === 2) {
-      setHeaderTheme('orange');
-    } else {
+    // Section 0: Broadsheet (Cream) -> Light Theme
+    // Section 1: Cover Story (Forest Green) -> Dark Theme
+    // Section 2: Salon Anthology (Parchment Cream) -> Light Theme
+    // Section 3: Curated Desks (Parchment Cream) -> Light Theme
+    // Section 4: Footer (Forest Green) -> Dark Theme
+    if (sectionIndex === 1 || sectionIndex === 4) {
       setHeaderTheme('dark');
+    } else {
+      setHeaderTheme('light');
     }
   };
 
@@ -612,20 +611,37 @@ export default function FeedPage() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="relative aspect-[4/5] md:aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500 max-h-[50vh] md:max-h-none mx-auto w-full bg-juice-cream/10"
+              className="relative aspect-[4/5] md:aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-1 hover:rotate-0 transition-transform duration-500 max-h-[50vh] md:max-h-none mx-auto w-full bg-juice-cream/10 border border-white/15"
             >
               {featuredStory.imageUrl ? (
                 <img 
                   src={featuredStory.imageUrl} 
                   alt={featuredStory.title} 
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.src.includes('/api/image-proxy') && featuredStory.imageUrl) {
+                      target.src = `/api/image-proxy?url=${encodeURIComponent(featuredStory.imageUrl)}`;
+                    } else {
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'block';
+                    }
+                  }}
                   className="w-full h-full object-cover"
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-juice-cream/5">
-                  <span className="text-9xl font-black text-juice-cream/20">{featuredStory.source.charAt(0)}</span>
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-juice-green/80 to-transparent opacity-60" />
+              ) : null}
+              <div 
+                style={{ display: featuredStory.imageUrl ? 'none' : 'block' }} 
+                className="w-full h-full"
+              >
+                <EditorialMonogramPoster 
+                  source={featuredStory.source} 
+                  category={featuredStory.category} 
+                  title={featuredStory.title} 
+                  className="w-full h-full" 
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-juice-green/80 via-transparent to-transparent opacity-50 pointer-events-none" />
             </motion.div>
           </div>
         ) : (
@@ -644,29 +660,48 @@ export default function FeedPage() {
         )}
       </section>
 
-      {/* THE FEED - Orange Background */}
-      <section className="min-h-screen md:h-screen bg-juice-orange flex flex-col snap-start shrink-0 relative overflow-hidden">
-        <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 flex flex-col h-full pt-20 md:pt-28 pb-6 md:pb-10">
+      {/* SECTION 2: THE ANTHOLOGY - Warm Parchment Salon Collection */}
+      <section className="h-[100dvh] max-h-[100dvh] bg-[#FAF7F0] text-juice-green flex flex-col justify-between pt-16 pb-4 md:pt-20 md:pb-6 px-4 md:px-8 relative snap-start snap-always shrink-0 overflow-hidden select-none">
+        
+        {/* Archival Stipple Grid Texture */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-25" 
+          style={{
+            backgroundImage: 'radial-gradient(rgba(93, 130, 70, 0.18) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }} 
+        />
+
+        <div className="w-full max-w-[1400px] mx-auto px-2 md:px-6 flex flex-col h-full justify-between z-10">
+          
+          {/* Section Header */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-4 text-center text-juice-cream shrink-0"
+            className="text-center shrink-0 pt-1"
           >
-            <h3 className="font-serif text-3xl md:text-5xl font-bold mb-2">The Collection</h3>
-            <p className="opacity-80 text-lg">Curated for your curiosity.</p>
+            <div className="text-[9px] md:text-xs font-mono uppercase tracking-[0.25em] text-juice-orange font-bold mb-1">
+              ✦ THE SALON ANTHOLOGY • VOL. IV
+            </div>
+            <h3 className="font-serif text-2xl md:text-4xl font-bold tracking-tight text-juice-green mb-1">
+              The Salon Collection
+            </h3>
+            <p className="text-xs md:text-sm text-juice-green/70 max-w-xl mx-auto">
+              Curated dispatches from prestige global publications, updated in real time.
+            </p>
             
-            {/* Source Filter */}
+            {/* Source Filter Letterpress Pills */}
             {uniqueSources.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2 mt-6 max-w-3xl mx-auto">
+              <div className="flex flex-wrap justify-center gap-1.5 md:gap-2 mt-3 max-w-3xl mx-auto">
                 {uniqueSources.map(source => (
                   <button
                     key={source}
                     onClick={() => toggleSource(source)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all border ${
+                    className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider transition-all border ${
                       selectedSources.includes(source)
-                        ? 'bg-juice-cream text-juice-orange border-juice-cream'
-                        : 'bg-transparent text-juice-cream/60 border-juice-cream/20 hover:border-juice-cream/60 hover:text-juice-cream'
+                        ? 'bg-juice-green text-juice-cream border-juice-green shadow-xs'
+                        : 'bg-white/80 text-juice-green/70 border-juice-green/20 hover:border-juice-green hover:text-juice-green'
                     }`}
                   >
                     {source}
@@ -677,36 +712,36 @@ export default function FeedPage() {
           </motion.div>
 
           {/* Horizontal Scroll Container */}
-          <div className="relative flex-grow flex items-center w-full">
+          <div className="relative flex-grow flex items-center w-full my-auto py-2">
             
             {/* Left Navigation Button */}
             <button 
               onClick={scrollLeft}
-              className="absolute left-2 md:left-4 z-20 w-12 h-12 rounded-full bg-juice-cream text-juice-orange flex items-center justify-center shadow-xl hover:scale-110 hover:bg-white transition-all hidden md:flex"
+              className="absolute left-1 md:left-2 z-20 w-10 h-10 md:w-11 md:h-11 rounded-full bg-juice-green text-juice-cream flex items-center justify-center shadow-md hover:bg-juice-orange hover:scale-105 transition-all hidden md:flex"
               aria-label="Scroll Left"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
 
             <div 
               ref={scrollContainerRef}
-              className="flex-grow flex items-center overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-8 px-4 md:px-12 gap-8 w-full"
+              className="flex-grow flex items-center overflow-x-auto snap-x snap-mandatory scrollbar-hide py-2 px-2 md:px-12 gap-5 md:gap-6 w-full"
             >
               {loadingFeeds && (
-                <div className="flex items-center justify-center w-full h-full min-h-[480px]">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-juice-cream"></div>
+                <div className="flex items-center justify-center w-full h-full min-h-[380px]">
+                  <div className="animate-spin rounded-full h-10 w-10 border-2 border-juice-green/30 border-t-juice-orange"></div>
                 </div>
               )}
 
               {!loadingFeeds && filteredStories.length === 0 && (
-                <div className="flex flex-col items-center justify-center w-full h-full min-h-[480px] text-juice-cream">
-                  <p className="text-2xl font-serif mb-6">
-                    {stories.length === 0 ? "Your collection is empty." : "No stories match your filter."}
+                <div className="flex flex-col items-center justify-center w-full h-full min-h-[380px] text-juice-green text-center">
+                  <p className="text-xl md:text-2xl font-serif mb-4">
+                    {stories.length === 0 ? "Your collection is empty." : "No stories match this filter."}
                   </p>
                   {stories.length === 0 && (
                     <button 
                       onClick={() => setIsAddFeedOpen(true)}
-                      className="px-8 py-4 bg-juice-cream text-juice-orange rounded-full font-bold uppercase tracking-widest hover:bg-white transition-colors shadow-lg"
+                      className="px-6 py-2.5 bg-juice-green text-juice-cream rounded-full font-mono font-bold uppercase tracking-wider text-xs hover:bg-juice-orange transition-colors shadow-sm"
                     >
                       Add Your First Source
                     </button>
@@ -717,108 +752,105 @@ export default function FeedPage() {
               {!loadingFeeds && otherStories.map((story, index) => (
                 <motion.div
                   key={story.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ 
-                    delay: index * 0.05, 
+                    delay: Math.min(index * 0.04, 0.3), 
                     type: "spring",
-                    stiffness: 200,
-                    damping: 20
+                    stiffness: 220,
+                    damping: 22
                   }}
-                  className="snap-center shrink-0 py-4"
+                  className="snap-center shrink-0"
                 >
                   <div 
                     onClick={() => setReadingArticle(story)}
                     className="cursor-pointer block h-full"
                   >
-                    <div className="w-[80vw] max-w-[300px] md:max-w-[380px] bg-juice-cream rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-juice-green/5 flex flex-col h-[340px] md:h-[480px] relative overflow-hidden group hover:-translate-y-3 hover:rotate-1 hover:shadow-2xl transition-all duration-300">
+                    <div className="w-[82vw] max-w-[310px] md:max-w-[370px] bg-white rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-xs border border-juice-green/15 flex flex-col h-[370px] md:h-[450px] relative overflow-hidden group hover:-translate-y-1.5 hover:border-juice-orange/50 hover:shadow-xl transition-all duration-300">
                       
-                      {/* Decorative Top Gradient */}
-                      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-juice-orange/20 to-juice-green/20" />
+                      {/* Top Foil Hairline */}
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-juice-green/30 to-juice-orange/40" />
 
                       {/* Header: Source & Date */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-juice-green/10 flex items-center justify-center text-juice-orange font-black text-xs">
-                            {story.source.charAt(0)}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-juice-green/10 border border-juice-green/15 flex items-center justify-center text-juice-green font-mono font-bold text-[10px]">
+                            {story.source.slice(0, 2).toUpperCase()}
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-juice-green truncate max-w-[100px]">{story.source}</span>
-                            <span className="text-[9px] font-bold text-juice-green/40 uppercase tracking-wide">{story.date}</span>
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-juice-green truncate max-w-[120px]">{story.source}</span>
+                            <span className="text-[8px] font-mono text-juice-green/50 uppercase">{story.date}</span>
                           </div>
                         </div>
-                        <div className="px-2 py-1 rounded-full bg-juice-green/5 border border-juice-green/10 text-[9px] font-bold uppercase tracking-widest text-juice-green/60">
+                        <div className="px-2 py-0.5 rounded-full bg-juice-green/5 border border-juice-green/10 text-[8px] font-mono font-bold uppercase tracking-wider text-juice-green/70">
                           {story.category}
                         </div>
                       </div>
 
-                      {/* Body: Title */}
-                      <h3 className="font-serif text-base md:text-2xl font-bold text-juice-green mb-2 md:mb-4 leading-tight group-hover:text-juice-orange transition-colors duration-300 line-clamp-2 md:line-clamp-3">
+                      {/* Title */}
+                      <h3 className="font-serif text-sm md:text-lg font-bold text-juice-green mb-2 leading-snug group-hover:text-juice-orange transition-colors duration-200 line-clamp-2 md:line-clamp-3">
                         {decodeHtmlEntities(story.title)}
                       </h3>
 
-                      {/* Image (Compact but Premium with Error Fallback) */}
-                      {(story.imageUrl || (story as any).enclosure?.url) ? (
-                        <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0 bg-[#FDFBF7]">
+                      {/* Image Area with 4-Tier Fallback */}
+                      <div className="w-full h-28 md:h-36 rounded-xl overflow-hidden mb-3 relative shrink-0 bg-juice-green/5">
+                        {story.imageUrl || (story as any).enclosure?.url ? (
                           <img 
                             src={story.imageUrl || (story as any).enclosure?.url} 
                             alt={story.title} 
                             onError={(e) => {
                               const target = e.currentTarget;
-                              target.style.display = 'none';
-                              const fallback = target.nextElementSibling as HTMLElement;
-                              if (fallback) fallback.style.display = 'flex';
+                              const originalUrl = story.imageUrl || (story as any).enclosure?.url;
+                              if (!target.src.includes('/api/image-proxy') && originalUrl) {
+                                target.src = `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
+                              } else {
+                                target.style.display = 'none';
+                                const fallback = target.nextElementSibling as HTMLElement;
+                                if (fallback) fallback.style.display = 'block';
+                              }
                             }}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
-                          <div style={{ display: 'none' }} className="w-full h-full items-center justify-center bg-juice-green/5">
-                            <span className="text-4xl font-serif font-black text-juice-green/20">{story.source.charAt(0)}</span>
-                          </div>
-                          <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-xl pointer-events-none" />
+                        ) : null}
+                        <div 
+                          style={{ display: (story.imageUrl || (story as any).enclosure?.url) ? 'none' : 'block' }} 
+                          className="w-full h-full"
+                        >
+                          <EditorialMonogramPoster 
+                            source={story.source} 
+                            category={story.category} 
+                            title={story.title} 
+                            className="w-full h-full" 
+                          />
                         </div>
-                      ) : (
-                        <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0 bg-juice-green/5 flex items-center justify-center">
-                           <span className="text-4xl font-serif font-black text-juice-green/10">{story.source.charAt(0)}</span>
-                        </div>
-                      )}
+                      </div>
 
-                      {/* Excerpt (Short) */}
-                      <p className="text-juice-green/70 text-xs leading-relaxed line-clamp-3 mb-4 md:mb-6 flex-grow font-medium hidden sm:block">
+                      {/* Excerpt */}
+                      <p className="text-juice-green/75 text-xs leading-relaxed line-clamp-2 mb-3 flex-grow font-sans hidden sm:block">
                         {decodeHtmlEntities(story.excerpt)}
                       </p>
 
-                      {/* Footer: Actions */}
-                      <div className="flex items-center justify-between pt-4 md:pt-6 border-t border-juice-green/10 mt-auto">
-                        <div className="flex items-center gap-2 text-juice-green/40">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                          <span className="text-xs font-bold uppercase tracking-wider">{story.readTime}</span>
+                      {/* Footer Actions */}
+                      <div className="flex items-center justify-between pt-3 border-t border-juice-green/10 mt-auto text-juice-green/60">
+                        <div className="flex items-center gap-1.5 text-[10px] font-mono">
+                          <span>⏱</span>
+                          <span className="font-bold">{story.readTime}</span>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleSaveForLater(story); }}
-                            className={`transition-colors hover:scale-110 transform duration-200 ${isSaved(story) ? 'text-juice-orange' : 'text-juice-green/40 hover:text-juice-orange'}`}
-                            title={isSaved(story) ? "Saved" : "Read Later"}
+                            className={`transition-colors hover:scale-110 transform duration-200 ${isSaved(story) ? 'text-juice-orange' : 'text-juice-green/50 hover:text-juice-orange'}`}
+                            title={isSaved(story) ? "Saved" : "Save for Later"}
                           >
-                            {isSaved(story) ? (
-                              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                            ) : (
-                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                            )}
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill={isSaved(story) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                           </button>
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleShare(story); }}
-                            className="text-juice-green/40 hover:text-juice-orange transition-colors hover:scale-110 transform duration-200"
+                            className="text-juice-green/50 hover:text-juice-orange transition-colors hover:scale-110 transform duration-200"
                             title="Share"
                           >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                          </button>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setReadingArticle(story); }}
-                            className="text-juice-green/40 hover:text-juice-orange transition-colors hover:scale-110 transform duration-200"
-                            title="Read Now"
-                          >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                           </button>
                         </div>
                       </div>
@@ -827,20 +859,20 @@ export default function FeedPage() {
                 </motion.div>
               ))}
               
-              {/* Add Source / Load More Card */}
+              {/* Add Source Card */}
               <motion.div 
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                className="snap-center shrink-0 py-4"
+                className="snap-center shrink-0"
               >
                 <button 
                   onClick={() => setIsAddFeedOpen(true)}
-                  className="w-[80vw] max-w-[300px] md:max-w-[380px] h-[340px] md:h-[480px] bg-juice-orange border-4 border-juice-cream rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center text-juice-cream hover:bg-juice-cream hover:text-juice-orange hover:border-juice-orange transition-all duration-300 group shadow-xl hover:-translate-y-3 hover:rotate-1 hover:shadow-2xl"
+                  className="w-[82vw] max-w-[310px] md:max-w-[370px] h-[370px] md:h-[450px] bg-white/70 border-2 border-dashed border-juice-green/25 hover:border-juice-orange hover:bg-white rounded-2xl md:rounded-3xl p-6 flex flex-col items-center justify-center text-juice-green transition-all duration-300 group shadow-xs hover:shadow-lg"
                 >
-                  <span className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">+</span>
-                  <span className="font-black uppercase tracking-widest text-2xl">Add Source</span>
-                  <span className="text-sm font-bold opacity-60 mt-2">Customize your feed</span>
+                  <span className="text-4xl md:text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 text-juice-orange font-light">+</span>
+                  <span className="font-mono font-bold uppercase tracking-widest text-sm md:text-base">Add Publication</span>
+                  <span className="text-xs text-juice-green/60 mt-1 font-mono">Curate personal RSS desk</span>
                 </button>
               </motion.div>
             </div>
@@ -848,22 +880,39 @@ export default function FeedPage() {
             {/* Right Navigation Button */}
             <button 
               onClick={scrollRight}
-              className="absolute right-2 md:right-4 z-20 w-12 h-12 rounded-full bg-juice-cream text-juice-orange flex items-center justify-center shadow-xl hover:scale-110 hover:bg-white transition-all hidden md:flex"
+              className="absolute right-1 md:right-2 z-20 w-10 h-10 md:w-11 md:h-11 rounded-full bg-juice-green text-juice-cream flex items-center justify-center shadow-md hover:bg-juice-orange hover:scale-105 transition-all hidden md:flex"
               aria-label="Scroll Right"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
             </button>
+          </div>
+
+          {/* Section Indicator */}
+          <div className="shrink-0 flex items-center justify-center gap-2 text-[9px] md:text-[10px] font-mono uppercase tracking-[0.2em] text-juice-green/50 pb-1">
+            <span>Scroll for Curated Desks</span>
+            <span className="text-juice-orange font-bold">↓</span>
           </div>
         </div>
       </section>
 
-      {/* SECTION 3: CURATED DESKS / GENRES SPREAD */}
-      <section className="h-[100dvh] max-h-[100dvh] bg-juice-cream text-juice-green flex flex-col justify-between pt-16 pb-4 md:pt-20 md:pb-6 px-4 md:px-8 relative snap-start snap-always shrink-0 overflow-hidden">
-        <div className="max-w-7xl mx-auto w-full flex flex-col h-full justify-between">
+      {/* SECTION 3: CURATED DESKS / THE 5 THEMATIC TERRITORIES */}
+      <section className="h-[100dvh] max-h-[100dvh] bg-juice-cream text-juice-green flex flex-col justify-between pt-16 pb-4 md:pt-20 md:pb-6 px-4 md:px-8 relative snap-start snap-always shrink-0 overflow-hidden select-none">
+        
+        {/* Archival Stipple Grid */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-20" 
+          style={{
+            backgroundImage: 'radial-gradient(rgba(93, 130, 70, 0.18) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }} 
+        />
+
+        <div className="max-w-7xl mx-auto w-full flex flex-col h-full justify-between z-10">
+          
           {/* Section Header */}
-          <div className="text-center space-y-1.5 shrink-0 pt-2">
-            <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-juice-orange font-bold">
-              EDITORIAL DESKS • 4 THEMATIC TERRITORIES
+          <div className="text-center space-y-1 shrink-0 pt-1">
+            <div className="text-[9px] md:text-xs font-mono uppercase tracking-[0.25em] text-juice-orange font-bold">
+              EDITORIAL DESKS • 5 THEMATIC TERRITORIES
             </div>
             <h2 className="font-serif text-2xl md:text-4xl font-bold tracking-tight text-juice-green">
               Curated Genre Desks
@@ -873,35 +922,48 @@ export default function FeedPage() {
             </p>
           </div>
 
-          {/* Desk Cards Grid (4 Cards on md+, 2x2 on mobile, perfectly sized to never overflow 100vh) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 my-auto py-2">
+          {/* Desk Cards Grid (5 Desks in 5 columns on lg, 3 cols on md, 2 cols on mobile) */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 md:gap-3.5 my-auto py-2">
             {[
               {
                 id: 'tech',
+                glyph: '✦',
                 desk: 'The Vanguard',
                 category: 'Tech & AI',
                 desc: 'Frontier models, cybernetics, chip architecture, and the digital frontier.',
-                sources: 'The Verge • Wired • MIT',
+                sources: 'Wired • Verge • MIT',
                 border: 'border-juice-green/15 hover:border-juice-orange',
               },
               {
                 id: 'design',
+                glyph: '◈',
                 desk: 'The Atelier',
                 category: 'Design & Craft',
                 desc: 'Spatial architecture, typography, tactile objects, and visual culture.',
-                sources: 'Dezeen • It\'s Nice That',
+                sources: 'Dezeen • Eye • It\'s Nice That',
                 border: 'border-juice-green/15 hover:border-juice-orange',
               },
               {
                 id: 'culture',
+                glyph: '◆',
                 desk: 'The Forum',
                 category: 'Culture & Essays',
-                desc: 'Philosophy, slow journalism, literary criticism, and human condition.',
+                desc: 'Philosophy, slow journalism, literary criticism, and the human condition.',
                 sources: 'The Atlantic • Aeon',
                 border: 'border-juice-green/15 hover:border-juice-orange',
               },
               {
+                id: 'chronicle',
+                glyph: '—',
+                desk: 'The Chronicle',
+                category: 'Global Affairs',
+                desc: 'Geopolitical analysis, macro markets, and international chronicles.',
+                sources: 'NY Times • Bloomberg',
+                border: 'border-juice-green/15 hover:border-juice-orange',
+              },
+              {
                 id: 'science',
+                glyph: '❖',
                 desk: 'The Observatory',
                 category: 'Science & Cosmos',
                 desc: 'Astrophysics, biology, quantum mechanics, and planetary discovery.',
@@ -912,25 +974,28 @@ export default function FeedPage() {
               <Link
                 key={desk.id}
                 href={`/feed/${desk.id}`}
-                className={`group p-4 md:p-5 rounded-2xl md:rounded-3xl bg-white/80 border ${desk.border} shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between`}
+                className={`group p-3.5 md:p-4 rounded-2xl md:rounded-3xl bg-white/80 border ${desk.border} shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[9px] md:text-[10px] font-mono font-bold uppercase tracking-widest text-juice-green/50">
-                      {desk.desk}
+                    <span className="text-[10px] text-juice-orange font-bold font-mono">
+                      {desk.glyph}
                     </span>
                     <span className="text-xs font-mono font-bold text-juice-orange group-hover:translate-x-1 transition-transform">
                       →
                     </span>
                   </div>
-                  <h3 className="font-serif text-lg md:text-xl font-bold text-juice-green mb-1.5 group-hover:text-juice-orange transition-colors">
+                  <div className="text-[8px] md:text-[9px] font-mono font-bold uppercase tracking-widest text-juice-green/50 mb-0.5">
+                    {desk.desk}
+                  </div>
+                  <h3 className="font-serif text-base md:text-lg font-bold text-juice-green mb-1.5 group-hover:text-juice-orange transition-colors">
                     {desk.category}
                   </h3>
-                  <p className="text-[11px] md:text-xs text-juice-green/75 leading-relaxed line-clamp-2 md:line-clamp-3 mb-2">
+                  <p className="text-[10px] md:text-[11px] text-juice-green/75 leading-relaxed line-clamp-2 md:line-clamp-3 mb-2 font-sans">
                     {desk.desc}
                   </p>
                 </div>
-                <div className="pt-2 border-t border-juice-green/10 flex items-center justify-between text-[9px] md:text-[10px] font-mono text-juice-green/60">
+                <div className="pt-2 border-t border-juice-green/10 flex items-center justify-between text-[8px] md:text-[9px] font-mono text-juice-green/60">
                   <span className="truncate">{desk.sources}</span>
                 </div>
               </Link>
@@ -938,7 +1003,7 @@ export default function FeedPage() {
           </div>
 
           {/* Section prompt */}
-          <div className="shrink-0 flex items-center justify-center gap-3 text-[10px] md:text-xs font-mono uppercase tracking-wider text-juice-green/60 pb-2">
+          <div className="shrink-0 flex items-center justify-center gap-3 text-[9px] md:text-[10px] font-mono uppercase tracking-wider text-juice-green/60 pb-1">
             <span>Scroll down for Masthead Archive</span>
             <span className="text-juice-orange font-bold">↓</span>
           </div>

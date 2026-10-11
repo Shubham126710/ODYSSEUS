@@ -175,7 +175,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
 
   return (
     <header className={`sticky top-0 z-50 border-b transition-colors duration-500 ${bgColor} ${borderColor}`}>
-      <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 md:h-20 flex items-center justify-between gap-3 md:gap-4">
+      <div className="max-w-[1920px] w-full mx-auto px-4 md:px-8 lg:px-12 h-14 md:h-20 flex items-center justify-between gap-3 md:gap-6">
         
         {/* Brand Logo */}
         <Link href="/feed" className="flex items-center gap-2 md:gap-3 group shrink-0">
@@ -183,10 +183,10 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           <span className={`font-serif text-lg md:text-xl font-bold tracking-wide transition-colors duration-500 whitespace-nowrap ${textColor}`}>ODYSSEUS</span>
         </Link>
 
-        {/* Desks Navigation (Visible on all desktop and laptop widths) */}
+        {/* Desks Navigation (Visible on desktop and laptop widths) */}
         <nav 
           className="hidden md:flex items-center shrink-0" 
-          style={{ gap: '18px' }}
+          style={{ gap: '20px' }}
         >
           <Link 
             href="/feed" 
@@ -211,7 +211,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 href={`/feed/${cleanItem.toLowerCase()}`}
                 className={`text-xs xl:text-sm font-mono font-bold tracking-widest whitespace-nowrap transition-colors duration-300 relative py-1 px-1 ${
                   isActive 
-                    ? 'text-juice-cream'
+                    ? 'text-juice-cream' 
                     : navTextColor
                 } hover:text-juice-orange`}
                 style={{ textTransform: 'uppercase', letterSpacing: '0.14em' }}
@@ -239,22 +239,49 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           {/* Custom Article Import Button */}
           <button
             onClick={() => setIsImportOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 h-8 md:h-9 rounded-full border border-juice-cream/30 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream text-xs font-mono uppercase tracking-wider whitespace-nowrap shrink-0 transition-all duration-200"
-            title="Import Article (Pocket & Instapaper Clean Reader)"
+            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-juice-cream/25 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream flex items-center justify-center shrink-0 transition-all duration-200 group"
+            title="Import Custom Article (Pocket & Instapaper Clean Reader)"
             aria-label="Import Article"
           >
-            <span className="font-bold text-xs leading-none text-juice-orange">✦</span>
-            <span className="font-semibold tracking-wider">Import</span>
+            <svg 
+              width="15" 
+              height="15" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              className="text-juice-orange group-hover:scale-110 transition-transform"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
           </button>
 
-          {/* Traveler's Guide (?) button */}
+          {/* Traveler's Field Guide button */}
           <button
             onClick={() => setIsOnboardingOpen(true)}
-            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-juice-cream/30 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream flex items-center justify-center font-serif text-xs font-bold shrink-0 transition-all duration-200"
-            title="Traveler's Guide"
+            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-juice-cream/25 hover:border-juice-cream bg-juice-cream/10 hover:bg-juice-cream/20 text-juice-cream flex items-center justify-center shrink-0 transition-all duration-200 group"
+            title="Traveler's Field Guide"
             aria-label="Open Traveler's Guide"
           >
-            ?
+            <svg 
+              width="15" 
+              height="15" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              className="text-juice-cream/80 group-hover:text-juice-cream group-hover:scale-110 transition-transform"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
           </button>
 
           {/* Streak button */}
@@ -281,12 +308,11 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
 
               {/* Stats Dropdown — The Traveler's Chamber */}
               <div 
-                className={`absolute right-0 top-full mt-3 rounded-3xl p-5 md:p-6 transform transition-all duration-300 origin-top-right z-50 overflow-hidden bg-juice-cream border border-juice-green/20 shadow-2xl ${
+                className={`absolute right-0 top-full mt-3 rounded-3xl p-5 md:p-6 transform transition-all duration-300 origin-top-right z-50 overflow-hidden bg-[#FAF7F0] border border-juice-green/20 shadow-2xl w-[370px] max-w-[90vw] ${
                   isStatsOpen 
                     ? 'opacity-100 scale-100 visible translate-y-0' 
                     : 'opacity-0 scale-95 invisible -translate-y-4'
                 }`}
-                style={{ width: '340px' }}
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4 border-b border-juice-green/10 pb-3">
@@ -339,11 +365,11 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
 
                 {/* Main Stats: Streak & Minutes Today */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="flex flex-col items-center p-3 bg-white/70 rounded-2xl border border-juice-green/10">
+                  <div className="flex flex-col items-center p-3 bg-white/80 rounded-2xl border border-juice-green/10">
                     <span className="text-2xl font-black text-juice-orange mb-0.5 font-serif">{profile.streak_count || 1}</span>
                     <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-juice-green/60">Day Streak</span>
                   </div>
-                  <div className="flex flex-col items-center p-3 bg-white/70 rounded-2xl border border-juice-green/10">
+                  <div className="flex flex-col items-center p-3 bg-white/80 rounded-2xl border border-juice-green/10">
                     <div className="flex items-baseline gap-1">
                       <span className="text-2xl font-black text-juice-green mb-0.5 font-serif">{minutesToday}</span>
                       <span className="text-[10px] text-juice-green/40 font-mono">/ {tempGoal}m</span>
@@ -355,7 +381,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 </div>
 
                 {/* Streak Freeze Shields */}
-                <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white/50 border border-juice-green/10 mb-4 text-xs">
+                <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white/60 border border-juice-green/10 mb-4 text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-lg bg-juice-green/10 flex items-center justify-center text-juice-green font-mono text-[10px] font-bold">
                       ◈
@@ -382,18 +408,18 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                   </div>
                 </div>
 
-                {/* 7-Day Magazine Weekly Spread (GUARANTEED HORIZONTAL FLEX-ROW) */}
-                <div className="mb-4 w-full">
+                {/* 7-Day Magazine Weekly Spread */}
+                <div className="mb-4 w-full bg-white/70 p-3 rounded-2xl border border-juice-green/10">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-juice-green/60">7-Day Habit Ledger</span>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-juice-green/70">7-Day Habit Ledger</span>
                     <span className="text-[9px] font-mono text-juice-green/50">Mon – Sun</span>
                   </div>
-                  <div className="flex flex-row items-center justify-between w-full gap-1">
+                  <div className="grid grid-cols-7 gap-1.5 w-full">
                     {habitSpread.map((day, idx) => (
-                      <div key={idx} className="flex-1 flex flex-col items-center min-w-0">
+                      <div key={idx} className="flex flex-col items-center min-w-0">
                         <span className="text-[9px] font-mono font-bold text-juice-green/60 mb-1">{day.dayShort}</span>
                         <div 
-                          className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-mono font-bold transition-all ${
+                          className={`w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-mono font-bold transition-all ${
                             day.status === 'completed' || day.status === 'today-done'
                               ? 'bg-juice-orange text-white shadow-xs'
                               : day.status === 'shielded'
@@ -418,7 +444,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                 </div>
 
                 {/* Milestone Track */}
-                <div className="mb-4 p-2.5 rounded-2xl bg-white/60 border border-juice-green/10">
+                <div className="mb-4 p-2.5 rounded-2xl bg-white/70 border border-juice-green/10">
                   <div className="flex items-center justify-between text-[10px] font-bold text-juice-green mb-1.5">
                     <span className="flex items-center gap-1.5 font-mono">
                       <span className="text-juice-orange">{milestone.nextIcon}</span>
