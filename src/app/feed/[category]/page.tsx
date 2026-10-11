@@ -210,18 +210,18 @@ export default function CategoryFeedPage() {
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Broadsheet</span>
           </Link>
-          <div className="flex items-center gap-2 text-[10px] md:text-xs font-mono uppercase tracking-widest text-juice-green/60">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] md:text-xs font-mono uppercase tracking-widest text-juice-green/60">
             <span className="font-bold text-juice-orange">{deskNumber}</span>
-            <span>•</span>
-            <span className="font-bold">{glyph} {deskName}</span>
+            <span className="hidden sm:inline">•</span>
+            <span className="font-bold hidden sm:inline">{glyph} {deskName}</span>
             <span>•</span>
             <span>{filteredStories.length} {filteredStories.length === 1 ? 'DISPATCH' : 'DISPATCHES'}</span>
           </div>
         </div>
 
         {/* Editorial Desk Header */}
-        <div className="mb-10 border-b border-juice-green/15 pb-8">
-          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4 mb-6">
+        <div className="mb-8 md:mb-10 border-b border-juice-green/15 pb-6 md:pb-8">
+          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-3 md:gap-4 mb-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-2xl font-serif text-juice-orange">{glyph}</span>
@@ -241,13 +241,13 @@ export default function CategoryFeedPage() {
           
           {/* Letterpress Source Filter Pills */}
           {pills.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-juice-green/50 mr-1">
-                Filter Source:
+            <div className="flex flex-nowrap sm:flex-wrap items-center gap-2 pt-2 overflow-x-auto scrollbar-hide pb-1">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-juice-green/50 mr-1 shrink-0">
+                Filter:
               </span>
               <button
                 onClick={() => setActiveFilter(null)}
-                className={`px-3 md:px-4 py-1.5 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 ${
+                className={`px-3 md:px-4 py-1.5 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 shrink-0 ${
                   activeFilter === null
                     ? 'bg-juice-green text-juice-cream shadow-xs'
                     : 'bg-white/70 text-juice-green/60 hover:text-juice-green hover:bg-white border border-juice-green/15'
@@ -261,7 +261,7 @@ export default function CategoryFeedPage() {
                   <button 
                     key={pill}
                     onClick={() => setActiveFilter(isActive ? null : pill)}
-                    className={`px-3 md:px-4 py-1.5 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 ${
+                    className={`px-3 md:px-4 py-1.5 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 shrink-0 ${
                       isActive 
                         ? 'bg-juice-green text-juice-cream shadow-xs' 
                         : 'bg-white/70 text-juice-green/60 hover:text-juice-green hover:bg-white border border-juice-green/15'

@@ -368,7 +368,7 @@ export default function FeedPage() {
         </div>
 
         {/* Central Hero Broadside Showcase */}
-        <div className="relative z-10 max-w-5xl mx-auto w-full px-4 md:px-8 flex-1 flex flex-col items-center justify-center text-center my-auto pb-14 md:pb-20">
+        <div className="relative z-10 max-w-5xl mx-auto w-full px-4 md:px-8 flex-1 flex flex-col items-center justify-center text-center my-auto pt-4 pb-16 md:pt-6 md:pb-24">
           
           {/* Refined Editorial Status Ribbon */}
           <motion.div
@@ -390,12 +390,12 @@ export default function FeedPage() {
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.1, type: "spring" }}
-            className="space-y-2 mb-4 md:mb-6"
+            className="space-y-2 mb-3 md:mb-6"
           >
             <div className="text-[9px] md:text-xs font-mono uppercase tracking-[0.25em] text-juice-green/60">
               DISPATCH EDITION • CURATED CHRONICLE
             </div>
-            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-juice-green leading-[1.08]">
+            <h1 className="font-serif text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-juice-green leading-[1.08]">
               <span className="italic font-normal">Welcome back, </span>
               <span className="relative inline-block text-juice-orange not-italic">
                 {profile?.first_name || 'Traveler'}
@@ -418,7 +418,7 @@ export default function FeedPage() {
               </span>
               <span>.</span>
             </h1>
-            <p className="max-w-lg mx-auto text-xs sm:text-sm text-juice-green/75 leading-relaxed font-sans mt-3 md:mt-4">
+            <p className="max-w-lg mx-auto text-xs sm:text-sm text-juice-green/75 leading-relaxed font-sans mt-2 md:mt-4">
               Curated salon of slow journalism, technology, architecture, and global affairs.
             </p>
           </motion.div>
@@ -428,12 +428,12 @@ export default function FeedPage() {
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2, type: "spring", damping: 16 }}
-            className="relative my-3 sm:my-4 flex items-center justify-center"
+            className="relative my-2 sm:my-4 flex items-center justify-center"
           >
             {/* Celestial Astrolabe Coordinate Rings centered strictly on Compass */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
               <svg 
-                className="w-44 h-44 sm:w-52 sm:h-52 md:w-64 md:h-64 text-juice-green/35 animate-[spin_180s_linear_infinite]" 
+                className="w-36 h-36 sm:w-52 sm:h-52 md:w-64 md:h-64 text-juice-green/35 animate-[spin_180s_linear_infinite]" 
                 viewBox="0 0 240 240" 
                 fill="none"
               >
@@ -447,10 +447,10 @@ export default function FeedPage() {
                 <line x1="228" y1="120" x2="238" y2="120" stroke="currentColor" strokeWidth="1.5" />
               </svg>
               {/* Subtle Warm Amber Glow Halo */}
-              <div className="absolute w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-juice-orange/10 blur-xl pointer-events-none" />
+              <div className="absolute w-32 h-32 sm:w-44 sm:h-44 rounded-full bg-juice-orange/10 blur-xl pointer-events-none" />
             </div>
 
-            <InteractiveCompass className="w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 text-juice-orange drop-shadow-xl hover:scale-105 transition-transform" />
+            <InteractiveCompass className="w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 text-juice-orange drop-shadow-xl hover:scale-105 transition-transform" />
           </motion.div>
 
           {/* Quick Magazine Portals (Two Clean Primary Actions) */}
@@ -661,7 +661,7 @@ export default function FeedPage() {
       </section>
 
       {/* SECTION 2: THE ANTHOLOGY - Warm Parchment Salon Collection */}
-      <section className="h-[100dvh] max-h-[100dvh] bg-[#FAF7F0] text-juice-green flex flex-col justify-between pt-16 pb-4 md:pt-20 md:pb-6 px-4 md:px-8 relative snap-start snap-always shrink-0 overflow-hidden select-none">
+      <section className="min-h-[100dvh] md:h-[100dvh] md:max-h-[100dvh] bg-[#FAF7F0] text-juice-green flex flex-col justify-between pt-16 pb-4 md:pt-20 md:pb-6 px-4 md:px-8 relative snap-start snap-always shrink-0 overflow-y-auto md:overflow-hidden select-none">
         
         {/* Archival Stipple Grid Texture */}
         <div 
@@ -693,12 +693,12 @@ export default function FeedPage() {
             
             {/* Source Filter Letterpress Pills */}
             {uniqueSources.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-1.5 md:gap-2 mt-3 max-w-3xl mx-auto">
+              <div className="flex flex-nowrap sm:flex-wrap justify-start sm:justify-center gap-1.5 md:gap-2 mt-2 md:mt-3 max-w-3xl mx-auto overflow-x-auto scrollbar-hide px-2">
                 {uniqueSources.map(source => (
                   <button
                     key={source}
                     onClick={() => toggleSource(source)}
-                    className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider transition-all border ${
+                    className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider transition-all border whitespace-nowrap shrink-0 ${
                       selectedSources.includes(source)
                         ? 'bg-juice-green text-juice-cream border-juice-green shadow-xs'
                         : 'bg-white/80 text-juice-green/70 border-juice-green/20 hover:border-juice-green hover:text-juice-green'
@@ -896,7 +896,7 @@ export default function FeedPage() {
       </section>
 
       {/* SECTION 3: CURATED DESKS / THE 5 THEMATIC TERRITORIES */}
-      <section className="h-[100dvh] max-h-[100dvh] bg-juice-cream text-juice-green flex flex-col justify-between pt-16 pb-4 md:pt-20 md:pb-6 px-4 md:px-8 relative snap-start snap-always shrink-0 overflow-hidden select-none">
+      <section className="min-h-[100dvh] md:h-[100dvh] md:max-h-[100dvh] bg-juice-cream text-juice-green flex flex-col justify-between pt-16 pb-6 md:pt-20 md:pb-6 px-4 md:px-8 relative snap-start snap-always shrink-0 overflow-y-auto md:overflow-hidden select-none">
         
         {/* Archival Stipple Grid */}
         <div 
@@ -922,8 +922,8 @@ export default function FeedPage() {
             </p>
           </div>
 
-          {/* Desk Cards Grid (5 Desks in 5 columns on lg, 3 cols on md, 2 cols on mobile) */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 md:gap-3.5 my-auto py-2">
+          {/* Desk Cards Grid (5 Desks in 5 columns on lg, 2 cols on sm, 1 col on mobile) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-3.5 my-auto py-2">
             {[
               {
                 id: 'tech',

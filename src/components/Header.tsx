@@ -59,7 +59,7 @@ export const Header = ({ onLogoClick, theme = 'light' }: HeaderProps) => {
       {/* Full Screen Menu Overlay */}
       <div className={`fixed inset-0 bg-juice-green z-40 transition-transform duration-500 ease-in-out ${isOpen ? 'translate-y-0' : '-translate-y-full'}`}>
         <div className="flex flex-col items-center justify-center h-full space-y-8">
-          <nav className="flex flex-col items-center gap-8">
+          <nav className="flex flex-col items-center gap-6 md:gap-8">
             {[
               { name: 'Manifesto', id: 'manifesto' },
               { name: 'Features', id: 'features' },
@@ -69,11 +69,18 @@ export const Header = ({ onLogoClick, theme = 'light' }: HeaderProps) => {
               <button 
                 key={item.name} 
                 onClick={() => scrollToSection(item.id)}
-                className="font-serif text-5xl md:text-7xl font-bold text-juice-cream hover:text-juice-orange transition-colors duration-300"
+                className="font-serif text-4xl md:text-7xl font-bold text-juice-cream hover:text-juice-orange transition-colors duration-300"
               >
                 {item.name}
               </button>
             ))}
+            <div className="pt-4">
+              <Link href="/login" onClick={() => setIsOpen(false)}>
+                <button className="px-8 py-3 rounded-full bg-juice-orange text-juice-cream font-bold uppercase text-xs tracking-widest hover:scale-105 transition-transform shadow-lg">
+                  Enter Salon / Login →
+                </button>
+              </Link>
+            </div>
           </nav>
         </div>
       </div>

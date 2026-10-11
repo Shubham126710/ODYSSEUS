@@ -122,70 +122,53 @@ export default function Home() {
       {/* Interactive Header */}
       <Header onLogoClick={handleLogoClick} theme={headerTheme} />
 
-      {/* Mobile Fallback Overlay */}
-      <div className="md:hidden fixed inset-0 z-[9999] bg-juice-green flex flex-col items-center justify-center p-8 text-center text-juice-cream">
-        <div className="mb-8">
-          <h1 className="text-5xl font-black tracking-tighter opacity-20 mb-[-20px]">ODYS</h1>
-          <h1 className="text-5xl font-black tracking-tighter opacity-20">SEUS</h1>
-        </div>
-        <h2 className="font-serif text-3xl font-bold mb-4">Desktop Recommended</h2>
-        <p className="text-base opacity-80 mb-8 max-w-sm">
-          Odysseus features interactive elements and massive typography that are best experienced on a larger screen.
-        </p>
-        <Link href="/login">
-           <button className="px-6 py-3 bg-juice-orange text-juice-cream text-xs font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg">
-             Go to Login Anyway
-           </button>
-        </Link>
-      </div>
-
       <div 
         ref={containerRef}
         onScroll={handleScroll}
         data-lenis-prevent
-        className="hidden md:flex h-[100dvh] overflow-y-scroll snap-y snap-mandatory flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth"
+        className="flex h-[100dvh] overflow-y-scroll snap-y snap-mandatory flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth w-full"
       >
         {/* Hero Section */}
         <main className="flex flex-col items-center justify-center relative w-full h-screen snap-start shrink-0">
         
         {/* Massive Typography - Watermark Style */}
         <div className="flex flex-col items-center justify-center z-0 select-none opacity-20 pointer-events-none absolute inset-0">
-          <h1 ref={heroTextRef1} className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+          <h1 ref={heroTextRef1} className="text-[26vw] md:text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
             ODYS
           </h1>
-          <h1 ref={heroTextRef2} className="text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
+          <h1 ref={heroTextRef2} className="text-[26vw] md:text-[22vw] leading-[0.75] font-black tracking-tighter text-foreground text-center">
             SEUS
           </h1>
         </div>
 
         {/* Central Compass */}
-        <div ref={compassContainerRef} className="absolute top-[42%] left-1/2 z-20">
-          <InteractiveCompass className="w-[28vw] h-[28vw] min-w-[280px] min-h-[280px] text-secondary drop-shadow-2xl" />
+        <div ref={compassContainerRef} className="absolute top-[40%] md:top-[42%] left-1/2 z-20">
+          <InteractiveCompass className="w-[46vw] h-[46vw] max-w-[280px] max-h-[280px] min-w-[180px] min-h-[180px] sm:w-[28vw] sm:h-[28vw] text-secondary drop-shadow-2xl" />
         </div>
 
         {/* Subtext */}
-        <div ref={heroSubtextRef} className="absolute bottom-8 left-6 md:bottom-12 md:left-12 z-30 max-w-sm">
-          <h2 className="text-xl md:text-2xl font-bold uppercase leading-tight mb-4 drop-shadow-sm text-foreground">
+        <div ref={heroSubtextRef} className="absolute bottom-20 md:bottom-12 left-6 md:left-12 z-30 max-w-[220px] sm:max-w-xs md:max-w-sm pointer-events-none">
+          <h2 className="text-sm sm:text-lg md:text-2xl font-bold uppercase leading-tight mb-2 md:mb-4 drop-shadow-sm text-foreground">
             The news aggregator <br />
             that loves to show off <br />
             a thing or two.
           </h2>
           <div className="flex items-center gap-4">
-             <p className="text-sm md:text-base font-bold opacity-90 uppercase tracking-wide text-foreground">Starting with your stories</p>
+             <p className="text-[11px] sm:text-xs md:text-base font-bold opacity-90 uppercase tracking-wide text-foreground">Starting with your stories</p>
           </div>
         </div>
 
         {/* Get Started Button - Centered Bottom */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30">
+        <div className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 z-30">
             <Link href="/login">
-              <button className="px-8 py-3 bg-juice-orange text-juice-cream font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg">
+              <button className="px-6 py-2.5 md:px-8 md:py-3 bg-juice-orange text-juice-cream text-xs md:text-sm font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform shadow-lg whitespace-nowrap">
                 Get Started
               </button>
             </Link>
         </div>
 
         {/* Footer Details */}
-        <div className="absolute bottom-6 right-6 md:bottom-8 md:right-8 text-xs md:text-sm font-mono opacity-60 uppercase tracking-widest text-right z-30 text-foreground">
+        <div className="hidden sm:block absolute bottom-6 right-6 md:bottom-8 md:right-8 text-xs md:text-sm font-mono opacity-60 uppercase tracking-widest text-right z-30 text-foreground">
           Designed by <br />
           Shubham Upadhyay . 2025
         </div>

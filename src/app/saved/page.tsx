@@ -353,7 +353,7 @@ export default function SavedPage() {
               </p>
             </div>
 
-            <form onSubmit={handleQuickImport} className="flex-1 max-w-xl flex items-center gap-2">
+            <form onSubmit={handleQuickImport} className="flex-1 max-w-xl flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 type="url"
                 value={quickUrl}
@@ -364,7 +364,7 @@ export default function SavedPage() {
               <button
                 type="submit"
                 disabled={isPurifyingQuick || !quickUrl.trim()}
-                className="px-5 py-2.5 rounded-xl bg-juice-green hover:bg-[#4b6a38] disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider shrink-0 shadow-xs transition-all flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-xl bg-juice-green hover:bg-[#4b6a38] disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider shrink-0 justify-center shadow-xs transition-all flex items-center gap-1.5 whitespace-nowrap"
               >
                 {isPurifyingQuick ? (
                   <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -377,10 +377,10 @@ export default function SavedPage() {
         </motion.div>
 
         {/* Filter Desk Pills */}
-        <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2">
+        <div className="flex items-center gap-2 mb-8 overflow-x-auto scrollbar-hide pb-2">
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all ${
+            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
               activeTab === 'all'
                 ? 'bg-juice-green text-juice-cream shadow-xs'
                 : 'bg-white/70 text-juice-green/60 hover:text-juice-green hover:bg-white border border-juice-green/10'
@@ -390,7 +390,7 @@ export default function SavedPage() {
           </button>
           <button
             onClick={() => setActiveTab('imported')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all ${
+            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
               activeTab === 'imported'
                 ? 'bg-juice-orange text-white shadow-xs'
                 : 'bg-white/70 text-juice-green/60 hover:text-juice-orange hover:bg-white border border-juice-green/10'
@@ -400,7 +400,7 @@ export default function SavedPage() {
           </button>
           <button
             onClick={() => setActiveTab('prestige')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all ${
+            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
               activeTab === 'prestige'
                 ? 'bg-juice-green text-juice-cream shadow-xs'
                 : 'bg-white/70 text-juice-green/60 hover:text-juice-green hover:bg-white border border-juice-green/10'
