@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DOMPurify from 'isomorphic-dompurify';
 import { ReactLenis } from 'lenis/react';
 import { decodeHtmlEntities } from '@/lib/textUtils';
+import { useProfile } from '@/hooks/useProfile';
+import { getCurrentMultiplier, recordReadingProgress } from '@/lib/gamification';
 
 const calculateReadTime = (text: string) => {
   const words = text.trim().split(/\s+/).length;
@@ -102,10 +104,46 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
   const [fontSize, setFontSize] = useState<number>(18);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [readSeconds, setReadSeconds] = useState(0);
+  const [sessionCredited, setSessionCredited] = useState(false);
+  const hasCreditedRef = useRef(false);
+  const { profile } = useProfile();
+  const multiplier = getCurrentMultiplier();
   
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setReadSeconds(0);
+      setSessionCredited(false);
+      hasCreditedRef.current = false;
+      return;
+    }
+
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        setReadSeconds((s) => s + 1);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isOpen]);
+
+  // Credit reading progress when reaching 85% or on significant read duration
+  useEffect(() => {
+    if (isOpen && scrollProgress >= 85 && !hasCreditedRef.current && readSeconds >= 12) {
+      hasCreditedRef.current = true;
+      setSessionCredited(true);
+      recordReadingProgress({
+        userId: profile?.id,
+        secondsRead: Math.max(readSeconds, 60),
+        articleId: article?.link,
+        articleTitle: article?.title,
+      });
+    }
+  }, [isOpen, scrollProgress, readSeconds, profile?.id, article]);
 
   useEffect(() => {
     const el = scrollContainerRef.current;
@@ -302,6 +340,16 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
                     <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: currentTheme.accent }} /> Fetching
                   </span>
                 )}
+                {sessionCredited ? (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-juice-green/20 text-juice-green">
+                    ✓ Progress Saved
+                  </span>
+                ) : multiplier.isBonusActive ? (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-juice-orange/20 text-juice-orange animate-pulse">
+                    <span>{multiplier.icon}</span>
+                    <span>{multiplier.multiplier}x Active</span>
+                  </span>
+                ) : null}
               </div>
 
               {/* Reader Controls */}

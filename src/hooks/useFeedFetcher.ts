@@ -16,6 +16,7 @@ export interface Story {
   content: string;
   contentEncoded?: string;
   author?: string;
+  relatedPerspectives?: Array<{ title: string; source: string; link: string }>;
 }
 
 // Client-side cache: survives re-renders & re-mounts (SPA navigation)
@@ -62,14 +63,10 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
   const [error, setError] = useState<string | null>(null);
 
   const fetchFeeds = async (bypassCache = false) => {
-    if (!userId) {
-      console.log('useFeedFetcher: No userId provided, skipping fetch');
-      setLoading(false);
-      return;
-    }
+    const cacheKey = userId || 'inaugural_guest';
     
     // Check client-side cache first
-    if (!bypassCache && storyCache.data && storyCache.userId === userId && Date.now() - storyCache.timestamp < CLIENT_CACHE_TTL) {
+    if (!bypassCache && storyCache.data && storyCache.userId === cacheKey && Date.now() - storyCache.timestamp < CLIENT_CACHE_TTL) {
       console.log('useFeedFetcher: Using client cache');
       const cached = options?.category 
         ? storyCache.data.filter(s => s.category.toLowerCase() === options.category?.toLowerCase())
@@ -79,13 +76,13 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
       return;
     }
     
-    console.log('useFeedFetcher: Starting fetch for user', userId);
     setLoading(true);
     setError(null);
     
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`/api/rss?userId=${userId}`, { 
+      const endpoint = userId ? `/api/rss?userId=${userId}` : '/api/rss';
+      const res = await fetch(endpoint, { 
         headers: {
           'Authorization': `Bearer ${session?.access_token || ''}`
         }
@@ -181,7 +178,8 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
             content: item.content || item['content:encoded'] || item.description || item.summary,
             contentEncoded: item['content:encoded'] || item.contentEncoded || null,
             author: item.creator || item.author || item.dc?.creator,
-            enclosure: item.enclosure || null
+            enclosure: item.enclosure || null,
+            relatedPerspectives: item.relatedPerspectives || [],
           };
         });
         const filteredStories = options?.category ? processedStories.filter((s:any) => s.category.toLowerCase() === options.category?.toLowerCase()) : processedStories;
@@ -189,7 +187,7 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
         // Populate client cache with all stories
         storyCache.data = processedStories;
         storyCache.timestamp = Date.now();
-        storyCache.userId = userId;
+        storyCache.userId = cacheKey;
         
         setStories(filteredStories);
       } else {

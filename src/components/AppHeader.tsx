@@ -8,6 +8,14 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useProfile } from '@/hooks/useProfile';
 import { CustomizeTabsModal } from './CustomizeTabsModal';
 import { SearchModal } from './SearchModal';
+import { OnboardingModal } from './OnboardingModal';
+import { 
+  getCurrentMultiplier, 
+  getExplorerRank, 
+  getMilestoneProgress, 
+  getWeekHabitSpread, 
+  MultiplierInfo 
+} from '@/lib/gamification';
 
 // Icons
 const UserIcon = ({ className }: { className?: string }) => (
@@ -58,6 +66,8 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   const [tempGoal, setTempGoal] = useState(15);
   const [tabs, setTabs] = useState(['Tech', 'Design', 'Culture', 'Science']);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [multiplier, setMultiplier] = useState<MultiplierInfo>(getCurrentMultiplier());
   const router = useRouter();
   const pathname = usePathname();
   const { profile } = useProfile();
@@ -66,6 +76,35 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   const bgColor = theme === 'orange' ? 'bg-juice-orange' : 'bg-juice-green';
   const borderColor = theme === 'orange' ? 'border-juice-cream/10' : 'border-juice-cream/10';
   const navTextColor = theme === 'orange' ? 'text-juice-cream/60 hover:text-juice-cream' : 'text-juice-cream/60 hover:text-juice-cream';
+
+  useEffect(() => {
+    setMultiplier(getCurrentMultiplier());
+    const interval = setInterval(() => {
+      setMultiplier(getCurrentMultiplier());
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // First-time visitor automatic guide trigger
+  useEffect(() => {
+    if (profile) {
+      const alreadyDone = profile.has_completed_onboarding || 
+        (typeof window !== 'undefined' && localStorage.getItem('odysseus_onboarding_completed') === 'true');
+      if (!alreadyDone) {
+        const timer = setTimeout(() => {
+          setIsOnboardingOpen(true);
+        }, 1400);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [profile]);
+
+  const habitSpread = getWeekHabitSpread(profile?.minutes_read_today || 0, tempGoal);
+  const rank = getExplorerRank(profile?.total_reading_minutes || 0, profile?.streak_count || 1);
+  const milestone = getMilestoneProgress(profile?.streak_count || 1);
+  const freezesAvailable = profile?.streak_freezes_available ?? 1;
+  const minutesToday = profile?.minutes_read_today || 0;
+  const percentOfGoal = Math.min(100, Math.round((minutesToday / tempGoal) * 100));
 
   useEffect(() => {
     const saved = localStorage.getItem('nav_tabs');
@@ -152,55 +191,202 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           </button>
         </nav>
 
-        <div className="flex items-center gap-3 md:gap-6">
+        <div className="flex items-center gap-2.5 md:gap-5">
           
+          {/* Traveler's Guide (?) button — available on all devices */}
+          <button
+            onClick={() => setIsOnboardingOpen(true)}
+            className="relative group p-1.5 md:p-2 text-juice-cream/70 hover:text-juice-cream transition-colors rounded-full hover:bg-white/10 flex items-center justify-center"
+            title="Traveler's Guide"
+            aria-label="Open Traveler's Guide"
+          >
+            <div className="w-5 h-5 md:w-6 md:h-6 rounded-full border border-current flex items-center justify-center font-serif text-[11px] md:text-xs font-bold leading-none">
+              ?
+            </div>
+            {/* Tooltip */}
+            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-black/90 text-juice-cream text-[9px] font-mono uppercase tracking-wider rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 shadow-lg">
+              Traveler&apos;s Guide
+            </div>
+          </button>
+
           {/* Streak button — visible on all screens */}
           {profile && (
             <div className="relative" ref={statsRef}>
               <button 
                 onClick={() => setIsStatsOpen(!isStatsOpen)}
-                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full transition-all duration-300 shadow-sm ${
+                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-3.5 py-1.5 md:py-2 rounded-full transition-all duration-300 shadow-sm relative ${
                   isStatsOpen 
                     ? 'bg-juice-green text-white ring-4 ring-juice-green/20' 
                     : 'bg-juice-orange text-white hover:bg-orange-500 hover:scale-105 hover:shadow-md'
                 }`}
               >
                 <FireIcon className="w-4 h-4 md:w-5 md:h-5 object-contain drop-shadow-sm" />
-                <span className="font-bold text-xs md:text-sm">{profile.streak_count}</span>
+                <span className="font-bold text-xs md:text-sm">{profile.streak_count || 1}</span>
+                {multiplier.isBonusActive && (
+                  <span className="text-[9px] font-mono font-bold bg-white/20 px-1.5 py-0.5 rounded-full tracking-wider animate-pulse hidden sm:inline-block">
+                    {multiplier.multiplier}x
+                  </span>
+                )}
               </button>
-              {/* Stats Dropdown — Compact & Minimal */}
+
+              {/* Stats Dropdown — The Traveler's Chamber */}
               <div 
-                className={`absolute right-0 top-full mt-3 rounded-3xl p-5 transform transition-all duration-300 origin-top-right z-50 overflow-hidden bg-juice-cream border border-juice-green/20 shadow-2xl ${isStatsOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4'}`}
-                style={{ width: '280px' }}
+                className={`absolute right-0 top-full mt-3 rounded-3xl p-5 md:p-6 transform transition-all duration-300 origin-top-right z-50 overflow-hidden bg-juice-cream border border-juice-green/20 shadow-2xl ${
+                  isStatsOpen 
+                    ? 'opacity-100 scale-100 visible translate-y-0' 
+                    : 'opacity-0 scale-95 invisible -translate-y-4'
+                }`}
+                style={{ width: '340px' }}
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4 border-b border-juice-green/10 pb-3">
                   <div className="flex items-center gap-2">
-                    <FireIcon className="w-4 h-4 object-contain opacity-80" />
-                    <h3 className="font-serif text-sm font-bold text-juice-green">Reading Streak</h3>
+                    <FireIcon className="w-4 h-4 object-contain" />
+                    <div>
+                      <h3 className="font-serif text-sm font-bold text-juice-green">Traveler&apos;s Chamber</h3>
+                      <span className="text-[9px] font-mono text-juice-green/60 uppercase tracking-widest">
+                        {rank.badgeIcon} {rank.title}
+                      </span>
+                    </div>
                   </div>
-                  <Link href="/profile" onClick={() => setIsStatsOpen(false)} className="text-[9px] font-bold uppercase tracking-widest text-juice-green/40 hover:text-juice-orange transition-colors flex items-center gap-1">
-                    Profile <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                  <Link 
+                    href="/profile" 
+                    onClick={() => setIsStatsOpen(false)} 
+                    className="text-[9px] font-bold uppercase tracking-widest text-juice-green/60 hover:text-juice-orange transition-colors flex items-center gap-1"
+                  >
+                    Ledger <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
                   </Link>
                 </div>
 
-                {/* Main Stats */}
+                {/* Active Multiplier Banner */}
+                <div className={`p-3 rounded-2xl mb-4 border transition-all ${
+                  multiplier.isBonusActive 
+                    ? 'bg-juice-orange/10 border-juice-orange/30 text-juice-green' 
+                    : 'bg-juice-green/5 border-juice-green/15 text-juice-green'
+                }`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-1.5 font-bold text-xs">
+                      <span>{multiplier.icon}</span>
+                      <span>{multiplier.label}</span>
+                    </div>
+                    <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                      multiplier.isBonusActive 
+                        ? 'bg-juice-orange text-white' 
+                        : 'bg-juice-green/15 text-juice-green'
+                    }`}>
+                      {multiplier.badge}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-juice-green/75 leading-tight">
+                    {multiplier.description}
+                  </p>
+                  {multiplier.endsAtText && (
+                    <span className="text-[9px] font-mono text-juice-green/50 mt-1 block">
+                      ⏱ {multiplier.endsAtText}
+                    </span>
+                  )}
+                </div>
+
+                {/* Main Stats: Streak & Minutes Today */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="flex flex-col items-center p-3 bg-juice-green/5 rounded-xl">
-                    <span className="text-xl font-black text-juice-orange mb-1">{profile.streak_count || 0}</span>
+                  <div className="flex flex-col items-center p-3 bg-white/70 rounded-2xl border border-juice-green/10">
+                    <span className="text-2xl font-black text-juice-orange mb-0.5">{profile.streak_count || 1}</span>
                     <span className="text-[9px] font-bold uppercase tracking-wider text-juice-green/60">Day Streak</span>
                   </div>
-                  <div className="flex flex-col items-center p-3 bg-juice-green/5 rounded-xl">
-                    <span className="text-xl font-black text-juice-green mb-1">{profile.minutes_read_today}</span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-juice-green/60">Min Today</span>
+                  <div className="flex flex-col items-center p-3 bg-white/70 rounded-2xl border border-juice-green/10">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-black text-juice-green mb-0.5">{minutesToday}</span>
+                      <span className="text-[10px] text-juice-green/40">/ {tempGoal}m</span>
+                    </div>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-juice-green/60">
+                      {percentOfGoal >= 100 ? 'Goal Reached ✓' : `${Math.max(1, tempGoal - minutesToday)}m to goal`}
+                    </span>
                   </div>
                 </div>
 
-                {/* Goal Slider */}
-                <div className="pt-2">
+                {/* Streak Freeze Vault */}
+                <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white/50 border border-juice-green/10 mb-4 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🧊</span>
+                    <div>
+                      <span className="font-bold text-juice-green text-[11px] block">Streak Shields</span>
+                      <span className="text-[9px] text-juice-green/60">Auto-shields missed days</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {[1, 2].map((slot) => (
+                      <div 
+                        key={slot} 
+                        className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-[10px] ${
+                          slot <= freezesAvailable 
+                            ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                            : 'bg-juice-green/5 text-juice-green/20 border border-dashed border-juice-green/20'
+                        }`}
+                        title={slot <= freezesAvailable ? 'Active shield' : 'Empty slot (earned every 7 days)'}
+                      >
+                        {slot <= freezesAvailable ? '🧊' : '○'}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 7-Day Magazine Weekly Spread */}
+                <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-juice-green/50">Daily Goal</span>
-                    <span className="text-[9px] font-bold text-juice-green">{tempGoal} min</span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-juice-green/60">7-Day Habit Ledger</span>
+                    <span className="text-[9px] font-mono text-juice-green/50">Mon – Sun</span>
+                  </div>
+                  <div className="grid grid-cols-7 gap-1">
+                    {habitSpread.map((day, idx) => (
+                      <div key={idx} className="flex flex-col items-center">
+                        <span className="text-[9px] font-bold text-juice-green/50 mb-1">{day.dayShort}</span>
+                        <div 
+                          className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                            day.status === 'completed' || day.status === 'today-done'
+                              ? 'bg-juice-orange text-white shadow-sm ring-1 ring-juice-orange/30'
+                              : day.status === 'shielded'
+                              ? 'bg-blue-200 text-blue-800'
+                              : day.isToday
+                              ? 'bg-juice-green/10 text-juice-green ring-2 ring-juice-orange animate-pulse'
+                              : 'bg-juice-green/5 text-juice-green/25'
+                          }`}
+                          title={`${day.dayName}: ${day.minutes} min`}
+                        >
+                          {day.status === 'completed' || day.status === 'today-done' ? (
+                            '✓'
+                          ) : day.status === 'shielded' ? (
+                            '🧊'
+                          ) : (
+                            day.dayShort
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Milestone Track */}
+                <div className="mb-4 p-2.5 rounded-2xl bg-white/60 border border-juice-green/10">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-juice-green mb-1.5">
+                    <span className="flex items-center gap-1">
+                      <span>{milestone.nextIcon}</span>
+                      <span>{milestone.nextPerk}</span>
+                    </span>
+                    <span className="text-juice-orange font-mono">{milestone.daysRemaining} days away</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-juice-green/10 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-juice-green to-juice-orange transition-all duration-500 rounded-full"
+                      style={{ width: `${milestone.progressPercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Daily Goal Slider */}
+                <div className="pt-1 border-t border-juice-green/10">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-juice-green/60">Pace Commitment</span>
+                    <span className="text-[10px] font-bold text-juice-orange font-mono">{tempGoal} min / day</span>
                   </div>
                   <input 
                     type="range" 
@@ -209,14 +395,15 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
                     step="5" 
                     value={tempGoal}
                     onChange={(e) => updateGoal(parseInt(e.target.value))}
-                    className="w-full h-1 rounded-full appearance-none cursor-pointer bg-juice-green/10"
+                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-juice-green/10 accent-juice-orange"
                     style={{ 
                       background: `linear-gradient(to right, #FF6B4A 0%, #FF6B4A ${(tempGoal-5)/55*100}%, rgba(93,130,70,0.1) ${(tempGoal-5)/55*100}%, rgba(93,130,70,0.1) 100%)`
                     }}
                   />
-                  <div className="flex justify-between text-[8px] font-bold text-juice-green/30 mt-1 uppercase">
-                    <span>5m</span>
-                    <span>60m</span>
+                  <div className="flex justify-between text-[8px] font-bold text-juice-green/40 mt-1 uppercase font-mono">
+                    <span>5m Voyager</span>
+                    <span>30m Scholar</span>
+                    <span>60m Master</span>
                   </div>
                 </div>
               </div>
@@ -226,6 +413,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
           <button 
             onClick={() => setIsSearchOpen(true)}
             className="p-2 transition-colors text-juice-cream/60 hover:text-juice-cream"
+            aria-label="Search articles"
           >
             <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -342,6 +530,12 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
       <SearchModal 
         isOpen={isSearchOpen} 
         onClose={() => setIsSearchOpen(false)} 
+      />
+      <OnboardingModal 
+        isOpen={isOnboardingOpen} 
+        onClose={() => setIsOnboardingOpen(false)} 
+        userId={profile?.id}
+        userName={profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : 'Traveler'}
       />
     </header>
   );

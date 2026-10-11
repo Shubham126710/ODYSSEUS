@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
+import { PRESTIGE_SOURCES, PRESTIGE_DESKS } from '@/data/prestigeSources';
 
 interface AddFeedModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [subscribedUrls, setSubscribedUrls] = useState<Set<string>>(new Set());
+  const [selectedDesk, setSelectedDesk] = useState<string>('all');
 
   // Fetch subscriptions when modal opens
   React.useEffect(() => {
@@ -216,42 +218,83 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
                   </div>
                 </form>
 
-                {/* Curated Grid */}
+                {/* Editorial Desks Filter & Prestige Sources */}
                 <div>
-                  <h3 className="text-xs font-bold text-juice-green/30 uppercase tracking-widest mb-6">Curated Collections</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {POPULAR_FEEDS.map((feed) => {
-                      const isSubscribed = subscribedUrls.has(feed.url);
-                      return (
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                    <h3 className="text-xs font-bold text-juice-green/40 uppercase tracking-widest font-mono">
+                      Curated Editorial Desks
+                    </h3>
+                    
+                    {/* Desk Filter Tabs */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                      <button
+                        onClick={() => setSelectedDesk('all')}
+                        className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 ${
+                          selectedDesk === 'all'
+                            ? 'bg-juice-orange text-white shadow-sm'
+                            : 'bg-juice-green/5 text-juice-green/60 hover:text-juice-green hover:bg-juice-green/10'
+                        }`}
+                      >
+                        All Desks
+                      </button>
+                      {PRESTIGE_DESKS.map((d) => (
                         <button
-                          key={feed.name}
-                          onClick={() => !isSubscribed && handleAddFeed(feed.url)}
-                          disabled={loading || isSubscribed}
-                          className={`group flex flex-col items-start p-4 rounded-2xl border transition-all duration-300 text-left relative overflow-hidden ${
-                            isSubscribed 
-                              ? 'bg-juice-green/5 border-transparent opacity-60 cursor-default' 
-                              : 'border-juice-green/5 hover:border-juice-green/20 hover:bg-white hover:shadow-lg'
+                          key={d.id}
+                          onClick={() => setSelectedDesk(d.id)}
+                          className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 ${
+                            selectedDesk === d.id
+                              ? 'bg-juice-orange text-white shadow-sm'
+                              : 'bg-juice-green/5 text-juice-green/60 hover:text-juice-green hover:bg-juice-green/10'
                           }`}
                         >
-                          {!isSubscribed && (
-                            <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-juice-green">
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                            </div>
-                          )}
-                          
-                          {isSubscribed && (
-                            <div className="absolute top-3 right-3 text-juice-green">
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            </div>
-                          )}
-                          
-                          <span className="text-[10px] font-bold text-juice-green/40 uppercase tracking-wider mb-2">{feed.category}</span>
-                          <span className={`font-serif text-lg font-medium transition-colors ${isSubscribed ? 'text-juice-green/60' : 'text-juice-green group-hover:text-juice-orange'}`}>
-                            {feed.name}
-                          </span>
+                          {d.label}
                         </button>
-                      );
-                    })}
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[380px] overflow-y-auto pr-1">
+                    {PRESTIGE_SOURCES
+                      .filter((feed) => selectedDesk === 'all' || feed.desk === selectedDesk)
+                      .map((feed) => {
+                        const isSubscribed = subscribedUrls.has(feed.feedUrl);
+                        return (
+                          <button
+                            key={feed.id}
+                            onClick={() => !isSubscribed && handleAddFeed(feed.feedUrl)}
+                            disabled={loading || isSubscribed}
+                            className={`group flex items-start gap-3 p-3.5 rounded-2xl border transition-all duration-200 text-left relative ${
+                              isSubscribed
+                                ? 'bg-juice-green/5 border-juice-green/10 opacity-70 cursor-default'
+                                : 'bg-white/60 hover:bg-white border-juice-green/15 hover:border-juice-green/30 hover:shadow-md'
+                            }`}
+                          >
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-serif font-bold text-xs shrink-0 ${
+                              isSubscribed ? 'bg-juice-green text-white' : 'bg-juice-green/10 text-juice-green group-hover:bg-juice-orange group-hover:text-white transition-colors'
+                            }`}>
+                              {feed.monogram}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <span className={`font-serif text-sm font-bold truncate ${isSubscribed ? 'text-juice-green' : 'text-juice-green group-hover:text-juice-orange'}`}>
+                                  {feed.name}
+                                </span>
+                                {isSubscribed ? (
+                                  <span className="text-[10px] font-bold text-juice-green">✓ Stamped</span>
+                                ) : (
+                                  <span className="text-[10px] text-juice-green/40 group-hover:text-juice-orange font-bold font-mono">+ Add</span>
+                                )}
+                              </div>
+                              <span className="text-[9px] font-mono text-juice-green/50 uppercase tracking-wider block mt-0.5">
+                                {feed.category}
+                              </span>
+                              <p className="text-[11px] text-juice-green/60 leading-snug line-clamp-1 mt-1">
+                                {feed.tagline}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
                   </div>
                 </div>
               </div>

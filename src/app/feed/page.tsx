@@ -420,6 +420,32 @@ export default function FeedPage() {
                 <span>•</span>
                 <span>{featuredStory.readTime}</span>
               </div>
+              {featuredStory.relatedPerspectives && featuredStory.relatedPerspectives.length > 0 && (
+                <div className="pt-2">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-juice-orange block mb-1.5 font-bold">
+                    ✦ Alternative Perspectives ({featuredStory.relatedPerspectives.length})
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {featuredStory.relatedPerspectives.map((p: any, i: number) => (
+                      <button
+                        key={i}
+                        onClick={() => setReadingArticle({
+                          title: p.title,
+                          link: p.link,
+                          source: p.source,
+                          excerpt: '',
+                          date: 'Related Perspective',
+                          readTime: '3 min'
+                        })}
+                        className="text-xs px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center gap-1.5 transition-colors text-left"
+                      >
+                        <span className="font-bold text-juice-orange">{p.source}:</span>
+                        <span className="truncate max-w-[180px] md:max-w-[240px] opacity-90">{decodeHtmlEntities(p.title)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <button 
                 onClick={() => setReadingArticle(featuredStory)}
                 className="mt-6 px-8 py-3 border border-juice-cream rounded-full font-bold uppercase tracking-widest hover:bg-juice-cream hover:text-juice-green transition-all duration-300 shadow-md hover:scale-105 active:scale-95"

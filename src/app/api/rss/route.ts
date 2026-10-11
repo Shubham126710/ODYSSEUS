@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import Parser from 'rss-parser';
 import { createClient } from '@supabase/supabase-js';
+import { getDefaultInauguralFeeds } from '@/data/prestigeSources';
+import { clusterStories } from '@/lib/storyClustering';
 
 const parser = new Parser({
   timeout: 5000, // 5s per-feed timeout
@@ -160,64 +162,68 @@ export async function GET(request: Request) {
     }
   }
 
-  // Otherwise, fetch all subscribed feeds for the user
-  if (!userId) {
-    console.error('RSS API: Missing userId');
-    return NextResponse.json({ success: false, error: 'User ID required' }, { status: 400 });
-  }
-
   try {
-    // Create an authenticated Supabase client using the user's token
-    const authHeader = request.headers.get('Authorization');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { global: { headers: { Authorization: authHeader || '' } } }
-    );
+    let targetFeeds: Array<{ url: string; title: string; icon_url?: string; feed_id?: string }> = [];
 
-    console.log(`RSS API: Fetching feeds for user ${userId}`);
-    // 1. Get user subscriptions
-    const { data: subscriptions, error: subError } = await supabase
-      .from('user_subscriptions')
-      .select('feed_id, feeds(url, title, icon_url)')
-      .eq('user_id', userId);
-
-    if (subError) {
-      console.error('RSS API: Subscription fetch error', subError);
-      throw subError;
-    }
-
-    console.log(`RSS API: Found ${subscriptions?.length || 0} subscriptions`);
-
-    if (!subscriptions || subscriptions.length === 0) {
-      return NextResponse.json({ success: true, items: [] });
-    }
-
-    // 2. Fetch and parse all feeds in parallel (with caching)
-    const feedPromises = subscriptions.map(async (sub: any) => {
-      if (!sub.feeds) {
-        console.warn(`RSS API: Subscription ${sub.feed_id} has no feed data`);
-        return [];
-      }
+    // 1. If user ID provided, attempt to fetch user subscriptions
+    if (userId) {
       try {
-        const feedUrl = sub.feeds.url;
+        const authHeader = request.headers.get('Authorization');
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          { global: { headers: { Authorization: authHeader || '' } } }
+        );
+
+        const { data: subscriptions } = await supabase
+          .from('user_subscriptions')
+          .select('feed_id, feeds(url, title, icon_url)')
+          .eq('user_id', userId);
+
+        if (subscriptions && subscriptions.length > 0) {
+          targetFeeds = subscriptions
+            .filter((sub: any) => sub.feeds && sub.feeds.url)
+            .map((sub: any) => ({
+              url: sub.feeds.url,
+              title: sub.feeds.title,
+              icon_url: sub.feeds.icon_url,
+              feed_id: sub.feed_id,
+            }));
+        }
+      } catch (subErr) {
+        console.warn('RSS API: Error fetching user subscriptions, falling back to curated feeds:', subErr);
+      }
+    }
+
+    // 2. If user has no subscriptions, default to curated prestige feeds
+    if (targetFeeds.length === 0) {
+      const inaugural = getDefaultInauguralFeeds();
+      targetFeeds = inaugural.map((pub) => ({
+        url: pub.feedUrl,
+        title: pub.name,
+        icon_url: `${pub.url}/favicon.ico`,
+        feed_id: pub.id,
+      }));
+    }
+
+    // 3. Fetch and parse all feeds in parallel (with caching)
+    const feedPromises = targetFeeds.map(async (sub) => {
+      try {
+        const feedUrl = sub.url;
         
         // Check in-memory cache first
         let feed = getCachedFeed(feedUrl);
         if (!feed) {
-          console.log(`RSS API: Parsing feed ${feedUrl}`);
           feed = await parser.parseURL(feedUrl);
           setCachedFeed(feedUrl, feed);
-        } else {
-          console.log(`RSS API: Cache hit for ${feedUrl}`);
         }
         
         // Process items — extract images from RSS fields first, then OG fetch for a few
         const items = feed.items.slice(0, 15);
         const processed = items.map((item: any) => ({
           ...item,
-          source: sub.feeds.title || feed.title,
-          sourceIcon: sub.feeds.icon_url,
+          source: sub.title || feed.title,
+          sourceIcon: sub.icon_url,
           feedId: sub.feed_id,
           imageUrl: extractImageFromItem(item),
         }));
@@ -239,21 +245,23 @@ export async function GET(request: Request) {
 
         return processed;
       } catch (e) {
-        console.error(`Error parsing feed ${sub.feeds.url}:`, e);
+        console.error(`Error parsing feed ${sub.url}:`, e);
         return [];
       }
     });
 
     const results = await Promise.all(feedPromises);
     
-    // 3. Flatten and sort by date
+    // 4. Flatten, sort by publication date, and apply story clustering
     const allItems = results.flat().sort((a, b) => {
       const dateA = new Date(a.isoDate || a.pubDate || 0);
       const dateB = new Date(b.isoDate || b.pubDate || 0);
       return dateB.getTime() - dateA.getTime();
     });
 
-    return NextResponse.json({ success: true, items: allItems }, {
+    const clusteredItems = clusterStories(allItems);
+
+    return NextResponse.json({ success: true, items: clusteredItems }, {
       headers: {
         'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=300',
       }

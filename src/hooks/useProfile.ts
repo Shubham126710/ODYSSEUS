@@ -14,6 +14,11 @@ export interface Profile {
   daily_goal_minutes: number;
   minutes_read_today: number;
   dob: string;
+  has_completed_onboarding?: boolean;
+  streak_freezes_available?: number;
+  rank_title?: string;
+  total_reading_minutes?: number;
+  unlocked_badges?: string[];
 }
 
 export function useProfile() {
