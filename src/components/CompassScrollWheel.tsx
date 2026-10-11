@@ -99,7 +99,7 @@ export const CompassScrollWheel = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Outer Shell Card */}
-      <div className="relative flex flex-col items-center bg-[#162919]/95 backdrop-blur-md border border-white/20 rounded-full py-4 px-2 shadow-[0_12px_36px_rgba(0,0,0,0.45)] hover:shadow-[0_16px_45px_rgba(234,88,12,0.35)] hover:border-[#EA580C]/70 transition-all duration-300 text-white">
+      <div className="relative flex flex-col items-center bg-[#5D8246]/95 backdrop-blur-md border border-[#FFFDD0]/30 rounded-full py-4 px-2 shadow-[0_12px_36px_rgba(0,0,0,0.35)] hover:shadow-[0_16px_45px_rgba(234,88,12,0.35)] hover:border-[#EA580C]/70 transition-all duration-300 text-white">
         
         {/* Top Mini Compass Astrolabe (Rotating Needle) */}
         <button
@@ -213,7 +213,7 @@ export const CompassScrollWheel = () => {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 10, scale: 0.95 }}
             transition={{ duration: 0.18 }}
-            className="absolute right-14 top-1/2 -translate-y-1/2 w-48 bg-[#162919]/95 backdrop-blur-xl border border-white/20 rounded-2xl p-3.5 shadow-2xl text-white pointer-events-auto"
+            className="absolute right-14 top-1/2 -translate-y-1/2 w-48 bg-[#5D8246]/95 backdrop-blur-xl border border-[#FFFDD0]/30 rounded-2xl p-3.5 shadow-2xl text-white pointer-events-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/15 pb-2 mb-2.5">

@@ -143,7 +143,7 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#243B26] text-[#FAF7EE] font-sans selection:bg-[#EA580C] selection:text-white relative">
+    <div className="min-h-screen bg-[#5D8246] text-[#FFFDD0] font-sans selection:bg-[#EA580C] selection:text-white relative">
       
       {/* Tactile Archival Background Dot Pattern */}
       <div 
@@ -257,8 +257,7 @@ export default function FeedPage() {
         {featuredStory && (
           <section 
             id="hub-lead" 
-            style={{ backgroundColor: '#1B2F1D' }}
-            className="bg-[#1B2F1D] text-[#FFFDD0] border border-[#FFFDD0]/15 rounded-3xl p-6 sm:p-8 lg:p-12 shadow-2xl hover:border-[#EA580C]/50 transition-all"
+            className="bg-white/5 text-[#FFFDD0] border border-[#FFFDD0]/25 rounded-3xl p-6 sm:p-8 lg:p-12 shadow-2xl hover:border-[#EA580C]/60 transition-all backdrop-blur-xs"
           >
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-12 items-center">
               
@@ -442,8 +441,7 @@ export default function FeedPage() {
               <Link
                 key={desk.id}
                 href={`/feed/${desk.id}`}
-                style={{ backgroundColor: '#1B2F1D' }}
-                className={`group p-5 sm:p-6 rounded-2xl bg-[#1B2F1D] text-[#FFFDD0] border border-[#FFFDD0]/15 hover:border-[#EA580C] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between ${
+                className={`group p-5 sm:p-6 rounded-2xl bg-white/5 hover:bg-white/10 text-[#FFFDD0] border border-[#FFFDD0]/25 hover:border-[#EA580C] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between ${
                   desk.id === 'science' ? 'sm:col-span-2 lg:col-span-1' : ''
                 }`}
               >
@@ -506,7 +504,7 @@ export default function FeedPage() {
                   className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
                     selectedSources.length === 0
                       ? 'bg-[#EA580C] text-white shadow-md'
-                      : 'bg-[#182C1B] text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-[#1f3723] border border-white/15'
+                      : 'bg-white/10 text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-white/15 border border-white/15'
                   }`}
                 >
                   All Publications ({stories.length})
@@ -520,7 +518,7 @@ export default function FeedPage() {
                       className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
                         isSelected
                           ? 'bg-[#EA580C] text-white shadow-md'
-                          : 'bg-[#182C1B] text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-[#1f3723] border border-white/15'
+                          : 'bg-white/10 text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-white/15 border border-white/15'
                       }`}
                     >
                       {source}
@@ -550,7 +548,7 @@ export default function FeedPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-[#1B2F1D] text-[#FFFDD0] rounded-3xl border border-[#FFFDD0]/15 p-8 space-y-4 shadow-xl">
+            <div className="text-center py-20 bg-white/5 text-[#FFFDD0] rounded-3xl border border-[#FFFDD0]/25 p-8 space-y-4 shadow-xl">
               <span className="text-2xl text-[#EA580C] font-mono">✦</span>
               <h3 className="font-serif text-xl font-bold text-[#FFFDD0]">
                 {stories.length === 0 ? "Your feed is currently empty" : "No stories match this filter"}

@@ -3106,13 +3106,13 @@ body {
   animation-play-state: paused;
 }
 .bg-forest-header {
-  background-color: #243B26 !important;
+  background-color: #5D8246 !important;
 }
 .bg-forest-card {
-  background-color: #1B2F1D !important;
+  background-color: rgba(255, 253, 208, 0.08) !important;
 }
 .bg-forest-surface {
-  background-color: #1B2F1D !important;
+  background-color: rgba(255, 253, 208, 0.08) !important;
 }
 .text-cream {
   color: #FFFDD0 !important;

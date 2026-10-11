@@ -119,8 +119,8 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   return (
     <>
       <header 
-        style={{ backgroundColor: '#243B26', borderBottom: '1px solid rgba(255, 253, 208, 0.15)' }}
-        className="sticky top-0 z-50 bg-forest-header text-[#FAF7EE] shadow-sm transition-colors duration-300"
+        style={{ backgroundColor: '#5D8246', borderBottom: '1px solid rgba(255, 253, 208, 0.2)' }}
+        className="sticky top-0 z-50 bg-[#5D8246] text-[#FFFDD0] shadow-sm transition-colors duration-300"
       >
         <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between gap-4">
           
@@ -390,7 +390,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
 
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-white/10 bg-[#131E15] px-4 py-4 space-y-1">
+          <div className="md:hidden border-t border-white/10 bg-[#5D8246] px-4 py-4 space-y-1">
             <Link 
               href="/feed" 
               onClick={() => setIsMobileMenuOpen(false)}

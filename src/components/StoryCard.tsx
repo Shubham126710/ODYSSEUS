@@ -44,12 +44,11 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
   return (
     <div 
-      style={{ backgroundColor: '#1B2F1D' }}
-      className="group relative flex flex-col h-full bg-[#1B2F1D] text-[#FFFDD0] border border-[#FFFDD0]/15 hover:border-[#EA580C] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+      className="group relative flex flex-col h-full bg-white/5 text-[#FFFDD0] border border-[#FFFDD0]/25 hover:border-[#EA580C] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
     >
       
       {/* Visual Header */}
-      <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#162919] shrink-0">
+      <div className="relative w-full aspect-[16/10] overflow-hidden bg-black/20 shrink-0">
         {!imageFailed && activeSrc ? (
           <img 
             src={activeSrc} 
@@ -68,7 +67,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         )}
         
         {/* Category Badge */}
-        <div className="absolute top-3 left-3 bg-[#243B26]/90 text-[#FFFDD0] backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border border-[#FFFDD0]/20">
+        <div className="absolute top-3 left-3 bg-[#5D8246]/90 text-[#FFFDD0] backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border border-[#FFFDD0]/30">
           {category}
         </div>
       </div>
