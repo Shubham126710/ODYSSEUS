@@ -75,7 +75,10 @@ export default function Home() {
       <div 
         ref={containerRef}
         onScroll={handleScroll}
-        className="hidden md:flex h-[100dvh] overflow-y-scroll snap-y snap-mandatory flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth"
+        data-lenis-prevent="true"
+        data-lenis-prevent
+        tabIndex={0}
+        className="hidden md:flex h-[100dvh] w-full overflow-y-scroll snap-y snap-mandatory flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth outline-none"
       >
         {/* Hero Section */}
         <main className="flex flex-col items-center justify-center relative w-full h-screen snap-start shrink-0">
