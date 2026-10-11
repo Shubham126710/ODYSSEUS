@@ -43,10 +43,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
     : imageUrl;
 
   return (
-    <div className="group relative flex flex-col h-full bg-white text-stone-900 border border-stone-200/90 hover:border-stone-400/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+    <div className="group relative flex flex-col h-full bg-[#FAF7EE] text-[#131E15] border border-white/20 hover:border-[#EA580C] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
       
       {/* Visual Header */}
-      <div className="relative w-full aspect-[16/10] overflow-hidden bg-stone-100 shrink-0">
+      <div className="relative w-full aspect-[16/10] overflow-hidden bg-stone-200 shrink-0">
         {!imageFailed && activeSrc ? (
           <img 
             src={activeSrc} 
@@ -65,7 +65,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         )}
         
         {/* Category Badge */}
-        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider text-stone-800 shadow-xs border border-black/5">
+        <div className="absolute top-3 left-3 bg-[#131E15]/90 text-white backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border border-white/10">
           {category}
         </div>
       </div>
@@ -75,31 +75,31 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         
         <div className="space-y-2">
           {/* Publisher Meta Row */}
-          <div className="flex items-center justify-between text-[11px] font-mono text-stone-500 uppercase tracking-wider">
-            <span className="font-bold text-amber-700 truncate max-w-[140px]">{source}</span>
-            <span>{date}</span>
+          <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider">
+            <span className="font-bold text-[#EA580C] truncate max-w-[140px]">{source}</span>
+            <span className="text-stone-500">{date}</span>
           </div>
 
           {/* Title */}
-          <h3 className="font-serif text-lg font-bold leading-snug text-stone-900 group-hover:text-amber-700 transition-colors duration-200 line-clamp-2">
+          <h3 className="font-serif text-lg font-bold leading-snug text-[#131E15] group-hover:text-[#EA580C] transition-colors duration-200 line-clamp-2">
             {decodeHtmlEntities(title)}
           </h3>
 
           {/* Excerpt */}
-          <p className="text-xs text-stone-600 leading-relaxed line-clamp-2 font-sans">
+          <p className="text-xs text-[#37493A] leading-relaxed line-clamp-2 font-sans">
             {decodeHtmlEntities(excerpt)}
           </p>
         </div>
 
         {/* Footer Actions */}
-        <div className="pt-3 border-t border-stone-100 flex items-center justify-between mt-auto">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-stone-900 group-hover:text-amber-700 transition-colors flex items-center gap-1.5">
+        <div className="pt-3 border-t border-stone-200/80 flex items-center justify-between mt-auto">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#131E15] group-hover:text-[#EA580C] transition-colors flex items-center gap-1.5">
             <span>Read Story</span>
             <span className="text-sm font-sans transition-transform group-hover:translate-x-0.5">→</span>
           </span>
           
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-stone-400 tracking-wider mr-1">
+            <span className="text-[10px] font-mono text-stone-500 tracking-wider mr-1">
               {readTime}
             </span>
 

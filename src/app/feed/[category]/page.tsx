@@ -119,18 +119,18 @@ export default function CategoryFeedPage() {
 
   if (error) {
     return (
-      <div className="flex flex-col min-h-screen bg-[#FAF9F6] text-stone-900">
+      <div className="flex flex-col min-h-screen bg-[#243B26] text-[#FAF7EE] relative">
         <AppHeader />
-        <main className="flex-1 flex flex-col items-center justify-center p-6">
-          <div className="text-center space-y-4 max-w-md p-8 bg-white border border-stone-200 rounded-3xl shadow-sm">
+        <main className="flex-1 flex flex-col items-center justify-center p-6 relative z-10">
+          <div className="text-center space-y-4 max-w-md p-8 bg-[#FAF7EE] text-[#131E15] border border-white/20 rounded-3xl shadow-2xl">
             <span className="text-2xl text-[#EA580C] font-mono">✦</span>
-            <h3 className="text-xl font-serif font-bold text-stone-900">Unable to Connect to Wire</h3>
-            <p className="text-xs text-stone-500 font-sans leading-relaxed">
+            <h3 className="text-xl font-serif font-bold text-[#131E15]">Unable to Connect to Wire</h3>
+            <p className="text-xs text-[#37493A] font-sans leading-relaxed">
               The editorial network encountered a temporary delay. Please retry to reconnect with the RSS wires.
             </p>
             <button 
               onClick={refetch}
-              className="px-6 py-2.5 bg-stone-900 text-white rounded-full font-mono text-xs uppercase tracking-wider hover:bg-stone-800 transition-colors shadow-sm"
+              className="px-6 py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white rounded-full font-mono text-xs uppercase tracking-wider transition-colors shadow-md"
             >
               Retry Wire Connection
             </button>
@@ -177,43 +177,53 @@ export default function CategoryFeedPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-stone-900 font-sans selection:bg-[#EA580C] selection:text-white">
+    <div className="min-h-screen bg-[#243B26] text-[#FAF7EE] font-sans selection:bg-[#EA580C] selection:text-white relative">
+      
+      {/* Tactile Archival Background Dot Pattern */}
+      <div 
+        className="fixed inset-0 pointer-events-none opacity-20 z-0" 
+        style={{
+          backgroundImage: 'radial-gradient(rgba(255, 253, 208, 0.15) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }} 
+      />
+
       <AppHeader />
       
-      <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-12 py-8 sm:py-12 space-y-10">
+      <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-12 py-8 sm:py-12 space-y-10 relative z-10">
         
         {/* Top Folio & Return Navigation */}
-        <div className="flex items-center justify-between gap-4 border-b border-stone-200/80 pb-4">
+        <div className="flex items-center justify-between gap-4 border-b border-[#FFFDD0]/15 pb-4">
           <Link 
             href="/feed"
-            className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-stone-500 hover:text-stone-900 transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#FFFDD0]/70 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Broadsheet</span>
           </Link>
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-stone-400">
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#FFFDD0]/60">
             <span className="font-bold text-[#EA580C]">{deskNumber}</span>
             <span>•</span>
-            <span className="font-bold text-stone-700">{glyph} {deskName}</span>
+            <span className="font-bold text-[#FFFDD0]">{glyph} {deskName}</span>
             <span className="hidden sm:inline">•</span>
             <span className="hidden sm:inline">{filteredStories.length} DISPATCHES</span>
           </div>
         </div>
 
         {/* Editorial Desk Masthead */}
-        <div className="space-y-4 border-b border-stone-200/80 pb-8">
+        <div className="space-y-4 border-b border-[#FFFDD0]/15 pb-8">
           <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-[#EA580C] font-mono text-xs uppercase tracking-widest font-bold mb-2">
                 <span>{glyph}</span>
                 <span>{deskName}</span>
               </div>
-              <h1 className="text-3xl sm:text-5xl font-serif font-bold text-stone-900 tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#FFFDD0] tracking-tight leading-tight">
                 {title}
               </h1>
             </div>
             
-            <p className="text-xs sm:text-sm font-sans text-stone-600 max-w-md leading-relaxed">
+            <p className="text-xs sm:text-sm font-sans text-[#FFFDD0]/80 max-w-md leading-relaxed">
               {subtitle}
             </p>
           </div>
@@ -221,15 +231,15 @@ export default function CategoryFeedPage() {
           {/* Source Filter Letterpress Pills */}
           {pills.length > 0 && (
             <div className="flex items-center gap-2 pt-2 overflow-x-auto scrollbar-hide pb-1">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400 mr-1 shrink-0 font-bold">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#FFFDD0]/60 mr-1 shrink-0 font-bold">
                 Filter:
               </span>
               <button
                 onClick={() => setActiveFilter(null)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 ${
                   activeFilter === null
-                    ? 'bg-stone-900 text-white shadow-xs'
-                    : 'bg-white text-stone-600 hover:text-stone-900 border border-stone-200 hover:border-stone-400'
+                    ? 'bg-[#EA580C] text-white shadow-md'
+                    : 'bg-[#182C1B] text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-[#1f3723] border border-white/15'
                 }`}
               >
                 All Sources ({stories.length})
@@ -242,8 +252,8 @@ export default function CategoryFeedPage() {
                     onClick={() => setActiveFilter(isActive ? null : pill)}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 ${
                       isActive 
-                        ? 'bg-[#EA580C] text-white shadow-xs' 
-                        : 'bg-white text-stone-600 hover:text-stone-900 border border-stone-200 hover:border-stone-400'
+                        ? 'bg-[#EA580C] text-white shadow-md' 
+                        : 'bg-[#182C1B] text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-[#1f3723] border border-white/15'
                     }`}
                   >
                     {pill}
@@ -282,24 +292,24 @@ export default function CategoryFeedPage() {
             </AnimatePresence>
           </div>
         ) : (
-          <div className="text-center py-24 bg-white rounded-3xl border border-stone-200 p-8 space-y-4">
+          <div className="text-center py-24 bg-[#FAF7EE] text-[#131E15] rounded-3xl border border-white/20 p-8 space-y-4 shadow-xl">
             <span className="text-2xl text-[#EA580C] font-mono">{glyph}</span>
-            <h3 className="font-serif text-xl font-bold text-stone-900">
+            <h3 className="font-serif text-xl font-bold text-[#131E15]">
               No dispatches currently on wire
             </h3>
-            <p className="text-xs text-stone-500 max-w-sm mx-auto">
+            <p className="text-xs text-[#37493A] max-w-sm mx-auto">
               Our curators are surveying new dispatches for {deskName}. Refresh your wire or return to the broadsheet.
             </p>
             <div className="flex items-center justify-center gap-3 pt-2">
               <button
                 onClick={refetch}
-                className="px-5 py-2.5 rounded-full bg-stone-900 text-white font-mono text-xs uppercase tracking-wider hover:bg-stone-800 transition-colors"
+                className="px-5 py-2.5 rounded-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-mono text-xs uppercase tracking-wider transition-colors shadow-sm"
               >
                 Refresh Wire
               </button>
               <Link
                 href="/feed"
-                className="px-5 py-2.5 rounded-full bg-white border border-stone-300 text-stone-700 font-mono text-xs uppercase tracking-wider hover:border-stone-500 transition-colors"
+                className="px-5 py-2.5 rounded-full bg-white border border-[#131E15]/20 text-[#131E15] font-mono text-xs uppercase tracking-wider hover:bg-stone-50 transition-colors"
               >
                 Return to Broadsheet
               </Link>

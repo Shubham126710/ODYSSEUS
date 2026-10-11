@@ -324,9 +324,9 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
 
             {/* Profile Dropdown */}
             <div className="relative group hidden md:block">
-              <button className="w-9 h-9 rounded-full bg-stone-800 text-white flex items-center justify-center font-serif font-bold text-sm ring-2 ring-transparent group-hover:ring-[#EA580C] transition-all overflow-hidden">
+              <button className="w-9 h-9 max-w-[36px] max-h-[36px] shrink-0 rounded-full bg-stone-800 text-white flex items-center justify-center font-serif font-bold text-sm ring-2 ring-white/20 group-hover:ring-[#EA580C] transition-all overflow-hidden cursor-pointer">
                 {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                  <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover rounded-full block shrink-0" />
                 ) : (
                   <span>{profile?.first_name?.[0] || 'S'}</span>
                 )}

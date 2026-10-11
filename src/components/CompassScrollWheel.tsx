@@ -99,12 +99,12 @@ export const CompassScrollWheel = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Outer Shell Card */}
-      <div className="relative flex flex-col items-center bg-[#FAF9F6]/90 backdrop-blur-md border border-stone-200/90 rounded-full py-4 px-2 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(234,88,12,0.12)] hover:border-stone-400 transition-all duration-300">
+      <div className="relative flex flex-col items-center bg-[#162919]/95 backdrop-blur-md border border-white/20 rounded-full py-4 px-2 shadow-[0_12px_36px_rgba(0,0,0,0.45)] hover:shadow-[0_16px_45px_rgba(234,88,12,0.35)] hover:border-[#EA580C]/70 transition-all duration-300 text-white">
         
         {/* Top Mini Compass Astrolabe (Rotating Needle) */}
         <button
           onClick={() => scrollToMilestone('hub-dispatch')}
-          className="group relative flex flex-col items-center justify-center p-1 rounded-full hover:bg-stone-100 transition-colors cursor-pointer"
+          className="group relative flex flex-col items-center justify-center p-1 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
           title="Scroll to top of broadsheet"
         >
           <div 
@@ -113,7 +113,7 @@ export const CompassScrollWheel = () => {
           >
             <StaticOrangeCompass className="w-full h-full drop-shadow-xs" />
           </div>
-          <span className="font-mono text-[9px] font-bold text-stone-500 uppercase tracking-widest mt-1">
+          <span className="font-mono text-[9px] font-bold text-white/80 uppercase tracking-widest mt-1">
             {degrees.toString().padStart(3, '0')}°
           </span>
           <span className="font-mono text-[8px] font-black text-[#EA580C] uppercase tracking-wider">
@@ -122,7 +122,7 @@ export const CompassScrollWheel = () => {
         </button>
 
         {/* Divider hairline */}
-        <div className="w-4 h-px bg-stone-200 my-2" />
+        <div className="w-4 h-px bg-white/15 my-2" />
 
         {/* The Vertical Compass Ruler / Horizontal Tick Marks Tape */}
         <div 
@@ -132,7 +132,7 @@ export const CompassScrollWheel = () => {
           title="Click to scrub navigational position"
         >
           {/* Subtle vertical spine track */}
-          <div className="absolute top-0 bottom-0 w-[1px] bg-stone-200/80 group-hover:bg-stone-300 transition-colors" />
+          <div className="absolute top-0 bottom-0 w-[1px] bg-white/20 group-hover:bg-white/30 transition-colors" />
 
           {/* Active Progress Fill Spine */}
           <div 
@@ -156,19 +156,19 @@ export const CompassScrollWheel = () => {
                   <span
                     className={`transition-all duration-200 rounded-full ${
                       isActive
-                        ? 'w-7 h-[2px] bg-[#EA580C] shadow-[0_0_6px_rgba(234,88,12,0.7)]'
+                        ? 'w-7 h-[2px] bg-[#EA580C] shadow-[0_0_8px_rgba(234,88,12,0.9)]'
                         : isMajor
-                        ? 'w-5 h-[1.5px] bg-stone-700'
+                        ? 'w-5 h-[1.5px] bg-white/90'
                         : isMedium
-                        ? 'w-3.5 h-[1px] bg-stone-400'
-                        : 'w-2 h-[1px] bg-stone-300'
+                        ? 'w-3.5 h-[1px] bg-white/50'
+                        : 'w-2 h-[1px] bg-white/25'
                     }`}
                   />
                   {/* Subtle Major Cardinal Letter Indicator */}
                   {isMajor && (
                     <span 
                       className={`absolute right-[-10px] text-[7px] font-mono font-bold ${
-                        isActive ? 'text-[#EA580C]' : 'text-stone-400'
+                        isActive ? 'text-[#EA580C]' : 'text-white/40'
                       }`}
                     >
                       {index === 0 ? 'N' : index === 6 ? 'E' : index === 12 ? 'S' : index === 18 ? 'W' : 'N'}
@@ -191,14 +191,14 @@ export const CompassScrollWheel = () => {
         </div>
 
         {/* Divider hairline */}
-        <div className="w-4 h-px bg-stone-200 my-2" />
+        <div className="w-4 h-px bg-white/15 my-2" />
 
         {/* Bottom Percentage Readout */}
         <div className="flex flex-col items-center">
-          <span className="font-mono text-[9px] font-bold text-stone-700">
+          <span className="font-mono text-[9px] font-bold text-white">
             {Math.round(scrollProgress * 100)}%
           </span>
-          <span className="font-mono text-[7px] font-bold uppercase tracking-widest text-stone-400">
+          <span className="font-mono text-[7px] font-bold uppercase tracking-widest text-white/50">
             HEAD
           </span>
         </div>
@@ -213,14 +213,14 @@ export const CompassScrollWheel = () => {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 10, scale: 0.95 }}
             transition={{ duration: 0.18 }}
-            className="absolute right-14 top-1/2 -translate-y-1/2 w-48 bg-[#FAF9F6]/95 backdrop-blur-lg border border-stone-200/90 rounded-2xl p-3.5 shadow-xl text-stone-900 pointer-events-auto"
+            className="absolute right-14 top-1/2 -translate-y-1/2 w-48 bg-[#162919]/95 backdrop-blur-xl border border-white/20 rounded-2xl p-3.5 shadow-2xl text-white pointer-events-auto"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-stone-200/80 pb-2 mb-2.5">
+            <div className="flex items-center justify-between border-b border-white/15 pb-2 mb-2.5">
               <span className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#EA580C]">
                 ✦ Compass Index
               </span>
-              <span className="text-[9px] font-mono font-bold text-stone-500">
+              <span className="text-[9px] font-mono font-bold text-white/70">
                 {degrees}° {getCardinal(degrees)}
               </span>
             </div>
@@ -235,12 +235,12 @@ export const CompassScrollWheel = () => {
                     onClick={() => scrollToMilestone(m.id)}
                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all ${
                       isActive
-                        ? 'bg-stone-900 text-white font-bold shadow-xs'
-                        : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                        ? 'bg-[#EA580C] text-white font-bold shadow-md'
+                        : 'text-white/80 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     <span className="text-[11px] truncate">{m.label}</span>
-                    <span className={`text-[9px] font-bold ${isActive ? 'text-[#EA580C]' : 'text-stone-400'}`}>
+                    <span className={`text-[9px] font-bold ${isActive ? 'text-white' : 'text-white/40'}`}>
                       {m.cardinal} {m.degrees}°
                     </span>
                   </button>
@@ -249,7 +249,7 @@ export const CompassScrollWheel = () => {
             </div>
 
             {/* Footer advice */}
-            <div className="mt-2.5 pt-2 border-t border-stone-200/60 text-[9px] font-mono text-stone-400 text-center uppercase tracking-wider">
+            <div className="mt-2.5 pt-2 border-t border-white/10 text-[9px] font-mono text-white/40 text-center uppercase tracking-wider">
               Click marker to navigate
             </div>
           </motion.div>
