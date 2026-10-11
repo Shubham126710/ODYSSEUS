@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useMemo } from "react";
 import { useFeedFetcher } from "@/hooks/useFeedFetcher";
 import { useProfile } from "@/hooks/useProfile";
 import { useSavedStories } from "@/hooks/useSavedStories";
@@ -12,10 +12,8 @@ import { Toast } from "@/components/Toast";
 import { ReadingModal } from "@/components/ReadingModal";
 import { AddFeedModal } from "@/components/AddFeedModal";
 import { EditorialMonogramPoster } from "@/components/EditorialMonogramPoster";
-import { StaticOrangeCompass } from "@/components/StaticOrangeCompass";
 import { decodeHtmlEntities } from "@/lib/textUtils";
-import { getExplorerRank, getCurrentMultiplier } from "@/lib/gamification";
-import { motion, AnimatePresence } from "framer-motion";
+import { getExplorerRank } from "@/lib/gamification";
 import Link from 'next/link';
 
 export default function FeedPage() {
@@ -27,12 +25,9 @@ export default function FeedPage() {
   const [readingArticle, setReadingArticle] = useState<any | null>(null);
   const [isAddFeedOpen, setIsAddFeedOpen] = useState(false);
   const [toast, setToast] = useState({ message: '', isVisible: false });
-  const [featuredImageFailed, setFeaturedImageFailed] = useState(false);
-  const [triedFeaturedProxy, setTriedFeaturedProxy] = useState(false);
 
-  // Derived rank and multiplier
+  // Derived rank
   const rank = getExplorerRank(profile?.total_reading_minutes || 0, profile?.streak_count || 1);
-  const multiplier = getCurrentMultiplier();
 
   // Date and edition
   const todayFormatted = useMemo(() => {
@@ -59,13 +54,13 @@ export default function FeedPage() {
     return stories.filter(s => selectedSources.includes(s.source));
   }, [stories, selectedSources]);
 
-  // Lead featured story (first story with image or simply first story)
+  // Lead featured story
   const featuredStory = useMemo(() => {
     if (filteredStories.length === 0) return null;
     return filteredStories.find(s => s.imageUrl && s.imageUrl.length > 5) || filteredStories[0];
   }, [filteredStories]);
 
-  // Other stories (excluding the featured one)
+  // Remaining stories
   const otherStories = useMemo(() => {
     if (!featuredStory) return filteredStories;
     return filteredStories.filter(s => s.id !== featuredStory.id);
@@ -102,9 +97,7 @@ export default function FeedPage() {
           text: story.excerpt,
           url: story.link,
         });
-      } catch {
-        // user cancelled
-      }
+      } catch {}
     } else {
       try {
         await navigator.clipboard.writeText(story.link);
@@ -120,62 +113,60 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-stone-900 font-sans selection:bg-[#EA580C] selection:text-white">
+    <div className="min-h-screen bg-[#FAF9F6] text-stone-900 font-sans selection:bg-[#EA580C] selection:text-white flex flex-col">
       
       {/* Sticky Masthead Navigation */}
       <AppHeader />
 
       {/* Main Continuous Editorial Broadsheet */}
-      <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-12 py-8 sm:py-12 space-y-12 sm:space-y-16">
+      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 space-y-10 sm:space-y-12">
         
-        {/* SECTION 1: EDITORIAL WELCOME & MASTHEAD DISPATCH */}
-        <section className="border-b border-stone-200/80 pb-10 sm:pb-12 space-y-6">
+        {/* SECTION 1: QUIET EDITORIAL FOLIO HEADER */}
+        <section className="border-b border-stone-200/80 pb-6 sm:pb-8 space-y-4">
           
-          {/* Top Folio Dateline */}
-          <div className="flex flex-wrap items-center justify-between gap-3 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-stone-500 border-b border-stone-200/60 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-stone-900">THE ODYSSEUS JOURNAL</span>
-              <span>•</span>
-              <span>VOL. IV — NO. 108</span>
-              <span className="hidden sm:inline">•</span>
-              <span className="hidden sm:inline">{todayFormatted}</span>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-stone-400 mb-1">
+                <span>THE ODYSSEUS JOURNAL</span>
+                <span>•</span>
+                <span>{todayFormatted}</span>
+                <span>•</span>
+                <span>VOL. IV</span>
+              </div>
+              <h1 className="font-serif text-2xl sm:text-4xl text-stone-900 font-normal tracking-tight">
+                <span className="italic font-light">The Daily </span>
+                <span className="font-bold">Dispatch</span>
+              </h1>
+              <p className="text-xs sm:text-sm text-stone-500 font-sans mt-0.5 max-w-xl">
+                Distraction-free, slow journalism curated from the world&apos;s leading publications.
+              </p>
             </div>
-            
-            <div className="flex items-center gap-2 text-stone-400">
-              <span className="font-bold text-[#EA580C]">{rank.title}</span>
+
+            <div className="flex items-center gap-2.5 text-xs font-mono text-stone-500">
+              <span className="px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-800 font-medium shadow-2xs">
+                {rank.title}
+              </span>
               <span>•</span>
-              <span className="font-bold text-stone-700">{profile?.streak_count || 1}D STREAK</span>
+              <span className="font-bold text-[#EA580C]">{profile?.streak_count || 1}D STREAK</span>
             </div>
           </div>
 
-          {/* Hero Welcome Headline */}
-          <div className="max-w-4xl space-y-3">
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 leading-[1.08]">
-              <span className="font-normal italic">Welcome back, </span>
-              <span className="text-[#EA580C] font-semibold">{profile?.first_name || 'Traveler'}</span>
-              <span>.</span>
-            </h1>
-            <p className="text-sm sm:text-base text-stone-600 font-sans leading-relaxed max-w-2xl">
-              Curated slow journalism from the world&apos;s most respected publications. Pure stories, zero clutter.
-            </p>
-          </div>
-
-          {/* Understated Live Trending Ribbon */}
+          {/* Understated Live Trending Wire */}
           {stories.length > 0 && (
-            <div className="bg-white border border-stone-200/80 rounded-2xl p-2.5 sm:p-3 flex items-center gap-3 shadow-xs overflow-hidden">
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EA580C]/10 text-[#EA580C] font-mono text-[10px] sm:text-xs font-bold uppercase tracking-wider shrink-0">
+            <div className="bg-white border border-stone-200/80 rounded-xl px-3 py-2 flex items-center gap-3 shadow-2xs overflow-hidden">
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 font-mono text-[10px] font-bold uppercase tracking-wider shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#EA580C] animate-pulse" />
                 <span>Trending Wire</span>
               </div>
               <div className="flex-1 overflow-hidden relative">
-                <div className="flex items-center gap-8 animate-marquee whitespace-nowrap text-xs font-mono text-stone-700">
+                <div className="flex items-center gap-8 animate-marquee whitespace-nowrap text-xs font-mono text-stone-600">
                   {stories.slice(0, 10).map((s, idx) => (
                     <button
                       key={idx}
                       onClick={() => setReadingArticle(s)}
-                      className="hover:text-[#EA580C] hover:underline transition-colors cursor-pointer truncate max-w-md text-left"
+                      className="hover:text-stone-950 hover:underline transition-colors cursor-pointer truncate max-w-md text-left"
                     >
-                      <span className="font-bold text-stone-400 mr-2">[{s.source}]</span>
+                      <span className="font-bold text-stone-400 mr-1.5">[{s.source}]</span>
                       <span>{decodeHtmlEntities(s.title)}</span>
                     </button>
                   ))}
@@ -187,38 +178,38 @@ export default function FeedPage() {
 
         {/* SECTION 2: THE LEAD COVER STORY */}
         {featuredStory && (
-          <section className="bg-white border border-stone-200/90 rounded-3xl p-6 sm:p-10 shadow-xs hover:shadow-md transition-shadow">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          <section className="bg-white border border-stone-200/80 rounded-2xl p-6 sm:p-8 shadow-xs hover:border-stone-300 transition-colors">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
               
               {/* Left Column: Headline & Editorial Prose */}
-              <div className="lg:col-span-7 space-y-4 sm:space-y-6">
-                <div className="flex items-center gap-2.5 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em]">
-                  <span className="px-2.5 py-1 rounded-full bg-stone-100 text-stone-800 font-bold">
+              <div className="lg:col-span-7 space-y-4">
+                <div className="flex items-center gap-2 text-[10px] sm:text-xs font-mono uppercase tracking-wider text-stone-500">
+                  <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-800 font-medium">
                     {featuredStory.category}
                   </span>
-                  <span className="text-stone-400">•</span>
+                  <span>•</span>
                   <span className="font-bold text-[#EA580C]">{featuredStory.source}</span>
-                  <span className="text-stone-400">•</span>
-                  <span className="text-stone-400">{featuredStory.readTime}</span>
+                  <span>•</span>
+                  <span>{featuredStory.readTime} read</span>
                 </div>
 
                 <div 
                   onClick={() => setReadingArticle(featuredStory)}
                   className="cursor-pointer group block"
                 >
-                  <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-bold text-stone-900 group-hover:text-[#EA580C] transition-colors leading-[1.12]">
+                  <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-stone-900 group-hover:text-[#EA580C] transition-colors leading-[1.15]">
                     {decodeHtmlEntities(featuredStory.title)}
                   </h2>
                 </div>
 
-                <p className="text-sm sm:text-base text-stone-600 leading-relaxed font-sans line-clamp-3 sm:line-clamp-4">
+                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-sans line-clamp-3">
                   {decodeHtmlEntities(featuredStory.excerpt)}
                 </p>
 
                 {/* Perspective Links */}
                 {featuredStory.relatedPerspectives && featuredStory.relatedPerspectives.length > 0 && (
-                  <div className="pt-2">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400 block mb-2 font-bold">
+                  <div className="pt-1">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block mb-1.5">
                       Alternative Viewpoints ({featuredStory.relatedPerspectives.length})
                     </span>
                     <div className="flex flex-wrap gap-2">
@@ -233,9 +224,9 @@ export default function FeedPage() {
                             date: 'Related Perspective',
                             readTime: '3 min'
                           })}
-                          className="text-xs px-3 py-1.5 rounded-xl bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 flex items-center gap-1.5 transition-colors"
+                          className="text-xs px-2.5 py-1 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 flex items-center gap-1.5 transition-colors"
                         >
-                          <span className="font-bold text-amber-700">{p.source}:</span>
+                          <span className="font-bold text-stone-900">{p.source}:</span>
                           <span className="truncate max-w-[180px] sm:max-w-[240px]">{decodeHtmlEntities(p.title)}</span>
                         </button>
                       ))}
@@ -243,49 +234,49 @@ export default function FeedPage() {
                   </div>
                 )}
 
-                <div className="pt-3 flex items-center gap-4">
+                <div className="pt-2 flex items-center gap-3">
                   <button
                     onClick={() => setReadingArticle(featuredStory)}
-                    className="px-6 sm:px-8 py-3 rounded-full bg-stone-900 hover:bg-stone-800 text-white font-mono font-bold text-xs uppercase tracking-wider shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
+                    className="px-6 py-2.5 rounded-full bg-stone-900 hover:bg-black text-white font-mono font-medium text-xs uppercase tracking-wider shadow-xs hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center gap-2"
                   >
-                    <span>Read Cover Story</span>
-                    <span className="text-sm">→</span>
+                    <span>Read Article</span>
+                    <span>→</span>
                   </button>
 
                   <button
                     onClick={() => handleToggleSave(featuredStory)}
-                    className={`p-3 rounded-full border transition-all ${
-                      isSaved(featuredStory)
-                        ? 'bg-amber-50 border-amber-300 text-amber-700'
-                        : 'border-stone-200 text-stone-400 hover:text-stone-700 hover:bg-stone-50'
+                    className={`p-2 rounded-full border border-stone-200 transition-colors ${
+                      isSaved(featuredStory) ? 'text-[#EA580C] border-[#EA580C] bg-[#EA580C]/5' : 'text-stone-400 hover:text-stone-800 hover:bg-stone-50'
                     }`}
-                    title={isSaved(featuredStory) ? "Saved" : "Save for later"}
+                    title={isSaved(featuredStory) ? "Saved in Library" : "Save for Later"}
                   >
                     <svg className="w-4 h-4" fill={isSaved(featuredStory) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                     </svg>
                   </button>
+
+                  <button
+                    onClick={() => handleShare(featuredStory)}
+                    className="p-2 rounded-full border border-stone-200 text-stone-400 hover:text-stone-800 hover:bg-stone-50 transition-colors"
+                    title="Share Article"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                  </button>
                 </div>
               </div>
 
-              {/* Right Column: Hero Visual Frame */}
+              {/* Right Column: 16:10 Visual Image */}
               <div 
                 onClick={() => setReadingArticle(featuredStory)}
-                className="lg:col-span-5 aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden relative shadow-lg cursor-pointer group bg-stone-100 border border-stone-200/80"
+                className="lg:col-span-5 aspect-[16/10] rounded-xl overflow-hidden bg-stone-100 border border-stone-200/90 shadow-xs cursor-pointer group"
               >
-                {!featuredImageFailed && featuredStory.imageUrl ? (
+                {featuredStory.imageUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
-                    src={triedFeaturedProxy 
-                      ? `/api/image-proxy?url=${encodeURIComponent(featuredStory.imageUrl)}`
-                      : featuredStory.imageUrl}
+                    src={featuredStory.imageUrl}
                     alt={featuredStory.title}
-                    onError={() => {
-                      if (!triedFeaturedProxy && featuredStory.imageUrl) {
-                        setTriedFeaturedProxy(true);
-                      } else {
-                        setFeaturedImageFailed(true);
-                      }
-                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 ) : (
@@ -296,164 +287,109 @@ export default function FeedPage() {
                     className="w-full h-full"
                   />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 pointer-events-none" />
               </div>
 
             </div>
           </section>
         )}
 
-        {/* SECTION 3: THE 5 CURATED PRESTIGE DESKS */}
-        <section className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-stone-200/80 pb-4">
+        {/* SECTION 3: CURATED EDITORIAL DESKS */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between border-b border-stone-200/80 pb-2">
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#EA580C] font-bold block mb-1">
-                EDITORIAL DESKS • 5 THEMATIC TERRITORIES
+              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#EA580C] font-bold block">
+                SPECIALIST DISPATCHES
               </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-stone-900">
                 Curated Genre Desks
-              </h2>
+              </h3>
             </div>
-            <p className="text-xs text-stone-500 font-sans max-w-md">
-              Immerse yourself by discipline. Authoritative reporting gathered from premier publications.
-            </p>
+            <span className="text-xs font-mono text-stone-400">
+              5 Dedicated Channels
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
-              {
-                id: 'tech',
-                glyph: '✦',
-                desk: 'The Vanguard',
-                category: 'Tech & AI',
-                desc: 'Frontier models, cybernetics, and compute.',
-                sources: 'Wired • Verge • MIT',
-              },
-              {
-                id: 'design',
-                glyph: '◈',
-                desk: 'The Atelier',
-                category: 'Design & Craft',
-                desc: 'Spatial craft, typography, and visual culture.',
-                sources: 'Dezeen • Eye • UX',
-              },
-              {
-                id: 'culture',
-                glyph: '◆',
-                desk: 'The Forum',
-                category: 'Culture & Essays',
-                desc: 'Philosophy, longform criticism, and society.',
-                sources: 'The Atlantic • Aeon',
-              },
-              {
-                id: 'chronicle',
-                glyph: '—',
-                desk: 'The Chronicle',
-                category: 'Global Affairs',
-                desc: 'Geopolitics, macro markets, and chronicles.',
-                sources: 'NY Times • Bloomberg',
-              },
-              {
-                id: 'science',
-                glyph: '❖',
-                desk: 'The Observatory',
-                category: 'Science & Cosmos',
-                desc: 'Astrophysics, biology, and quantum physics.',
-                sources: 'Quanta • Nature',
-              },
+              { id: 'tech', name: 'The Vanguard', desk: 'Tech', category: 'Technology & AI', desc: 'Frontier AI, silicon architectures & autonomous systems.' },
+              { id: 'design', name: 'The Atelier', desk: 'Design', category: 'Design & Craft', desc: 'Spatial computing, typography & industrial forms.' },
+              { id: 'culture', name: 'The Forum', desk: 'Culture', category: 'Culture & Essays', desc: 'Philosophical essays, human conditions & criticism.' },
+              { id: 'science', name: 'The Observatory', desk: 'Science', category: 'Science & Cosmos', desc: 'Astrophysics, biology & deep universe dispatches.' },
+              { id: 'chronicle', name: 'The Chronicle', desk: 'Chronicle', category: 'Global Chronicle', desc: 'Geopolitics, macro trends & investigative journalism.' },
             ].map((desk) => (
               <Link
                 key={desk.id}
-                href={`/feed/${desk.id}`}
-                className="group p-5 rounded-2xl bg-white border border-stone-200/90 hover:border-stone-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                href={`/feed/${desk.desk.toLowerCase()}`}
+                className="group p-4 bg-white border border-stone-200/80 hover:border-stone-400 rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between"
               >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-[#EA580C] font-mono">
-                      {desk.glyph}
-                    </span>
-                    <span className="text-xs font-mono font-bold text-stone-400 group-hover:text-stone-900 group-hover:translate-x-0.5 transition-all">
-                      →
-                    </span>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[9px] font-mono uppercase tracking-wider text-stone-400">{desk.category}</span>
+                    <span className="text-xs font-serif text-stone-300 group-hover:text-stone-900 transition-colors">↗</span>
                   </div>
-
-                  <div>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-stone-400 block mb-1">
-                      {desk.desk}
-                    </span>
-                    <h3 className="font-serif text-lg font-bold text-stone-900 group-hover:text-[#EA580C] transition-colors">
-                      {desk.category}
-                    </h3>
-                  </div>
-
-                  <p className="text-xs text-stone-600 leading-relaxed font-sans line-clamp-2">
+                  <h4 className="font-serif text-base font-bold text-stone-900 group-hover:text-[#EA580C] transition-colors mb-1">
+                    {desk.name}
+                  </h4>
+                  <p className="text-[11px] text-stone-500 leading-relaxed line-clamp-2">
                     {desk.desc}
                   </p>
                 </div>
-
-                <div className="pt-4 mt-4 border-t border-stone-100 text-[10px] font-mono text-stone-400 truncate">
-                  {desk.sources}
+                <div className="pt-3 mt-3 border-t border-stone-100 flex items-center justify-between text-[10px] font-mono text-stone-400 group-hover:text-stone-700">
+                  <span>Enter Desk</span>
+                  <span>→</span>
                 </div>
               </Link>
             ))}
           </div>
         </section>
 
-        {/* SECTION 4: THE LIVE SALON COLLECTION */}
-        <section className="space-y-6 pt-4">
+        {/* SECTION 4: THE SALON COLLECTION (ALL ARTICLES) */}
+        <section className="space-y-6 pb-12">
           
-          {/* Header & Source Filter Chips */}
-          <div className="space-y-4 border-b border-stone-200/80 pb-6">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#EA580C] font-bold block mb-1">
-                  REAL-TIME DISPATCHES • {otherStories.length} STORIES
-                </span>
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
-                  The Salon Collection
-                </h2>
-              </div>
-              <p className="text-xs text-stone-500 font-sans">
-                Filter by publication or browse the complete chronicle.
-              </p>
+          {/* Header & Source Filters */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-stone-200/80 pb-4 gap-4">
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#EA580C] font-bold block mb-0.5">
+                VERIFIED ARCHIVE
+              </span>
+              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
+                The Salon Collection
+              </h3>
             </div>
 
             {/* Source Filter Chips */}
             {uniqueSources.length > 0 && (
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
                 <button
                   onClick={() => setSelectedSources([])}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
+                  className={`px-3 py-1 rounded-full text-xs font-mono font-medium transition-all shrink-0 ${
                     selectedSources.length === 0
-                      ? 'bg-stone-900 text-white shadow-xs'
-                      : 'bg-white text-stone-600 hover:text-stone-900 border border-stone-200 hover:border-stone-400'
+                      ? 'bg-stone-900 text-white shadow-2xs'
+                      : 'bg-white border border-stone-200 text-stone-600 hover:text-stone-900 hover:border-stone-300'
                   }`}
                 >
-                  All Publications ({stories.length})
+                  All ({stories.length})
                 </button>
-                {uniqueSources.map((source) => {
-                  const isSelected = selectedSources.includes(source);
-                  return (
-                    <button
-                      key={source}
-                      onClick={() => toggleSource(source)}
-                      className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
-                        isSelected
-                          ? 'bg-[#EA580C] text-white shadow-xs'
-                          : 'bg-white text-stone-600 hover:text-stone-900 border border-stone-200 hover:border-stone-400'
-                      }`}
-                    >
-                      {source}
-                    </button>
-                  );
-                })}
+                {uniqueSources.map(source => (
+                  <button
+                    key={source}
+                    onClick={() => toggleSource(source)}
+                    className={`px-3 py-1 rounded-full text-xs font-mono font-medium transition-all shrink-0 ${
+                      selectedSources.includes(source)
+                        ? 'bg-stone-900 text-white shadow-2xs'
+                        : 'bg-white border border-stone-200 text-stone-600 hover:text-stone-900 hover:border-stone-300'
+                    }`}
+                  >
+                    {source}
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Cards Grid */}
+          {/* Stories Grid */}
           {otherStories.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {otherStories.map((story) => (
                 <div 
                   key={story.id} 
@@ -461,7 +397,13 @@ export default function FeedPage() {
                   className="cursor-pointer"
                 >
                   <StoryCard
-                    {...story}
+                    title={story.title}
+                    excerpt={story.excerpt}
+                    source={story.source}
+                    date={story.date}
+                    readTime={story.readTime}
+                    imageUrl={story.imageUrl}
+                    category={story.category}
                     isSaved={isSaved(story)}
                     onToggleSave={() => handleToggleSave(story)}
                     onShare={() => handleShare(story)}
@@ -470,42 +412,22 @@ export default function FeedPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white rounded-3xl border border-stone-200 p-8 space-y-4">
-              <span className="text-2xl text-[#EA580C] font-mono">✦</span>
-              <h3 className="font-serif text-xl font-bold text-stone-900">
-                {stories.length === 0 ? "Your feed is currently empty" : "No stories match this filter"}
-              </h3>
-              <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                {stories.length === 0
-                  ? "Connect custom RSS feeds or select topics to begin your voyage."
-                  : "Try clearing selected publications to view all stories."}
-              </p>
-              {selectedSources.length > 0 && (
-                <button
-                  onClick={() => setSelectedSources([])}
-                  className="px-5 py-2 rounded-full bg-stone-900 text-white font-mono text-xs uppercase tracking-wider"
-                >
-                  Reset Filters
-                </button>
-              )}
+            <div className="text-center py-16 bg-white border border-stone-200/80 rounded-2xl">
+              <p className="text-stone-500 font-serif text-lg mb-2">No dispatches match the selected sources.</p>
+              <button 
+                onClick={() => setSelectedSources([])}
+                className="text-xs font-mono font-bold uppercase tracking-wider text-[#EA580C] hover:underline"
+              >
+                Clear Filters
+              </button>
             </div>
           )}
+
         </section>
 
       </main>
 
-      {/* Classical Masthead Footer */}
-      <Footer />
-
-      {/* Add Feed Modal */}
-      <AddFeedModal
-        isOpen={isAddFeedOpen}
-        onClose={() => setIsAddFeedOpen(false)}
-        userId={profile?.id}
-        onFeedAdded={refetch}
-      />
-
-      {/* Reading Chamber Modal */}
+      {/* Reader Modal */}
       {readingArticle && (
         <ReadingModal
           isOpen={!!readingArticle}
@@ -515,12 +437,26 @@ export default function FeedPage() {
         />
       )}
 
+      {/* Add Feed Modal */}
+      {isAddFeedOpen && (
+        <AddFeedModal
+          isOpen={isAddFeedOpen}
+          onClose={() => setIsAddFeedOpen(false)}
+          userId={profile?.id || ''}
+          onSuccess={() => refetch()}
+        />
+      )}
+
       {/* Toast Notification */}
-      <Toast
-        message={toast.message}
-        isVisible={toast.isVisible}
-        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+      <Toast 
+        message={toast.message} 
+        isVisible={toast.isVisible} 
+        onClose={() => setToast({ message: '', isVisible: false })} 
       />
+
+      {/* Minimal Footer */}
+      <Footer />
+
     </div>
   );
 }
