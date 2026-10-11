@@ -119,8 +119,11 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
   return (
     <>
       <header 
-        style={{ backgroundColor: '#5D8246', borderBottom: '1px solid rgba(255, 253, 208, 0.2)' }}
-        className="sticky top-0 z-50 bg-[#5D8246] text-[#FFFDD0] shadow-sm transition-colors duration-300"
+        style={{ 
+          backgroundColor: pathname?.startsWith('/feed') ? '#243625' : '#5D8246', 
+          borderBottom: '1px solid rgba(255, 253, 208, 0.15)' 
+        }}
+        className="sticky top-0 z-50 text-[#FFFDD0] shadow-sm transition-colors duration-300"
       >
         <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between gap-4">
           

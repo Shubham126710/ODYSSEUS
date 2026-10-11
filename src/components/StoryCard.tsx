@@ -1,8 +1,10 @@
 import React from 'react';
 import { EditorialMonogramPoster } from './EditorialMonogramPoster';
 import { decodeHtmlEntities } from '@/lib/textUtils';
+import { EditorialHeadline } from '@/lib/editorialTypography';
 
-interface StoryCardProps {
+export interface StoryCardProps {
+  id?: string;
   title: string;
   excerpt: string;
   source: string;
@@ -13,6 +15,10 @@ interface StoryCardProps {
   onToggleSave?: () => void;
   isSaved?: boolean;
   onShare?: () => void;
+  variant?: 'standard' | 'tall' | 'compact' | 'horizontal';
+  showExcerpt?: boolean;
+  aspectRatio?: '16/10' | '4/5' | 'square';
+  className?: string;
 }
 
 export const StoryCard: React.FC<StoryCardProps> = ({
@@ -26,6 +32,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   onToggleSave,
   isSaved,
   onShare,
+  variant = 'standard',
+  showExcerpt = true,
+  aspectRatio,
+  className = "",
 }) => {
   const [useProxy, setUseProxy] = React.useState(false);
   const [imageFailed, setImageFailed] = React.useState(!imageUrl);
@@ -42,21 +52,89 @@ export const StoryCard: React.FC<StoryCardProps> = ({
     ? `/api/image-proxy?url=${encodeURIComponent(imageUrl)}` 
     : imageUrl;
 
+  // Determine aspect ratio class
+  const imageAspectClass = aspectRatio === '4/5' || variant === 'tall'
+    ? 'aspect-[4/5]'
+    : aspectRatio === 'square'
+    ? 'aspect-square'
+    : 'aspect-[16/10]';
+
+  // Compact / Horizontal Variant
+  if (variant === 'compact' || variant === 'horizontal') {
+    return (
+      <article 
+        className={`group relative flex gap-4 items-start p-3 bg-white/[0.02] hover:bg-white/[0.05] border border-[#FFFDD0]/10 hover:border-[#FFFDD0]/25 transition-all duration-300 ${className}`}
+      >
+        {/* Thumbnail */}
+        <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 overflow-hidden bg-[#1E2E20] border border-[#FFFDD0]/10">
+          {!imageFailed && activeSrc ? (
+            <div className="relative w-full h-full">
+              <img 
+                src={activeSrc} 
+                alt={title} 
+                onError={handleImageError}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              />
+              {/* Subtle green duotone/tint overlay, removed on hover */}
+              <div className="absolute inset-0 bg-[#243826]/35 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 pointer-events-none" />
+            </div>
+          ) : (
+            <EditorialMonogramPoster 
+              source={source} 
+              category={category} 
+              title={title} 
+              className="w-full h-full" 
+            />
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch py-0.5">
+          <div className="space-y-1">
+            {/* Meta */}
+            <div className="flex items-center gap-2 text-[9px] font-mono uppercase tracking-[0.2em] text-[#FFFDD0]/60">
+              <span className="text-[#EA580C] font-bold group-hover:text-[#FF7A59] transition-colors">{category}</span>
+              <span>•</span>
+              <span className="truncate">{source}</span>
+            </div>
+
+            {/* Headline */}
+            <h4 className="font-sans font-bold text-sm leading-snug text-[#FFFDD0] group-hover:text-white transition-colors duration-200 line-clamp-2">
+              <EditorialHeadline title={decodeHtmlEntities(title)} />
+            </h4>
+          </div>
+
+          <div className="flex items-center justify-between text-[9px] font-mono uppercase tracking-wider text-[#FFFDD0]/50 pt-2 border-t border-[#FFFDD0]/10 mt-2">
+            <span>{readTime}</span>
+            <span className="text-[#EA580C] font-bold group-hover:translate-x-1 transition-transform">
+              READ →
+            </span>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  // Standard & Tall Magazine Card
   return (
-    <div 
-      className="group relative flex flex-col h-full bg-white/5 text-[#FFFDD0] border border-[#FFFDD0]/25 hover:border-[#EA580C] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+    <article 
+      className={`group relative flex flex-col h-full bg-white/[0.02] hover:bg-white/[0.05] border border-[#FFFDD0]/12 hover:border-[#FFFDD0]/30 transition-all duration-300 ${className}`}
     >
-      
-      {/* Visual Header */}
-      <div className="relative w-full aspect-[16/10] overflow-hidden bg-black/20 shrink-0">
+      {/* Magazine Image Frame */}
+      <div className={`relative w-full ${imageAspectClass} overflow-hidden bg-[#1E2E20] shrink-0 border-b border-[#FFFDD0]/10`}>
         {!imageFailed && activeSrc ? (
-          <img 
-            src={activeSrc} 
-            alt={title} 
-            onError={handleImageError}
-            loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
+          <div className="relative w-full h-full">
+            <img 
+              src={activeSrc} 
+              alt={title} 
+              onError={handleImageError}
+              loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+            {/* Subtle green duotone tint overlay for cohesion across publishers, removed on hover */}
+            <div className="absolute inset-0 bg-[#243826]/35 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 pointer-events-none" />
+          </div>
         ) : (
           <EditorialMonogramPoster 
             source={source} 
@@ -66,80 +144,67 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           />
         )}
         
-        {/* Category Badge */}
-        <div className="absolute top-3 left-3 bg-[#5D8246]/90 text-[#FFFDD0] backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border border-[#FFFDD0]/30">
+        {/* Category Label (Small, top-left) */}
+        <div className="absolute top-2.5 left-2.5 bg-[#1E2E20]/90 backdrop-blur-xs px-2 py-0.5 text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#EA580C] border border-[#FFFDD0]/20">
           {category}
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="p-5 flex flex-col flex-grow justify-between space-y-3">
-        
+      {/* Editorial Content */}
+      <div className="p-4 sm:p-5 flex flex-col flex-grow justify-between space-y-3">
         <div className="space-y-2">
-          {/* Publisher Meta Row */}
-          <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider">
-            <span className="font-bold text-[#EA580C] truncate max-w-[140px]">{source}</span>
-            <span className="text-[#FFFDD0]/60">{date}</span>
+          {/* Metadata Row: SOURCE · 4 MIN */}
+          <div className="flex items-center justify-between text-[9px] font-mono uppercase tracking-[0.2em] text-[#FFFDD0]/60">
+            <span className="font-bold text-[#EA580C] truncate max-w-[140px] group-hover:text-[#FF7A59] transition-colors">
+              {source}
+            </span>
+            <span className="text-[#FFFDD0]/50">{readTime}</span>
           </div>
 
-          {/* Title */}
-          <h3 className="font-serif text-lg font-bold leading-snug text-[#FFFDD0] group-hover:text-[#EA580C] transition-colors duration-200 line-clamp-2 tracking-tight">
-            {decodeHtmlEntities(title)}
+          {/* Headline */}
+          <h3 className="font-sans font-bold text-base sm:text-lg leading-snug text-[#FFFDD0] group-hover:text-white transition-colors duration-200 line-clamp-3 tracking-tight">
+            <EditorialHeadline title={decodeHtmlEntities(title)} />
           </h3>
 
-          {/* Excerpt */}
-          <p className="text-xs text-[#FFFDD0]/75 font-serif italic leading-relaxed line-clamp-2">
-            {decodeHtmlEntities(excerpt)}
-          </p>
+          {/* Summary / Excerpt */}
+          {showExcerpt && excerpt && (
+            <p className="text-xs text-[#FFFDD0]/75 font-sans leading-relaxed line-clamp-2 pt-0.5">
+              {decodeHtmlEntities(excerpt)}
+            </p>
+          )}
         </div>
 
-        {/* Footer Actions */}
-        <div className="pt-3 border-t border-[#FFFDD0]/10 flex items-center justify-between mt-auto">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#FFFDD0] group-hover:text-[#EA580C] transition-colors flex items-center gap-1.5">
-            <span>Read Story</span>
-            <span className="text-sm font-sans transition-transform group-hover:translate-x-0.5">→</span>
-          </span>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-[#FFFDD0]/60 tracking-wider mr-1">
-              {readTime}
+        {/* Footer Meta & Read Action */}
+        <div className="pt-3 border-t border-[#FFFDD0]/10 flex items-center justify-between mt-auto text-[10px] font-mono uppercase tracking-widest text-[#FFFDD0]/60">
+          <span className="text-[9px] text-[#FFFDD0]/45">{date}</span>
+
+          <div className="flex items-center gap-3">
+            {/* Save Button */}
+            {onToggleSave && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleSave();
+                }}
+                className={`transition-colors p-1 hover:text-[#EA580C] ${isSaved ? 'text-[#EA580C]' : 'text-[#FFFDD0]/40'}`}
+                title={isSaved ? "Saved to Library" : "Save for Later"}
+                aria-label={isSaved ? "Saved to Library" : "Save for Later"}
+              >
+                <svg className="w-3.5 h-3.5" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+              </button>
+            )}
+
+            {/* Read Arrow */}
+            <span className="text-[#FFFDD0] group-hover:text-[#EA580C] font-bold flex items-center gap-1 transition-colors">
+              <span>READ</span>
+              <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
             </span>
-
-            {/* Bookmark button */}
-            <button 
-              className={`p-1.5 rounded-full hover:bg-white/10 transition-colors ${isSaved ? 'text-[#EA580C]' : 'text-[#FFFDD0]/60 hover:text-[#FFFDD0]'}`} 
-              aria-label="Save story"
-              title={isSaved ? "Saved to Library" : "Save for later"}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onToggleSave?.();
-              }}
-            >
-              <svg className="w-4 h-4" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-            </button>
-
-            {/* Share button */}
-            <button 
-              className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-[#FFFDD0]/60 hover:text-[#FFFDD0]" 
-              aria-label="Share story"
-              title="Share story"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onShare?.();
-              }}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
-            </button>
           </div>
         </div>
-
       </div>
-    </div>
+    </article>
   );
 };
