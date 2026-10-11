@@ -30,6 +30,23 @@ export default function FeedPage() {
   const [toast, setToast] = useState({ message: '', isVisible: false });
   const [featuredImageFailed, setFeaturedImageFailed] = useState(false);
   const [triedFeaturedProxy, setTriedFeaturedProxy] = useState(false);
+  const [headlines, setHeadlines] = useState<any[]>([]);
+
+  // Fetch true breaking trending headlines from /api/rss?mode=trending
+  useEffect(() => {
+    const fetchTrending = async () => {
+      try {
+        const res = await fetch('/api/rss?mode=trending');
+        const data = await res.json();
+        if (data.success && data.headlines && data.headlines.length > 0) {
+          setHeadlines(data.headlines);
+        }
+      } catch (e) {
+        console.error('Failed to fetch trending headlines', e);
+      }
+    };
+    fetchTrending();
+  }, []);
 
   // Derived rank and multiplier
   const rank = getExplorerRank(profile?.total_reading_minutes || 0, profile?.streak_count || 1);
@@ -71,6 +88,11 @@ export default function FeedPage() {
     if (!featuredStory) return filteredStories;
     return filteredStories.filter(s => s.id !== featuredStory.id);
   }, [filteredStories, featuredStory]);
+
+  // Curated Main Stories for The Salon Collection (clean, focused, uncluttered)
+  const displayedStories = useMemo(() => {
+    return otherStories.slice(0, 16);
+  }, [otherStories]);
 
   const toggleSource = (source: string) => {
     setSelectedSources(prev => 
@@ -171,43 +193,79 @@ export default function FeedPage() {
             </p>
           </div>
 
-          {/* Refined Live Trending Ribbon */}
-          {stories.length > 0 && (
-            <div className="bg-[#162919]/90 border border-white/20 rounded-2xl p-2.5 sm:p-3 flex items-center gap-3.5 backdrop-blur-md shadow-xl overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EA580C] text-white font-mono text-[10px] sm:text-xs font-bold uppercase tracking-wider shrink-0 shadow-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                <span>Trending Wire</span>
-              </div>
-              <div className="flex-1 overflow-hidden relative">
-                <div className="flex items-center gap-8 animate-marquee whitespace-nowrap text-xs font-sans text-[#FAF7EE]/90">
-                  {stories.slice(0, 10).map((s, idx) => {
-                    const cleanSource = s.source ? s.source.split('>')[0].trim() : 'Wire';
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => setReadingArticle(s)}
-                        className="hover:text-[#EA580C] transition-colors cursor-pointer truncate max-w-md text-left flex items-center gap-2 group"
-                      >
-                        <span className="font-bold text-[#EA580C] font-mono text-[11px] uppercase tracking-wider">[{cleanSource}]</span>
-                        <span className="group-hover:underline text-white/90 font-serif text-xs">{decodeHtmlEntities(s.title)}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+          {/* Signature Hermès Orange Trending Wire Marquee Ribbon */}
+          <div 
+            style={{ backgroundColor: '#EA580C' }}
+            className="w-full h-12 sm:h-14 bg-orange-accent rounded-2xl flex items-center shadow-xl overflow-hidden border border-white/20 relative z-20"
+          >
+            {/* Static Trending Pill */}
+            <div 
+              style={{ backgroundColor: '#EA580C' }}
+              className="h-full flex items-center pl-3.5 sm:pl-6 pr-2.5 sm:pr-4 z-20 relative shrink-0"
+            >
+              <div 
+                style={{ backgroundColor: '#FAF7EE', color: '#EA580C' }}
+                className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full font-mono font-black text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-2 shadow-sm"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#EA580C] animate-pulse" />
+                <span>Trending</span>
               </div>
             </div>
-          )}
+
+            {/* Scrolling Headline Marquee */}
+            <div className="flex-1 overflow-hidden relative h-full flex items-center">
+              <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-[#EA580C] to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-[#EA580C] to-transparent z-10 pointer-events-none" />
+
+              <div className="flex items-center gap-8 sm:gap-12 pl-4 animate-marquee whitespace-nowrap">
+                {(headlines.length > 0 
+                  ? [...headlines, ...headlines] 
+                  : [...stories.slice(0, 10), ...stories.slice(0, 10)]
+                ).map((item, idx) => {
+                  const title = item.title;
+                  const source = item.source ? item.source.split('>')[0].trim() : 'Wire';
+                  const link = item.link;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setReadingArticle({
+                        title,
+                        link,
+                        source,
+                        excerpt: item.excerpt || '',
+                        date: 'Trending Wire',
+                        readTime: item.readTime || '3 min',
+                      })}
+                      className="group flex items-center gap-2.5 text-xs sm:text-sm font-serif font-bold text-white hover:text-[#FAF7EE] transition-colors cursor-pointer"
+                    >
+                      <span className="font-mono text-[10px] sm:text-xs tracking-wider uppercase text-[#FAF7EE]/80 group-hover:text-white">
+                        [{source}]
+                      </span>
+                      <span className="group-hover:underline underline-offset-4 decoration-white/70">
+                        {decodeHtmlEntities(title)}
+                      </span>
+                      <span className="mx-3 text-white/40 select-none">•</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* SECTION 2: THE LEAD COVER STORY */}
         {featuredStory && (
-          <section id="hub-lead" className="bg-[#FAF7EE] text-[#131E15] border border-white/20 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition-all">
+          <section 
+            id="hub-lead" 
+            style={{ backgroundColor: '#FAF7EE' }}
+            className="bg-parchment text-ink border border-white/20 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition-all"
+          >
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-12 items-center">
               
               {/* Left Column: Headline & Editorial Prose */}
               <div className="md:col-span-7 space-y-4 sm:space-y-6">
                 <div className="flex items-center gap-3 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em]">
-                  <span className="px-3 py-1 rounded-full bg-[#131E15] text-[#FFFDD0] font-bold text-[10px] tracking-widest">
+                  <span className="px-3 py-1 rounded-full bg-[#131E15] text-[#FAF7EE] font-bold text-[10px] tracking-widest shadow-xs">
                     {featuredStory.category}
                   </span>
                   <span className="text-[#37493A]/40">•</span>
@@ -220,12 +278,12 @@ export default function FeedPage() {
                   onClick={() => setReadingArticle(featuredStory)}
                   className="cursor-pointer group block"
                 >
-                  <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#131E15] group-hover:text-[#EA580C] transition-colors leading-[1.14] tracking-tight">
+                  <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-[#131E15] group-hover:text-[#EA580C] transition-colors leading-[1.12] tracking-tight">
                     {decodeHtmlEntities(featuredStory.title)}
                   </h2>
                 </div>
 
-                <p className="text-sm sm:text-base text-[#37493A] font-serif leading-relaxed line-clamp-3 sm:line-clamp-4">
+                <p className="text-base sm:text-lg text-[#37493A] font-serif italic leading-relaxed line-clamp-3 sm:line-clamp-4 border-l-2 border-[#EA580C]/40 pl-4">
                   {decodeHtmlEntities(featuredStory.excerpt)}
                 </p>
 
@@ -247,7 +305,7 @@ export default function FeedPage() {
                             date: 'Related Perspective',
                             readTime: '3 min'
                           })}
-                          className="text-xs px-3 py-1.5 rounded-xl bg-white/80 hover:bg-white border border-[#131E15]/10 text-[#131E15] flex items-center gap-1.5 transition-colors shadow-xs"
+                          className="text-xs px-3 py-1.5 rounded-xl bg-white hover:bg-[#FAF7EE] border border-[#131E15]/10 text-[#131E15] flex items-center gap-1.5 transition-colors shadow-xs"
                         >
                           <span className="font-bold text-[#EA580C] font-mono text-[11px]">{p.source}:</span>
                           <span className="truncate max-w-[180px] sm:max-w-[240px] text-[#37493A]">{decodeHtmlEntities(p.title)}</span>
@@ -337,14 +395,16 @@ export default function FeedPage() {
             {[
               {
                 id: 'tech',
+                numeral: 'I',
                 glyph: '✦',
                 desk: 'The Vanguard',
                 category: 'Tech & AI',
-                desc: 'Frontier models, cybernetics, and compute.',
+                desc: 'Frontier intelligence, cybernetics, and synthetic compute.',
                 sources: 'Wired • Verge • MIT',
               },
               {
                 id: 'design',
+                numeral: 'II',
                 glyph: '◈',
                 desk: 'The Atelier',
                 category: 'Design & Craft',
@@ -353,14 +413,16 @@ export default function FeedPage() {
               },
               {
                 id: 'culture',
+                numeral: 'III',
                 glyph: '◆',
                 desk: 'The Forum',
-                category: 'Culture & Essays',
+                category: 'Culture & Ideas',
                 desc: 'Philosophy, longform criticism, and society.',
                 sources: 'The Atlantic • Aeon',
               },
               {
                 id: 'chronicle',
+                numeral: 'IV',
                 glyph: '—',
                 desk: 'The Chronicle',
                 category: 'Global Affairs',
@@ -369,6 +431,7 @@ export default function FeedPage() {
               },
               {
                 id: 'science',
+                numeral: 'V',
                 glyph: '❖',
                 desk: 'The Observatory',
                 category: 'Science & Cosmos',
@@ -379,14 +442,15 @@ export default function FeedPage() {
               <Link
                 key={desk.id}
                 href={`/feed/${desk.id}`}
-                className={`group p-5 rounded-2xl bg-[#FAF7EE] text-[#131E15] border border-white/20 hover:border-[#EA580C] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between ${
+                style={{ backgroundColor: '#FAF7EE' }}
+                className={`group p-5 sm:p-6 rounded-2xl bg-parchment text-ink border border-white/20 hover:border-[#EA580C] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between ${
                   desk.id === 'science' ? 'sm:col-span-2 lg:col-span-1' : ''
                 }`}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-[#EA580C] font-mono">
-                      {desk.glyph}
+                    <span className="text-xs font-mono font-bold text-[#EA580C] tracking-widest">
+                      {desk.numeral}. {desk.glyph}
                     </span>
                     <span className="text-xs font-mono font-bold text-[#37493A]/50 group-hover:text-[#EA580C] group-hover:translate-x-0.5 transition-all">
                       →
@@ -402,7 +466,7 @@ export default function FeedPage() {
                     </h3>
                   </div>
 
-                  <p className="text-xs text-[#37493A] leading-relaxed font-sans line-clamp-2">
+                  <p className="text-xs text-[#37493A] font-serif italic leading-relaxed line-clamp-2">
                     {desk.desc}
                   </p>
                 </div>
@@ -423,14 +487,14 @@ export default function FeedPage() {
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#EA580C] font-bold block mb-1">
-                  REAL-TIME DISPATCHES • {otherStories.length} STORIES
+                  SELECT DISPATCHES • {displayedStories.length} CURATED READS
                 </span>
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#FFFDD0]">
                   The Salon Collection
                 </h2>
               </div>
               <p className="text-xs text-[#FFFDD0]/75 font-sans">
-                Filter by publication or browse the complete chronicle.
+                Filter by publication or browse essential dispatches.
               </p>
             </div>
 
@@ -468,9 +532,9 @@ export default function FeedPage() {
           </div>
 
           {/* Cards Grid */}
-          {otherStories.length > 0 ? (
+          {displayedStories.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {otherStories.map((story) => (
+              {displayedStories.map((story) => (
                 <div 
                   key={story.id} 
                   onClick={() => setReadingArticle(story)}

@@ -43,7 +43,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
     : imageUrl;
 
   return (
-    <div className="group relative flex flex-col h-full bg-[#FAF7EE] text-[#131E15] border border-white/20 hover:border-[#EA580C] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+    <div 
+      style={{ backgroundColor: '#FAF7EE' }}
+      className="group relative flex flex-col h-full bg-parchment text-ink border border-white/20 hover:border-[#EA580C] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+    >
       
       {/* Visual Header */}
       <div className="relative w-full aspect-[16/10] overflow-hidden bg-stone-200 shrink-0">
@@ -81,12 +84,12 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           </div>
 
           {/* Title */}
-          <h3 className="font-serif text-lg font-bold leading-snug text-[#131E15] group-hover:text-[#EA580C] transition-colors duration-200 line-clamp-2">
+          <h3 className="font-serif text-lg font-bold leading-snug text-[#131E15] group-hover:text-[#EA580C] transition-colors duration-200 line-clamp-2 tracking-tight">
             {decodeHtmlEntities(title)}
           </h3>
 
           {/* Excerpt */}
-          <p className="text-xs text-[#37493A] leading-relaxed line-clamp-2 font-sans">
+          <p className="text-xs text-[#37493A] font-serif italic leading-relaxed line-clamp-2">
             {decodeHtmlEntities(excerpt)}
           </p>
         </div>
@@ -105,7 +108,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
             {/* Bookmark button */}
             <button 
-              className={`p-1.5 rounded-full hover:bg-stone-100 transition-colors ${isSaved ? 'text-amber-600' : 'text-stone-400 hover:text-stone-700'}`} 
+              className={`p-1.5 rounded-full hover:bg-stone-100 transition-colors ${isSaved ? 'text-[#EA580C]' : 'text-stone-400 hover:text-stone-700'}`} 
               aria-label="Save story"
               title={isSaved ? "Saved to Library" : "Save for later"}
               onClick={(e) => {

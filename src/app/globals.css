@@ -3100,7 +3100,34 @@ body {
   }
 }
 .animate-marquee {
-  animation: marquee 20s linear infinite;
+  animation: marquee 28s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+.bg-parchment {
+  background-color: #FAF7EE !important;
+}
+.bg-forest-header {
+  background-color: #142316 !important;
+}
+.bg-forest-card {
+  background-color: #162919 !important;
+}
+.text-ink {
+  color: #131E15 !important;
+}
+.text-olive-ink {
+  color: #37493A !important;
+}
+.text-orange-accent {
+  color: #EA580C !important;
+}
+.bg-orange-accent {
+  background-color: #EA580C !important;
+}
+.border-forest {
+  border-color: rgba(255, 253, 208, 0.15) !important;
 }
 @property --tw-translate-x {
   syntax: "*";
