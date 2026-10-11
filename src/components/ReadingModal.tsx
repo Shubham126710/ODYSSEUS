@@ -15,7 +15,17 @@ const calculateReadTime = (text: string) => {
 
 /** Lightweight markdown → HTML for client-side parsing. */
 function markdownToHtml(md: string): string {
-  return md
+  // Strip common scraper artifacts from Jina / TechCrunch / Cloudflare
+  let cleanMd = md
+    .replace(/^Title:\s*.*$/gim, '')
+    .replace(/^URL Source:\s*.*$/gim, '')
+    .replace(/^Markdown Content:\s*.*$/gim, '')
+    .replace(/^\d{1,2}:\d{2}:\d{2}(?::\d{2})?$/gm, '') // countdown timers like 02:02:21:40
+    .replace(/^.*?(Disrupt doors open|exhibit your breakthrough|Book Exhibit Table|REGISTER NOW|at Disrupt is on).*?$/gim, '')
+    .replace(/^(Close|Dismiss|Skip to content|Accept all cookies)$/gim, '')
+    .replace(/Image \d+<\/a>[^<\n]*/gi, '');
+
+  return cleanMd
     .replace(/^#{6}\s(.+)$/gm, '<h6>$1</h6>')
     .replace(/^#{5}\s(.+)$/gm, '<h5>$1</h5>')
     .replace(/^#{4}\s(.+)$/gm, '<h4>$1</h4>')
@@ -28,14 +38,20 @@ function markdownToHtml(md: string): string {
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/`(.+?)`/g, '<code>$1</code>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    // Strip decorative logo/header markdown images
+    .replace(/!\[.*?(logo|icon|avatar|badge).*?\]\(.*?\)/gi, '')
+    // Markdown images MUST precede links:
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
     .replace(/^>\s(.+)$/gm, '<blockquote>$1</blockquote>')
     .replace(/^---+$/gm, '<hr>')
     .split(/\n{2,}/)
     .map(block => {
       block = block.trim();
       if (!block) return '';
+      if (/^\d{1,2}:\d{2}:\d{2}/.test(block)) return '';
+      if (/Disrupt|REGISTER NOW|Exhibit Table/i.test(block) && block.length < 250) return '';
+      if (/^(Close|Dismiss|Desktop Logo|Mobile Logo)$/i.test(block)) return '';
       if (/^<(h[1-6]|ul|ol|li|blockquote|hr|img|figure|div)/.test(block)) return block;
       return `<p>${block.replace(/\n/g, '<br>')}</p>`;
     })
@@ -86,6 +102,18 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     }, 1000);
 
     return () => clearInterval(interval);
+  }, [isOpen]);
+
+  // Lock body scroll when reader is open to completely prevent background jitter
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
   }, [isOpen]);
 
   // Credit reading progress when reaching 85% or on significant read duration
@@ -266,6 +294,8 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 80 }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+            data-lenis-prevent="true"
+            data-lenis-prevent
             style={{ backgroundColor: currentTheme.bg, color: currentTheme.text }}
             className="fixed inset-0 top-3 md:top-8 md:inset-x-8 md:bottom-3 rounded-t-3xl md:rounded-3xl shadow-2xl z-[90] overflow-hidden flex flex-col transition-colors duration-500"
           >
@@ -354,11 +384,16 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
               </div>
             </div>
 
-            {/* Scrollable Article Body (Native smooth scroll, no nested Lenis) */}
+            {/* Scrollable Article Body (Explicitly isolated from Lenis, native trackpad scroll enabled) */}
             <div 
               ref={scrollContainerRef} 
               onScroll={handleScroll} 
-              className="flex-1 overflow-y-auto scroll-smooth overscroll-contain select-text"
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              data-lenis-prevent="true"
+              data-lenis-prevent
+              tabIndex={0}
+              className="flex-1 overflow-y-auto overscroll-contain select-text outline-none focus:outline-none"
             >
               <div className="max-w-2xl mx-auto px-5 py-8 md:px-0 md:py-16 pb-24" ref={contentRef}>
 

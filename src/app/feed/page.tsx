@@ -687,15 +687,17 @@ export default function FeedPage() {
                             src={story.imageUrl || (story as any).enclosure?.url} 
                             alt={story.title} 
                             onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              const parent = e.currentTarget.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-juice-green/5"><span class="text-4xl font-serif font-black text-juice-green/20">${story.source.charAt(0)}</span></div>`;
-                              }
+                              const target = e.currentTarget;
+                              target.style.display = 'none';
+                              const fallback = target.nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
                             }}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
-                          <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-xl" />
+                          <div style={{ display: 'none' }} className="w-full h-full items-center justify-center bg-juice-green/5">
+                            <span className="text-4xl font-serif font-black text-juice-green/20">{story.source.charAt(0)}</span>
+                          </div>
+                          <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-xl pointer-events-none" />
                         </div>
                       ) : (
                         <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-4 relative shadow-inner shrink-0 bg-juice-green/5 flex items-center justify-center">
@@ -717,7 +719,7 @@ export default function FeedPage() {
                         <div className="flex items-center gap-4">
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleSaveForLater(story); }}
-                            className={`transition-colors hover:scale-110 transform duration-200 \${isSaved(story) ? 'text-juice-orange' : 'text-juice-green/40 hover:text-juice-orange'}`}
+                            className={`transition-colors hover:scale-110 transform duration-200 ${isSaved(story) ? 'text-juice-orange' : 'text-juice-green/40 hover:text-juice-orange'}`}
                             title={isSaved(story) ? "Saved" : "Read Later"}
                           >
                             {isSaved(story) ? (
@@ -778,14 +780,14 @@ export default function FeedPage() {
       </section>
 
       {/* SECTION 3: CURATED DESKS / GENRES SPREAD */}
-      <section className="min-h-screen md:h-screen bg-juice-cream text-juice-green flex flex-col justify-between py-12 md:py-20 px-4 md:px-12 relative snap-start shrink-0 overflow-hidden">
+      <section className="h-[100dvh] max-h-[100dvh] bg-juice-cream text-juice-green flex flex-col justify-between pt-16 pb-4 md:pt-20 md:pb-6 px-4 md:px-8 relative snap-start snap-always shrink-0 overflow-hidden">
         <div className="max-w-7xl mx-auto w-full flex flex-col h-full justify-between">
           {/* Section Header */}
-          <div className="text-center space-y-2 shrink-0 pt-4 md:pt-6">
+          <div className="text-center space-y-1.5 shrink-0 pt-2">
             <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-juice-orange font-bold">
               EDITORIAL DESKS • 4 THEMATIC TERRITORIES
             </div>
-            <h2 className="font-serif text-3xl md:text-5xl font-bold tracking-tight text-juice-green">
+            <h2 className="font-serif text-2xl md:text-4xl font-bold tracking-tight text-juice-green">
               Curated Genre Desks
             </h2>
             <p className="max-w-xl mx-auto text-xs md:text-sm text-juice-green/70">
@@ -793,15 +795,15 @@ export default function FeedPage() {
             </p>
           </div>
 
-          {/* Desk Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 my-auto py-4">
+          {/* Desk Cards Grid (4 Cards on md+, 2x2 on mobile, perfectly sized to never overflow 100vh) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 my-auto py-2">
             {[
               {
                 id: 'tech',
                 desk: 'The Vanguard',
                 category: 'Tech & AI',
                 desc: 'Frontier models, cybernetics, chip architecture, and the digital frontier.',
-                sources: 'The Verge • Wired • MIT Tech',
+                sources: 'The Verge • Wired • MIT',
                 border: 'border-juice-green/15 hover:border-juice-orange',
               },
               {
@@ -809,7 +811,7 @@ export default function FeedPage() {
                 desk: 'The Atelier',
                 category: 'Design & Craft',
                 desc: 'Spatial architecture, typography, tactile objects, and visual culture.',
-                sources: 'Dezeen • It\'s Nice That • Smashing',
+                sources: 'Dezeen • It\'s Nice That',
                 border: 'border-juice-green/15 hover:border-juice-orange',
               },
               {
@@ -817,7 +819,7 @@ export default function FeedPage() {
                 desk: 'The Forum',
                 category: 'Culture & Essays',
                 desc: 'Philosophy, slow journalism, literary criticism, and human condition.',
-                sources: 'The Atlantic • Aeon • New Yorker',
+                sources: 'The Atlantic • Aeon',
                 border: 'border-juice-green/15 hover:border-juice-orange',
               },
               {
@@ -825,32 +827,32 @@ export default function FeedPage() {
                 desk: 'The Observatory',
                 category: 'Science & Cosmos',
                 desc: 'Astrophysics, biology, quantum mechanics, and planetary discovery.',
-                sources: 'Quanta • Nature • Scientific American',
+                sources: 'Quanta • Nature',
                 border: 'border-juice-green/15 hover:border-juice-orange',
               },
             ].map((desk) => (
               <Link
                 key={desk.id}
                 href={`/feed/${desk.id}`}
-                className={`group p-6 rounded-3xl bg-white/80 border ${desk.border} shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between`}
+                className={`group p-4 md:p-5 rounded-2xl md:rounded-3xl bg-white/80 border ${desk.border} shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between`}
               >
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-juice-green/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[9px] md:text-[10px] font-mono font-bold uppercase tracking-widest text-juice-green/50">
                       {desk.desk}
                     </span>
                     <span className="text-xs font-mono font-bold text-juice-orange group-hover:translate-x-1 transition-transform">
-                      Explore →
+                      →
                     </span>
                   </div>
-                  <h3 className="font-serif text-xl font-bold text-juice-green mb-2 group-hover:text-juice-orange transition-colors">
+                  <h3 className="font-serif text-lg md:text-xl font-bold text-juice-green mb-1.5 group-hover:text-juice-orange transition-colors">
                     {desk.category}
                   </h3>
-                  <p className="text-xs text-juice-green/75 leading-relaxed line-clamp-3 mb-4">
+                  <p className="text-[11px] md:text-xs text-juice-green/75 leading-relaxed line-clamp-2 md:line-clamp-3 mb-2">
                     {desk.desc}
                   </p>
                 </div>
-                <div className="pt-3 border-t border-juice-green/10 flex items-center justify-between text-[10px] font-mono text-juice-green/60">
+                <div className="pt-2 border-t border-juice-green/10 flex items-center justify-between text-[9px] md:text-[10px] font-mono text-juice-green/60">
                   <span className="truncate">{desk.sources}</span>
                 </div>
               </Link>
@@ -858,8 +860,8 @@ export default function FeedPage() {
           </div>
 
           {/* Section prompt */}
-          <div className="shrink-0 flex items-center justify-center gap-4 text-xs font-mono uppercase tracking-wider text-juice-green/60 pb-2">
-            <span>Scroll down for Archive & Salon Ledger</span>
+          <div className="shrink-0 flex items-center justify-center gap-3 text-[10px] md:text-xs font-mono uppercase tracking-wider text-juice-green/60 pb-2">
+            <span>Scroll down for Masthead Archive</span>
             <span className="text-juice-orange font-bold">↓</span>
           </div>
         </div>

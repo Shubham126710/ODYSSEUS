@@ -37,6 +37,10 @@ function setCachedFeed(url: string, data: any) {
   }
 }
 
+// In-memory OG image cache (URL -> image URL, 1 hour TTL)
+const ogImageCache = new Map<string, { url: string | null; timestamp: number }>();
+const OG_CACHE_TTL = 60 * 60 * 1000;
+
 // Extract image from RSS item without any network requests
 function extractImageFromItem(item: any): string | null {
   // 1. Enclosure
@@ -63,34 +67,74 @@ function extractImageFromItem(item: any): string | null {
     }
   }
 
-  // 4. Extract from content HTML
-  if (!imageUrl && (item.contentEncoded || item.content)) {
-    const content = item.contentEncoded || item.content;
-    const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-    if (imgMatch) imageUrl = imgMatch[1];
+  // 4. Extract from content HTML or description (both raw and entity-encoded)
+  if (!imageUrl) {
+    const textSources = [
+      item.contentEncoded,
+      item.content,
+      item.description,
+      item.summary,
+    ].filter(Boolean);
+
+    for (const raw of textSources) {
+      if (typeof raw !== 'string') continue;
+      // Direct <img> tag
+      const imgMatch = raw.match(/<img[^>]+src=["']([^"']+)["']/i);
+      if (imgMatch && !imgMatch[1].includes('feedburner') && !imgMatch[1].includes('1x1')) {
+        imageUrl = imgMatch[1];
+        break;
+      }
+      // XML-escaped &lt;img ...&gt;
+      const escapedMatch = raw.match(/&lt;img[^&]+src=[&"']+([^&"'\s>]+)[&"']/i);
+      if (escapedMatch && !escapedMatch[1].includes('feedburner') && !escapedMatch[1].includes('1x1')) {
+        imageUrl = escapedMatch[1];
+        break;
+      }
+      // Markdown image ![...](...)
+      const mdMatch = raw.match(/!\[.*?\]\((https?:\/\/[^\s)]+\.(?:jpg|jpeg|png|webp)[^\s)]*)\)/i);
+      if (mdMatch) {
+        imageUrl = mdMatch[1];
+        break;
+      }
+    }
   }
 
   return imageUrl || null;
 }
 
-// Lightweight OG image fetch — 1s timeout, reads only <head>
+// Resilient OG image fetch with real browser User-Agent and in-memory cache
 async function fetchOgImage(url: string): Promise<string | null> {
+  if (!url || typeof url !== 'string') return null;
+
+  // Check cache
+  const cached = ogImageCache.get(url);
+  if (cached && Date.now() - cached.timestamp < OG_CACHE_TTL) {
+    return cached.url;
+  }
+
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1000);
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { 'User-Agent': 'Odysseus/1.0 (bot)' },
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
     });
     clearTimeout(timeoutId);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      ogImageCache.set(url, { url: null, timestamp: Date.now() });
+      return null;
+    }
 
     const reader = res.body?.getReader();
     if (!reader) return null;
 
     let html = '';
     const decoder = new TextDecoder();
-    while (html.length < 30000) {
+    while (html.length < 60000) {
       const { done, value } = await reader.read();
       if (done) break;
       html += decoder.decode(value, { stream: true });
@@ -98,15 +142,24 @@ async function fetchOgImage(url: string): Promise<string | null> {
     }
     reader.cancel();
 
-    const ogMatch = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i) ||
-                    html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:image"/i);
-    if (ogMatch) return ogMatch[1];
+    const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+                    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+    if (ogMatch && ogMatch[1].startsWith('http')) {
+      ogImageCache.set(url, { url: ogMatch[1], timestamp: Date.now() });
+      return ogMatch[1];
+    }
 
-    const twMatch = html.match(/<meta[^>]+name="twitter:image"[^>]+content="([^"]+)"/i) ||
-                    html.match(/<meta[^>]+content="([^"]+)"[^>]+name="twitter:image"/i);
-    if (twMatch) return twMatch[1];
+    const twMatch = html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i) ||
+                    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i);
+    if (twMatch && twMatch[1].startsWith('http')) {
+      ogImageCache.set(url, { url: twMatch[1], timestamp: Date.now() });
+      return twMatch[1];
+    }
+
+    ogImageCache.set(url, { url: null, timestamp: Date.now() });
     return null;
   } catch {
+    ogImageCache.set(url, { url: null, timestamp: Date.now() });
     return null;
   }
 }
@@ -228,9 +281,9 @@ export async function GET(request: Request) {
           imageUrl: extractImageFromItem(item),
         }));
 
-        // OG fetch only for items without images (max 3 per feed, in parallel)
+        // OG fetch for items without images (up to 10 per feed, in parallel)
         const noImage = processed.filter((p: any) => !p.imageUrl && p.link);
-        const ogTargets = noImage.slice(0, 3);
+        const ogTargets = noImage.slice(0, 10);
         if (ogTargets.length > 0) {
           const ogResults = await Promise.all(
             ogTargets.map((p: any) => fetchOgImage(p.link).then(url => ({ link: p.link, url })))

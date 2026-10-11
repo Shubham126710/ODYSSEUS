@@ -89,11 +89,21 @@ export function sanitizeArticleProse(rawHtml: string): string {
       }
     });
 
-    // Remove elements asking for subscriptions
-    const subRegex = /(subscribe to|get our newsletter|sign up for|join our mailing list|delivered to your inbox|support independent journalism|become a member)/i;
-    div.querySelectorAll('p, div, aside').forEach((el) => {
+    // Remove elements asking for subscriptions or event ads (TechCrunch Disrupt, etc.)
+    const subRegex = /(subscribe to|get our newsletter|sign up for|join our mailing list|delivered to your inbox|support independent journalism|become a member|Disrupt doors open|exhibit your breakthrough|Book Exhibit Table|REGISTER NOW)/i;
+    div.querySelectorAll('p, div, aside, a, span').forEach((el) => {
       const text = el.textContent?.trim() || '';
-      if (text.length < 220 && subRegex.test(text)) {
+      if (text.length < 240 && subRegex.test(text)) {
+        el.remove();
+      }
+    });
+
+    // Remove countdown timers and stray button texts
+    const timerRegex = /^\d{1,2}:\d{2}:\d{2}(?::\d{2})?$/;
+    const strayButtonsRegex = /^(Close|Dismiss|Skip to content|Accept all cookies|TechCrunch Desktop Logo|TechCrunch Mobile Logo)$/i;
+    div.querySelectorAll('p, div, span, a').forEach((el) => {
+      const text = el.textContent?.trim() || '';
+      if (timerRegex.test(text) || strayButtonsRegex.test(text)) {
         el.remove();
       }
     });
@@ -113,8 +123,14 @@ export function sanitizeArticleProse(rawHtml: string): string {
       .replace(/<header[\s\S]*?<\/header>/gi, '')
       .replace(/<footer[\s\S]*?<\/footer>/gi, '')
       .replace(/<aside[\s\S]*?<\/aside>/gi, '')
-      .replace(/<p[^>]*>(?:by|written by|author:)[^<]*<\/p>/gi, '');
+      .replace(/<p[^>]*>(?:by|written by|author:)[^<]*<\/p>/gi, '')
+      .replace(/<p[^>]*>\s*\d{1,2}:\d{2}:\d{2}(?::\d{2})?\s*<\/p>/gi, '')
+      .replace(/<p[^>]*>[^<]*(?:Disrupt doors|REGISTER NOW|Exhibit Table)[^<]*<\/p>/gi, '')
+      .replace(/<p[^>]*>\s*(?:Close|Dismiss)\s*<\/p>/gi, '');
   }
+
+  // Clean any stray broken anchor remnants
+  html = html.replace(/Image \d+<\/a>[^<\n]*/gi, '');
 
   // Final DOMPurify allowlist to keep only clean reading tags
   return DOMPurify.sanitize(html, {
