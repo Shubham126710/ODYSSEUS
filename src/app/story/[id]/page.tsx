@@ -62,29 +62,29 @@ export default function StoryPage() {
   const readTime = fullContent ? calculateReadTime(fullContent) : (searchParams.get('readTime') || '4 min');
 
   return (
-    <div className="fixed inset-0 bg-vellum-texture text-[#181715] font-sans antialiased flex flex-col z-[100] overflow-hidden selection:bg-[#EA580C] selection:text-white">
+    <div className="fixed inset-0 bg-[#FAF9F6] text-[#141518] font-sans antialiased flex flex-col z-[100] overflow-hidden selection:bg-[#EA580C] selection:text-white">
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="flex-1 w-full h-full bg-vellum-texture overflow-hidden flex flex-col relative"
+        className="flex-1 w-full h-full bg-[#FAF9F6] overflow-hidden flex flex-col relative"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3.5 md:px-10 md:py-4 border-b border-[#E0D9CC] bg-[#FCFAF7]/95 backdrop-blur-md sticky top-0 z-20">
+        <div className="flex items-center justify-between px-4 py-3.5 md:px-10 md:py-4 border-b border-stone-200/90 bg-white/90 backdrop-blur-md sticky top-0 z-20">
           <div className="flex items-center gap-3 min-w-0">
             <button 
               onClick={() => router.back()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-[#EFECE6] text-[#2A2723] transition-all group shrink-0 font-mono text-xs font-bold uppercase tracking-wider border border-[#E0D9CC]"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 text-stone-700 transition-all group shrink-0 font-mono text-xs font-bold uppercase tracking-wider"
             >
               <ArrowLeft style={{ width: 16, height: 16 }} className="group-hover:-translate-x-0.5 transition-transform" />
               <span>Back</span>
             </button>
-            <div className="h-4 w-px bg-[#D5CDBD]" />
+            <div className="h-4 w-px bg-stone-200" />
             <span className="font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#EA580C] truncate">
               {source || 'Publication'}
             </span>
             {isLoading && (
-              <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-[#7A7265] animate-pulse">
+              <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-stone-400 animate-pulse">
                 <span className="w-1.5 h-1.5 bg-[#EA580C] rounded-full" />
                 Purifying Prose
               </span>
@@ -95,7 +95,7 @@ export default function StoryPage() {
             href={storyUrl || '#'}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3.5 py-1.5 rounded-full border border-[#D5CDBD] text-[10px] font-mono font-bold uppercase tracking-widest text-[#2A2723] hover:text-[#181715] hover:border-[#181715] bg-[#FCFAF7] transition-colors shrink-0"
+            className="px-3.5 py-1.5 rounded-full border border-stone-200 text-[10px] font-mono font-bold uppercase tracking-widest text-stone-700 hover:text-black hover:border-black transition-colors shrink-0"
           >
             Original ↗
           </a>

@@ -43,10 +43,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
     : imageUrl;
 
   return (
-    <div className="group relative flex flex-col h-full bg-[#FCFAF7] text-[#181715] border border-[#E0D9CC] hover:border-[#8C8275] rounded-2xl overflow-hidden shadow-[0_2px_8px_rgba(40,30,20,0.03)] hover:shadow-[0_12px_28px_rgba(40,30,20,0.08)] hover:-translate-y-1 transition-all duration-300">
+    <div className="group relative flex flex-col h-full bg-white text-stone-900 border border-stone-200/90 hover:border-stone-400/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
       
-      {/* Visual Header with Archival Frame */}
-      <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#ECE7DC] shrink-0 border-b border-[#E8E2D5]">
+      {/* Visual Header */}
+      <div className="relative w-full aspect-[16/10] overflow-hidden bg-stone-100 shrink-0">
         {!imageFailed && activeSrc ? (
           <img 
             src={activeSrc} 
@@ -64,49 +64,48 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           />
         )}
         
-        {/* Tactile Letterpress Category Badge */}
-        <div className="absolute top-3 left-3 bg-[#FCFAF7]/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider text-[#2C241E] shadow-2xs border border-[#D5CEBF] flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#EA580C]" />
-          <span>{category}</span>
+        {/* Category Badge */}
+        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider text-stone-800 shadow-xs border border-black/5">
+          {category}
         </div>
       </div>
 
       {/* Content Section */}
-      <div className="p-5 flex flex-col flex-grow justify-between space-y-3.5">
+      <div className="p-5 flex flex-col flex-grow justify-between space-y-3">
         
         <div className="space-y-2">
           {/* Publisher Meta Row */}
-          <div className="flex items-center justify-between text-[11px] font-mono text-[#8C8275] uppercase tracking-wider">
-            <span className="font-bold text-[#8A5A1C] truncate max-w-[140px]">{source}</span>
+          <div className="flex items-center justify-between text-[11px] font-mono text-stone-500 uppercase tracking-wider">
+            <span className="font-bold text-amber-700 truncate max-w-[140px]">{source}</span>
             <span>{date}</span>
           </div>
 
           {/* Title */}
-          <h3 className="font-serif text-lg font-bold leading-snug text-[#181715] group-hover:text-[#EA580C] transition-colors duration-200 line-clamp-2 tracking-tight">
+          <h3 className="font-serif text-lg font-bold leading-snug text-stone-900 group-hover:text-amber-700 transition-colors duration-200 line-clamp-2">
             {decodeHtmlEntities(title)}
           </h3>
 
           {/* Excerpt */}
-          <p className="text-xs text-[#554D42] leading-relaxed line-clamp-2 font-sans">
+          <p className="text-xs text-stone-600 leading-relaxed line-clamp-2 font-sans">
             {decodeHtmlEntities(excerpt)}
           </p>
         </div>
 
         {/* Footer Actions */}
-        <div className="pt-3 border-t border-[#EAE4D7] flex items-center justify-between mt-auto">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#181715] group-hover:text-[#EA580C] transition-colors flex items-center gap-1.5">
+        <div className="pt-3 border-t border-stone-100 flex items-center justify-between mt-auto">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-stone-900 group-hover:text-amber-700 transition-colors flex items-center gap-1.5">
             <span>Read Story</span>
             <span className="text-sm font-sans transition-transform group-hover:translate-x-0.5">→</span>
           </span>
           
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-[#8C8275] tracking-wider mr-1">
+            <span className="text-[10px] font-mono text-stone-400 tracking-wider mr-1">
               {readTime}
             </span>
 
             {/* Bookmark button */}
             <button 
-              className={`p-1.5 rounded-full hover:bg-[#EFECE3] transition-colors ${isSaved ? 'text-[#EA580C]' : 'text-[#8C8275] hover:text-[#181715]'}`} 
+              className={`p-1.5 rounded-full hover:bg-stone-100 transition-colors ${isSaved ? 'text-amber-600' : 'text-stone-400 hover:text-stone-700'}`} 
               aria-label="Save story"
               title={isSaved ? "Saved to Library" : "Save for later"}
               onClick={(e) => {
@@ -122,7 +121,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
             {/* Share button */}
             <button 
-              className="p-1.5 rounded-full hover:bg-[#EFECE3] transition-colors text-[#8C8275] hover:text-[#181715]" 
+              className="p-1.5 rounded-full hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-700" 
               aria-label="Share story"
               title="Share story"
               onClick={(e) => {
