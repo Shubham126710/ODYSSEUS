@@ -11,7 +11,20 @@
  * Returns ONLY pristine, clean article prose formatted into elegant paragraphs.
  */
 
-import DOMPurify from 'isomorphic-dompurify';
+import { parseHTML } from 'linkedom';
+import createDOMPurify from 'dompurify';
+
+let cachedDOMPurify: any = null;
+function getPurifier() {
+  if (cachedDOMPurify) return cachedDOMPurify;
+  if (typeof window !== 'undefined') {
+    cachedDOMPurify = (createDOMPurify as any)(window);
+  } else {
+    const { window: linkedomWindow } = parseHTML('<!DOCTYPE html><html><body></body></html>');
+    cachedDOMPurify = (createDOMPurify as any)(linkedomWindow);
+  }
+  return cachedDOMPurify;
+}
 
 export interface CleanArticleResult {
   title: string;
@@ -52,9 +65,10 @@ const PURGE_SELECTORS = [
  */
 export function sanitizeArticleProse(rawHtml: string): string {
   if (!rawHtml || typeof rawHtml !== 'string') return '';
+  const purifier = getPurifier();
 
-  // 1. Initial DOMPurify pass
-  let html = DOMPurify.sanitize(rawHtml, {
+  // 1. Initial sanitizer pass
+  let html = purifier.sanitize(rawHtml, {
     USE_PROFILES: { html: true },
     FORBID_TAGS: [
       'script', 'style', 'iframe', 'form', 'input', 'button', 'svg', 'canvas',
@@ -62,89 +76,78 @@ export function sanitizeArticleProse(rawHtml: string): string {
     ],
   });
 
-  // If in browser / DOM environment, clean using DOM API
-  if (typeof document !== 'undefined') {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-
-    // Purge known junk selectors
-    PURGE_SELECTORS.forEach((selector) => {
-      try {
-        div.querySelectorAll(selector).forEach((el) => el.remove());
-      } catch {
-        // invalid selector in some contexts
-      }
-    });
-
-    // Remove elements that look like author bylines or bios
-    const authorRegex = /^(by\s+|written by\s+|author:\s+|published by\s+|edited by\s+|photo by\s+|words by\s+|reported by\s+)/i;
-    const authorBioRegex = /(is a writer|is a journalist|is a reporter|is a senior editor|is an author|covers technology|covers politics|based in [A-Z]|follow (him|her|them) on)/i;
-
-    div.querySelectorAll('p, span, div, small').forEach((el) => {
-      const text = el.textContent?.trim() || '';
-      if (text.length < 140 && authorRegex.test(text)) {
-        el.remove();
-      } else if (text.length < 240 && authorBioRegex.test(text) && !el.querySelector('p')) {
-        el.remove();
-      }
-    });
-
-    // Remove elements asking for subscriptions or event ads (TechCrunch Disrupt, etc.)
-    const subRegex = /(subscribe to|get our newsletter|sign up for|join our mailing list|delivered to your inbox|support independent journalism|become a member|Disrupt doors open|exhibit your breakthrough|Book Exhibit Table|REGISTER NOW)/i;
-    div.querySelectorAll('p, div, aside, a, span').forEach((el) => {
-      const text = el.textContent?.trim() || '';
-      if (text.length < 240 && subRegex.test(text)) {
-        el.remove();
-      }
-    });
-
-    // Remove countdown timers and stray button texts
-    const timerRegex = /^\d{1,2}:\d{2}:\d{2}(?::\d{2})?$/;
-    const strayButtonsRegex = /^(Close|Dismiss|Skip to content|Accept all cookies|TechCrunch Desktop Logo|TechCrunch Mobile Logo)$/i;
-    div.querySelectorAll('p, div, span, a').forEach((el) => {
-      const text = el.textContent?.trim() || '';
-      if (timerRegex.test(text) || strayButtonsRegex.test(text)) {
-        el.remove();
-      }
-    });
-
-    // Remove stray "Continue reading...", "Read more", "Read the full story" teaser links
-    const teaserRegex = /^(continue reading|read the full story|read more at|read full article|read more\b|read original story|see original article)/i;
-    div.querySelectorAll('p, a, span, div').forEach((el) => {
-      const text = el.textContent?.trim() || '';
-      if (text.length < 100 && (teaserRegex.test(text) || /continue reading\.{0,3}$/i.test(text))) {
-        el.remove();
-      }
-    });
-
-    // Remove empty paragraphs
-    div.querySelectorAll('p').forEach((p) => {
-      if (!p.textContent?.trim() && !p.querySelector('img')) {
-        p.remove();
-      }
-    });
-
-    html = div.innerHTML;
-  } else {
-    // Regex fallback for server-side
-    html = html
-      .replace(/<nav[\s\S]*?<\/nav>/gi, '')
-      .replace(/<header[\s\S]*?<\/header>/gi, '')
-      .replace(/<footer[\s\S]*?<\/footer>/gi, '')
-      .replace(/<aside[\s\S]*?<\/aside>/gi, '')
-      .replace(/<p[^>]*>(?:by|written by|author:)[^<]*<\/p>/gi, '')
-      .replace(/<p[^>]*>\s*\d{1,2}:\d{2}:\d{2}(?::\d{2})?\s*<\/p>/gi, '')
-      .replace(/<p[^>]*>[^<]*(?:Disrupt doors|REGISTER NOW|Exhibit Table)[^<]*<\/p>/gi, '')
-      .replace(/<p[^>]*>\s*(?:Close|Dismiss)\s*<\/p>/gi, '')
-      .replace(/<p[^>]*>[\s\S]*?(?:continue reading|read the full story|read full article)[\s\S]*?<\/p>/gi, '')
-      .replace(/<a[^>]*>[\s\S]*?(?:continue reading|read the full story|read full article)[\s\S]*?<\/a>/gi, '');
+  // Clean using DOM API (browser document or linkedom on server)
+  const isBrowser = typeof document !== 'undefined';
+  const doc = isBrowser ? document : parseHTML(`<div>${html}</div>`).document;
+  const div = isBrowser ? document.createElement('div') : doc.querySelector('div') || doc.body;
+  if (isBrowser) {
+    (div as HTMLElement).innerHTML = html;
   }
+
+  // Purge known junk selectors
+  PURGE_SELECTORS.forEach((selector) => {
+    try {
+      div.querySelectorAll(selector).forEach((el: any) => el.remove());
+    } catch {
+      // invalid selector in some contexts
+    }
+  });
+
+  // Remove elements that look like author bylines or bios
+  const authorRegex = /^(by\s+|written by\s+|author:\s+|published by\s+|edited by\s+|photo by\s+|words by\s+|reported by\s+)/i;
+  const authorBioRegex = /(is a writer|is a journalist|is a reporter|is a senior editor|is an author|covers technology|covers politics|based in [A-Z]|follow (him|her|them) on)/i;
+
+  div.querySelectorAll('p, span, div, small').forEach((el: any) => {
+    const text = el.textContent?.trim() || '';
+    if (text.length < 140 && authorRegex.test(text)) {
+      el.remove();
+    } else if (text.length < 240 && authorBioRegex.test(text) && !el.querySelector('p')) {
+      el.remove();
+    }
+  });
+
+  // Remove elements asking for subscriptions or event ads
+  const subRegex = /(subscribe to|get our newsletter|sign up for|join our mailing list|delivered to your inbox|support independent journalism|become a member|Disrupt doors open|exhibit your breakthrough|Book Exhibit Table|REGISTER NOW)/i;
+  div.querySelectorAll('p, div, aside, a, span').forEach((el: any) => {
+    const text = el.textContent?.trim() || '';
+    if (text.length < 240 && subRegex.test(text)) {
+      el.remove();
+    }
+  });
+
+  // Remove countdown timers and stray button texts
+  const timerRegex = /^\d{1,2}:\d{2}:\d{2}(?::\d{2})?$/;
+  const strayButtonsRegex = /^(Close|Dismiss|Skip to content|Accept all cookies|TechCrunch Desktop Logo|TechCrunch Mobile Logo)$/i;
+  div.querySelectorAll('p, div, span, a').forEach((el: any) => {
+    const text = el.textContent?.trim() || '';
+    if (timerRegex.test(text) || strayButtonsRegex.test(text)) {
+      el.remove();
+    }
+  });
+
+  // Remove stray "Continue reading...", "Read more", "Read the full story" teaser links
+  const teaserRegex = /^(continue reading|read the full story|read more at|read full article|read more\b|read original story|see original article)/i;
+  div.querySelectorAll('p, a, span, div').forEach((el: any) => {
+    const text = el.textContent?.trim() || '';
+    if (text.length < 100 && (teaserRegex.test(text) || /continue reading\.{0,3}$/i.test(text))) {
+      el.remove();
+    }
+  });
+
+  // Remove empty paragraphs
+  div.querySelectorAll('p').forEach((p: any) => {
+    if (!p.textContent?.trim() && !p.querySelector('img')) {
+      p.remove();
+    }
+  });
+
+  html = div.innerHTML;
 
   // Clean any stray broken anchor remnants
   html = html.replace(/Image \d+<\/a>[^<\n]*/gi, '');
 
-  // Final DOMPurify allowlist to keep only clean reading tags
-  return DOMPurify.sanitize(html, {
+  // Final allowlist to keep only clean reading tags
+  return purifier.sanitize(html, {
     ALLOWED_TAGS: [
       'p', 'h2', 'h3', 'h4', 'blockquote', 'code', 'pre', 'ul', 'ol', 'li',
       'strong', 'em', 'b', 'i', 'a', 'hr', 'img', 'figure', 'figcaption'

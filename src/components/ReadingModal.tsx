@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from 'dompurify';
 import { decodeHtmlEntities, sanitizeText } from '@/lib/textUtils';
 import { useProfile } from '@/hooks/useProfile';
 import { getCurrentMultiplier, recordReadingProgress } from '@/lib/gamification';
