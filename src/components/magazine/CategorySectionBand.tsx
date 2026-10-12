@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { sanitizeText, cleanSource, computeReadTime, isPlaceholderOrLogoUrl } from '@/lib/textUtils';
+import { sanitizeText, cleanSource, computeReadTime, isPlaceholderOrLogoUrl, capitalizeFirstLetter } from '@/lib/textUtils';
 
 interface CategorySectionBandProps {
   id: string;
@@ -91,7 +91,7 @@ const CategoryStoryBlock: React.FC<{
           onClick={() => onSelectStory(story)}
           className={`font-sans font-black text-xl sm:text-2xl tracking-tight leading-tight mt-2 mb-2 cursor-pointer transition-colors group-hover:underline underline-offset-4 decoration-current/40 ${textColor}`}
         >
-          {sanitizeText(story.title)}
+          {capitalizeFirstLetter(sanitizeText(story.title))}
         </h3>
 
         {/* Short Summary (2 lines) */}
@@ -150,7 +150,7 @@ export const CategorySectionBand: React.FC<CategorySectionBandProps> = ({
         backgroundColor: isCream ? '#FFFDD0' : '#5D8246',
         color: isCream ? '#5D8246' : '#FFFDD0',
       }}
-      className={`w-full py-16 sm:py-24 scroll-mt-16 border-t ${
+      className={`w-full py-16 sm:py-24 scroll-mt-[100px] md:scroll-mt-[64px] border-t ${
         isCream 
           ? 'bg-juice-cream text-juice-green border-juice-green/20' 
           : 'bg-juice-green text-juice-cream border-juice-cream/15'

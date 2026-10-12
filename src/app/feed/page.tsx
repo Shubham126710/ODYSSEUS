@@ -13,7 +13,7 @@ import { TrendingTicker } from "@/components/magazine/TrendingTicker";
 import { LeadStorySection } from "@/components/magazine/LeadStorySection";
 import { StoryListRow } from "@/components/magazine/StoryListRow";
 import { CategorySectionBand } from "@/components/magazine/CategorySectionBand";
-import { isPlaceholderOrLogoUrl } from "@/lib/textUtils";
+import { isPlaceholderOrLogoUrl, isSmallThumbnailUrl } from "@/lib/textUtils";
 
 function matchesCategory(story: any, targetCategory: string): boolean {
   if (!story) return false;
@@ -89,11 +89,20 @@ export default function FeedPage() {
       };
     }
 
-    const seenKeys = new Set<string>();
     const getStoryKey = (s: any) => String(s.id || s.link || s.title);
+    const seenKeys = new Set<string>();
 
-    // 1. Lead Story: 1 story (first story with clean usable image, or stories[0])
-    const lead = stories.find(s => s.imageUrl && s.imageUrl.length > 10 && !isPlaceholderOrLogoUrl(s.imageUrl)) || stories[0];
+    // 1. Lead Story: choose only from stories with valid image (>= 600px wide, not logo/placeholder)
+    // Fall back to best available if none qualify
+    const validImageLead = stories.find(s => 
+      s.imageUrl && 
+      s.imageUrl.length > 10 && 
+      !isPlaceholderOrLogoUrl(s.imageUrl) && 
+      !isSmallThumbnailUrl(s.imageUrl)
+    );
+    const fallbackImageLead = stories.find(s => s.imageUrl && !isPlaceholderOrLogoUrl(s.imageUrl));
+    const lead = validImageLead || fallbackImageLead || stories[0];
+
     if (lead) {
       seenKeys.add(getStoryKey(lead));
     }
@@ -110,6 +119,7 @@ export default function FeedPage() {
     }
 
     // 3. Bands: allow 2 stories if only 2 available, otherwise up to 3; hide if < 2
+    // Prefer stories with valid images first to avoid mixing image and image-less cards
     const pickBand = (categoryName: string) => {
       const candidates: any[] = [];
       for (const s of stories) {
@@ -121,7 +131,13 @@ export default function FeedPage() {
       if (candidates.length < 2) {
         return [];
       }
-      const selected = candidates.slice(0, 3);
+
+      // Sort: valid images first, text-only second
+      const withImages = candidates.filter(s => s.imageUrl && !isPlaceholderOrLogoUrl(s.imageUrl));
+      const withoutImages = candidates.filter(s => !s.imageUrl || isPlaceholderOrLogoUrl(s.imageUrl));
+      const prioritized = [...withImages, ...withoutImages];
+
+      const selected = prioritized.slice(0, 3);
       for (const s of selected) {
         seenKeys.add(getStoryKey(s));
       }
@@ -192,11 +208,11 @@ export default function FeedPage() {
       {/* Fixed Header (top-0, z-50, olive background, full width) */}
       <AppHeader sections={renderedSections} />
 
-      {/* Main content with matching top padding (64px) so content isn't hidden under fixed header */}
-      <main style={{ paddingTop: '64px' }} className="w-full relative z-10">
+      {/* Main content with matching top padding (64px desktop, 100px mobile for 2-row header) */}
+      <main className="w-full relative z-10 pt-[100px] md:pt-[64px]">
         
         {/* === SECTION 1: #for-you BAND (Olive Background, Cream Text) === */}
-        <section id="for-you" className="scroll-mt-16 w-full bg-[#5D8246] text-[#FFFDD0]">
+        <section id="for-you" className="scroll-mt-[100px] md:scroll-mt-[64px] w-full bg-[#5D8246] text-[#FFFDD0]">
           
           {/* Slim Orange Ticker (Directly below header) */}
           <TrendingTicker
@@ -223,7 +239,7 @@ export default function FeedPage() {
                 Welcome back, <span className="italic text-[#FFFDD0]">{profile?.first_name || 'Traveler'}</span>.
               </p>
               <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-[#FFFDD0]/50">
-                Vol. IV — No. 108
+                VOL. IV — NO. 108
               </span>
             </div>
 

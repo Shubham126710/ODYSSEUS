@@ -12,15 +12,19 @@ async function runVerification() {
     headless: true,
   });
 
-  const widths = [1440, 1100];
+  const viewports = [
+    { width: 1440, height: 900, name: '1440px' },
+    { width: 1100, height: 900, name: '1100px' },
+    { width: 390, height: 844, name: '390px' },
+  ];
 
-  for (const width of widths) {
+  for (const vp of viewports) {
     console.log(`\n========================================`);
-    console.log(`TESTING PRODUCTION BUILD VIEWPORT: ${width}px`);
+    console.log(`TESTING PRODUCTION BUILD VIEWPORT: ${vp.name}`);
     console.log(`========================================`);
 
     const context = await browser.newContext({
-      viewport: { width, height: 900 },
+      viewport: { width: vp.width, height: vp.height },
       deviceScaleFactor: 2,
     });
 
@@ -36,188 +40,170 @@ async function runVerification() {
     await page.waitForSelector('#for-you', { timeout: 10000 });
     await page.waitForTimeout(3000);
 
-    // Run DOM checks & measurements
+    // Initial audit of Lead, Header, Latest, and Bands
     const audit = await page.evaluate(() => {
       const header = document.querySelector('header');
-      const nav = document.querySelector('nav[aria-label="Compass navigation"]');
-      const needleEl = nav ? nav.querySelector('div[aria-hidden="true"]') : null;
-      const needleRect = needleEl ? needleEl.getBoundingClientRect() : null;
+      const headerRect = header ? header.getBoundingClientRect() : null;
 
-      const compassButtons = nav ? Array.from(nav.querySelectorAll('button')).map(b => {
+      // Find the currently visible Nav container (desktop or mobile)
+      const navs = Array.from(document.querySelectorAll('nav[aria-label="Compass navigation"]'));
+      const nav = navs.find(n => n.getBoundingClientRect().width > 0) || navs[0];
+      const navButtons = nav ? Array.from(nav.querySelectorAll('button')).map(b => {
         const rect = b.getBoundingClientRect();
         return {
           text: b.textContent?.trim(),
-          width: rect.width,
-          top: rect.top,
-          bottom: rect.bottom,
-          opacity: window.getComputedStyle(b).opacity,
-          fontWeight: window.getComputedStyle(b).fontWeight,
+          width: Math.round(rect.width),
+          left: Math.round(rect.left),
           isCurrent: b.getAttribute('aria-current') === 'page',
+          fontWeight: window.getComputedStyle(b).fontWeight,
+          opacity: window.getComputedStyle(b).opacity,
         };
       }) : [];
 
-      // Spacing checks:
-      // Ticker is right below header
-      const headerRect = header ? header.getBoundingClientRect() : null;
-      const forYouSec = document.getElementById('for-you');
-      const forYouContainer = forYouSec ? forYouSec.querySelector('.max-w-\\[1200px\\]') : null;
-      const forYouContainerStyle = forYouContainer ? window.getComputedStyle(forYouContainer) : null;
-      
-      const greetingRow = forYouSec ? forYouSec.querySelector('.border-b') : null;
-      const greetingRect = greetingRow ? greetingRow.getBoundingClientRect() : null;
-
-      const leadStoryEl = document.querySelector('section[aria-label="Lead Story"]');
-      const leadStoryRect = leadStoryEl ? leadStoryEl.getBoundingClientRect() : null;
-
-      const latestSection = document.querySelector('div[aria-label="Latest Stories"]');
-      const latestRect = latestSection ? latestSection.getBoundingClientRect() : null;
-      const latestHeader = latestSection ? latestSection.querySelector('.border-b') : null;
-      const latestHeaderRect = latestHeader ? latestHeader.getBoundingClientRect() : null;
-
-      const latestRows = latestSection ? Array.from(latestSection.querySelectorAll('article')).map(r => {
-        const computed = window.getComputedStyle(r);
-        return {
-          source: r.querySelector('span')?.textContent?.trim(),
-          headline: r.querySelector('h3')?.textContent?.trim(),
-          paddingTop: computed.paddingTop,
-          paddingBottom: computed.paddingBottom,
-          hasImg: !!r.querySelector('img'),
-        };
-      }) : [];
-
-      // Lead headline & image check
-      const leadHeadlineEl = leadStoryEl ? leadStoryEl.querySelector('h2') : null;
-      const leadHeadlineStyle = leadHeadlineEl ? window.getComputedStyle(leadHeadlineEl) : null;
-      const italicWords = leadHeadlineEl ? Array.from(leadHeadlineEl.querySelectorAll('.font-serif, [class*="italic"]')).map(el => el.textContent?.trim()) : [];
-      
-      const leadImg = leadStoryEl ? (leadStoryEl.querySelector('.lead-col-right img') || leadStoryEl.querySelector('img')) : null;
+      // Lead story
+      const leadSection = document.querySelector('section[aria-label="Lead Story"]');
+      const leadHeadline = leadSection ? leadSection.querySelector('h2') : null;
+      const leadHeadlineStyle = leadHeadline ? window.getComputedStyle(leadHeadline) : null;
+      const leadSummaryP = leadSection ? leadSection.querySelector('p.line-clamp-2') : null;
+      const leadImg = leadSection ? (leadSection.querySelector('.lead-col-right img') || leadSection.querySelector('img')) : null;
       const leadImgRect = leadImg ? leadImg.getBoundingClientRect() : null;
-      const leadColLeft = leadStoryEl ? leadStoryEl.querySelector('.lead-col-left') : null;
-      const leadColLeftRect = leadColLeft ? leadColLeft.getBoundingClientRect() : null;
 
-      // Bands
+      // Latest dispatches
+      const latestSec = document.querySelector('div[aria-label="Latest Stories"]');
+      const latestRows = latestSec ? Array.from(latestSec.querySelectorAll('article')).map(r => {
+        const headline = r.querySelector('h3')?.textContent?.trim();
+        const source = r.querySelector('span')?.textContent?.trim();
+        return { source, headline };
+      }) : [];
+
+      // Greeting row
+      const greetingRow = document.querySelector('#for-you .border-b');
+      const greetingText = greetingRow ? greetingRow.textContent?.trim() : '';
+
+      // Rendered Bands
       const bandEls = Array.from(document.querySelectorAll('section[id]:not(#for-you)'));
       const bands = bandEls.map(b => {
-        const titleEl = b.querySelector('h2');
-        const countBadge = b.querySelector('.font-mono');
+        const title = b.querySelector('h2')?.textContent?.trim();
+        const badge = b.querySelector('.font-mono')?.textContent?.trim();
         const articles = Array.from(b.querySelectorAll('article')).map(a => {
           const headline = a.querySelector('h3')?.textContent?.trim();
           const source = a.querySelector('.font-mono')?.textContent?.trim();
-          const img = a.querySelector('img');
-          const imgRect = img ? img.getBoundingClientRect() : null;
-          return {
-            headline,
-            source,
-            imgWidth: imgRect ? imgRect.width : 0,
-            imgHeight: imgRect ? imgRect.height : 0,
-          };
+          const hasImg = !!a.querySelector('img');
+          return { headline, source, hasImg };
         });
-        const computed = window.getComputedStyle(b);
         return {
           id: b.id,
-          title: titleEl?.textContent?.trim(),
-          countBadgeText: countBadge?.textContent?.trim(),
+          title,
+          badge,
           articleCount: articles.length,
-          bgColor: computed.backgroundColor,
           articles,
         };
       });
 
       return {
-        header: {
-          position: window.getComputedStyle(header).position,
-          top: window.getComputedStyle(header).top,
-          height: headerRect?.height,
-        },
-        needle: {
-          needleTop: needleRect?.top,
-          needleBottom: needleRect?.bottom,
-          buttonTextBottom: compassButtons[0]?.bottom,
-          // Needle is placed on the tick row below the labels (bottom > buttonTextBottom or tick row)
-          isBelowText: needleRect && compassButtons[0] ? needleRect.top >= compassButtons[0].top + 16 : false,
-        },
-        compassButtons,
-        spacing: {
-          containerPaddingTop: forYouContainerStyle?.paddingTop,
-          greetingRuleToLeadGap: leadStoryRect && greetingRect ? Math.round(leadStoryRect.top - greetingRect.bottom) : null,
-          gapAboveLatest: latestSection && leadStoryRect ? Math.round(latestSection.getBoundingClientRect().top - leadStoryRect.bottom) : null,
-          gapBelowLatestHeader: latestRows[0] && latestHeaderRect ? Math.round(latestSection.querySelectorAll('article')[0]?.getBoundingClientRect().top - latestHeaderRect.bottom) : null,
-          containerPaddingBottom: forYouContainerStyle?.paddingBottom,
-        },
+        headerHeight: headerRect ? Math.round(headerRect.height) : 0,
+        navButtons,
+        greetingText,
         lead: {
-          headline: leadHeadlineEl?.textContent?.trim(),
+          headline: leadHeadline?.textContent?.trim(),
           fontSize: leadHeadlineStyle?.fontSize,
           lineHeight: leadHeadlineStyle?.lineHeight,
           letterSpacing: leadHeadlineStyle?.letterSpacing,
-          italicWords,
-          imgHeight: leadImgRect?.height,
-          imgWidth: leadImgRect?.width,
-          colLeftTop: leadColLeftRect?.top,
-          imgTop: leadImgRect?.top,
-          verticalDiff: leadColLeftRect && leadImgRect ? Math.abs(leadColLeftRect.top - leadImgRect.top) : null,
+          hasSummaryParagraph: !!leadSummaryP,
+          imgWidth: leadImgRect ? Math.round(leadImgRect.width) : 0,
+          imgHeight: leadImgRect ? Math.round(leadImgRect.height) : 0,
         },
         latestRows,
         bands,
       };
     });
 
-    console.log(`\nAudit Findings for ${width}px:`);
-    console.log(`Header: position=${audit.header.position}, height=${audit.header.height}px`);
-    console.log(`Compass Needle: isBelowText=${audit.needle.isBelowText} (needleTop=${audit.needle.needleTop}, btnTextBottom=${audit.needle.buttonTextBottom})`);
-    console.log(`Compass Buttons (${audit.compassButtons.length}):`, audit.compassButtons.map(b => b.text).join(' | '));
-    console.log(`Spacing checks:`);
-    console.log(`  Container paddingTop: ${audit.spacing.containerPaddingTop} (24px between ticker and greeting)`);
-    console.log(`  Greeting rule to Lead story gap: ${audit.spacing.greetingRuleToLeadGap}px (target ~24px)`);
-    console.log(`  Gap above "LATEST DISPATCHES": ${audit.spacing.gapAboveLatest}px (target ~48px)`);
-    console.log(`  Gap below "LATEST DISPATCHES" rule: ${audit.spacing.gapBelowLatestHeader}px (target ~16px)`);
-    console.log(`  Container paddingBottom: ${audit.spacing.containerPaddingBottom} (target 64px before Tech band)`);
-    console.log(`Lead Story:`);
-    console.log(`  Headline: "${audit.lead.headline?.slice(0, 50)}..."`);
-    console.log(`  Font Size: ${audit.lead.fontSize}`);
-    console.log(`  Line Height: ${audit.lead.lineHeight}`);
-    console.log(`  Letter Spacing: ${audit.lead.letterSpacing}`);
-    console.log(`  Italic words:`, audit.lead.italicWords);
-    console.log(`  Image: ${audit.lead.imgWidth}x${audit.lead.imgHeight}px (capped <= 320px: ${audit.lead.imgHeight <= 320})`);
-    console.log(`  Vertical diff (text col top vs img top): ${audit.lead.verticalDiff}px`);
+    console.log(`\nAudit Results for ${vp.name}:`);
+    console.log(`Header height: ${audit.headerHeight}px`);
+    console.log(`Nav items (${audit.navButtons.length}):`, audit.navButtons.map(b => `${b.text} (${b.width}px)`).join(' | '));
+    console.log(`Greeting: "${audit.greetingText.replace(/\s+/g, ' ')}"`);
+    console.log(`Lead headline: "${audit.lead.headline}"`);
+    console.log(`  FontSize: ${audit.lead.fontSize}, LineHeight: ${audit.lead.lineHeight}, LetterSpacing: ${audit.lead.letterSpacing}`);
+    console.log(`  Has summary paragraph: ${audit.lead.hasSummaryParagraph} (should be false)`);
+    console.log(`  Image: ${audit.lead.imgWidth}x${audit.lead.imgHeight}px (capped <= 320px)`);
     console.log(`Latest Rows (${audit.latestRows.length}):`);
-    audit.latestRows.forEach((r, idx) => {
-      console.log(`  [${idx + 1}] [${r.source}] ${r.headline?.slice(0, 30)}... padding: ${r.paddingTop}/${r.paddingBottom}`);
-    });
+    audit.latestRows.forEach((r, i) => console.log(`  [${i + 1}] [${r.source}] ${r.headline}`));
     console.log(`Rendered Bands (${audit.bands.length}):`);
     audit.bands.forEach(b => {
-      console.log(`  #${b.id} ("${b.title}"): badge="${b.countBadgeText}", count=${b.articleCount}, bg=${b.bgColor}`);
+      console.log(`  #${b.id} (${b.title}): ${b.articleCount} articles, badge="${b.badge}"`);
+      b.articles.forEach((a, i) => console.log(`    - [${a.source}] ${a.headline} (hasImg: ${a.hasImg})`));
     });
 
-    // Top screenshot
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIR, `screenshot-prod-${width}px-top.png`),
-      fullPage: false,
-    });
+    // Check marker progression across bands
+    console.log(`\n--- Measuring Marker Continuous Left-to-Right Progression ---`);
+    const allSections = ['for-you', ...audit.bands.map(b => b.id)];
+    const markerPositions = [];
 
-    // Full page screenshot
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIR, `screenshot-prod-${width}px-fullpage.png`),
-      fullPage: true,
-    });
-
-    // Scrolled screenshot at each band
-    for (const b of audit.bands) {
+    for (const secId of allSections) {
       await page.evaluate((id) => {
         const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: 'instant' });
-      }, b.id);
-      await page.waitForTimeout(600);
+        if (el) {
+          el.scrollIntoView({ behavior: 'instant', block: 'start' });
+        }
+      }, secId);
+
+      await page.waitForTimeout(500);
+
+      const markerData = await page.evaluate((currId) => {
+        const navs = Array.from(document.querySelectorAll('nav[aria-label="Compass navigation"]'));
+        const nav = navs.find(n => n.getBoundingClientRect().width > 0) || navs[0];
+        if (!nav) return null;
+        // Orange marker element has width: 2px, height: 12px, backgroundColor #FF6B4A
+        const markerEl = nav.querySelector('div[style*="background-color: rgb(255, 107, 74)"][style*="width: 2px"]') 
+          || nav.querySelector('div[style*="#FF6B4A"][style*="width: 2px"]')
+          || Array.from(nav.querySelectorAll('div')).find(d => {
+            const s = window.getComputedStyle(d);
+            return (s.backgroundColor === 'rgb(255, 107, 74)' || s.backgroundColor === '#ff6b4a') && d.offsetHeight >= 10;
+          });
+
+        const navRect = nav.getBoundingClientRect();
+        const markerRect = markerEl ? markerEl.getBoundingClientRect() : null;
+        const relativeX = markerRect ? Math.round(markerRect.left - navRect.left + markerRect.width / 2) : null;
+
+        const activeBtn = nav.querySelector('button[aria-current="page"]');
+
+        return {
+          sectionId: currId,
+          markerRelativeX: relativeX,
+          activeLabel: activeBtn?.textContent?.trim(),
+          scrollY: Math.round(window.scrollY),
+        };
+      }, secId);
+
+      markerPositions.push(markerData);
+      console.log(`Section #${secId.padEnd(8)}: scrollY=${String(markerData?.scrollY).padStart(5)}px | marker relative X = ${markerData?.markerRelativeX}px | active = ${markerData?.activeLabel}`);
+
+      // Save screenshot at this scrolled section
       await page.screenshot({
-        path: path.join(SCREENSHOT_DIR, `screenshot-prod-${width}px-band-${b.id}.png`),
+        path: path.join(SCREENSHOT_DIR, `screenshot-prod-${vp.name}-band-${secId}.png`),
         fullPage: false,
       });
     }
+
+    // Top screenshot
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(400);
+    await page.screenshot({
+      path: path.join(SCREENSHOT_DIR, `screenshot-prod-${vp.name}-top.png`),
+      fullPage: false,
+    });
+
+    // Fullpage screenshot
+    await page.screenshot({
+      path: path.join(SCREENSHOT_DIR, `screenshot-prod-${vp.name}-fullpage.png`),
+      fullPage: true,
+    });
 
     await context.close();
   }
 
   await browser.close();
-  console.log(`\nALL SCREENSHOTS SAVED IN: ${SCREENSHOT_DIR}`);
+  console.log(`\nALL VERIFICATION TESTS COMPLETED. Screenshots saved in: ${SCREENSHOT_DIR}`);
 }
 
 runVerification().catch(err => {

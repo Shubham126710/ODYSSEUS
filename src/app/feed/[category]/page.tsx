@@ -74,7 +74,7 @@ export default function CategoryFeedPage() {
       {/* Fixed App Header (Exact Hero olive green #5D8246) */}
       <AppHeader />
       
-      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-12 sm:pb-16 space-y-16 sm:space-y-20 relative z-10">
+      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-[110px] md:pt-24 pb-12 sm:pb-16 space-y-16 sm:space-y-20 relative z-10">
         
         {/* Top Folio & Return Navigation */}
         <div className="flex items-center justify-between gap-4 border-b border-juice-cream/15 pb-4">

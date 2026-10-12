@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { sanitizeText, cleanSource } from '@/lib/textUtils';
+import { sanitizeText, cleanSource, capitalizeFirstLetter } from '@/lib/textUtils';
 
 interface StoryListRowProps {
   story: any;
@@ -50,7 +50,7 @@ export const StoryListRow: React.FC<StoryListRowProps> = ({
           onClick={() => onSelectStory(story)}
           className={`font-sans font-bold text-sm sm:text-base lg:text-lg min-w-0 flex-1 truncate cursor-pointer transition-colors group-hover:underline underline-offset-4 decoration-current/40 ${textColor}`}
         >
-          {sanitizeText(story.title)}
+          {capitalizeFirstLetter(sanitizeText(story.title))}
         </h3>
       </div>
 

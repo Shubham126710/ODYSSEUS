@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { LeadHeadline } from '@/lib/editorialTypography';
-import { sanitizeText, cleanSource, cleanCategory, computeReadTime, isPlaceholderOrLogoUrl } from '@/lib/textUtils';
+import { sanitizeText, cleanSource, cleanCategory, computeReadTime, isPlaceholderOrLogoUrl, capitalizeFirstLetter } from '@/lib/textUtils';
 
 interface LeadStorySectionProps {
   story: any;
@@ -47,14 +47,13 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
   const displaySource = cleanSource(story.source);
   const displayCategory = cleanCategory(story.category);
   const displayReadTime = computeReadTime(story);
-  const cleanSummary = sanitizeText(story.excerpt);
 
   return (
     <section aria-label="Lead Story" className="w-full">
       {hasImage ? (
         <div className="lead-story-grid w-full">
           
-          {/* Left Column (7/12 at >= 900px): small mono source + category, big headline, 2-line summary, Read story */}
+          {/* Left Column (7/12 at >= 900px): small mono source + category, headline, Read story */}
           <div className="lead-col-left flex flex-col justify-start">
             
             {/* Metadata (Clean Source + Category) */}
@@ -74,18 +73,18 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
               )}
             </div>
 
-            {/* Dominant Big Headline: font-size clamp(40px, 5.2vw, 76px), line-height 0.95, tight tracking (-0.03em), exactly one italic-serif word */}
+            {/* Dominant Big Headline: font-size clamp(34px, 4.2vw, 60px), line-height 1.0, tracking -0.03em, line-clamp 3 max */}
             <h2 
               onClick={() => onSelectStory(story)}
               style={{
-                fontSize: 'clamp(40px, 5.2vw, 76px)',
-                lineHeight: 0.95,
+                fontSize: 'clamp(34px, 4.2vw, 60px)',
+                lineHeight: 1.0,
                 letterSpacing: '-0.03em',
               }}
-              className="cursor-pointer font-sans font-black text-[#FFFDD0] mt-3 mb-3 group"
+              className="cursor-pointer font-sans font-black text-[#FFFDD0] mt-3 mb-4 group line-clamp-3"
             >
               <LeadHeadline 
-                title={story.title} 
+                title={capitalizeFirstLetter(story.title)} 
                 className="group-hover:underline underline-offset-8 decoration-[#FFFDD0]/40 transition-all"
               />
             </h2>
@@ -106,13 +105,8 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
               />
             </div>
 
-            {/* 2-Line Summary */}
-            <p className="text-sm sm:text-base text-[#FFFDD0]/80 line-clamp-2 leading-relaxed mb-6 font-normal">
-              {cleanSummary}
-            </p>
-
             {/* "Read story →" CTA in Orange + Save */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 mt-2">
               <button
                 type="button"
                 onClick={() => onSelectStory(story)}
@@ -175,23 +169,19 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
           <h2 
             onClick={() => onSelectStory(story)}
             style={{
-              fontSize: 'clamp(40px, 5.2vw, 76px)',
-              lineHeight: 0.95,
+              fontSize: 'clamp(34px, 4.2vw, 60px)',
+              lineHeight: 1.0,
               letterSpacing: '-0.03em',
             }}
-            className="cursor-pointer font-sans font-black text-[#FFFDD0] mt-3 mb-3 group"
+            className="cursor-pointer font-sans font-black text-[#FFFDD0] mt-3 mb-4 group line-clamp-3"
           >
             <LeadHeadline 
-              title={story.title} 
+              title={capitalizeFirstLetter(story.title)} 
               className="group-hover:underline underline-offset-8 decoration-[#FFFDD0]/40 transition-all"
             />
           </h2>
 
-          <p className="text-sm sm:text-base text-[#FFFDD0]/80 line-clamp-2 leading-relaxed mb-6 font-normal">
-            {cleanSummary}
-          </p>
-
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 mt-2">
             <button
               type="button"
               onClick={() => onSelectStory(story)}

@@ -144,3 +144,25 @@ export function isPlaceholderOrLogoUrl(url?: string | null): boolean {
   return false;
 }
 
+/**
+ * Capitalizes only the first letter of a headline (e.g. "florim channels..." -> "Florim channels...")
+ */
+export function capitalizeFirstLetter(text?: string | null): string {
+  if (!text) return '';
+  const trimmed = text.trim();
+  if (!trimmed) return '';
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
+/**
+ * Checks if an image URL indicates a small thumbnail (< 300px) that should be avoided for lead story.
+ */
+export function isSmallThumbnailUrl(url?: string | null): boolean {
+  if (!url) return true;
+  const lower = url.toLowerCase();
+  if (lower.includes('width=140') || lower.includes('width=150') || lower.includes('width=200')) return true;
+  if (lower.includes('140x') || lower.includes('150x150') || lower.includes('100x100')) return true;
+  return false;
+}
+
+

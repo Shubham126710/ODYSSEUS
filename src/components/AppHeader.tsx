@@ -132,19 +132,20 @@ export const AppHeader = ({
         }}
         className="fixed top-0 left-0 right-0 w-full z-50 text-[#FFFDD0] shadow-sm transition-colors duration-300"
       >
-        <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between gap-4">
+        {/* Row 1: Brand Logo, Desktop Nav (md:flex), Right Utilities */}
+        <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 h-14 md:h-16 flex items-center justify-between gap-4">
           
           {/* Brand Logo */}
           <Link href="/feed" className="flex items-center gap-2.5 group shrink-0">
-            <StaticOrangeCompass className="w-8 h-8 group-hover:rotate-45 transition-transform duration-500 shrink-0" />
-            <span className="font-serif text-lg tracking-wider font-bold uppercase text-white">
+            <StaticOrangeCompass className="w-7 h-7 md:w-8 md:h-8 group-hover:rotate-45 transition-transform duration-500 shrink-0" />
+            <span className="font-serif text-base md:text-lg tracking-wider font-bold uppercase text-white">
               ODYSSEUS
             </span>
           </Link>
 
-          {/* Center Compass Navigation Bar */}
-          <div className="flex-1 flex justify-center px-2 min-w-0">
-            <CompassNavBar sections={sections} />
+          {/* Desktop Nav Bar (hidden on mobile) */}
+          <div className="hidden md:flex flex-1 justify-center px-2 min-w-0">
+            <CompassNavBar sections={sections} isMobile={false} />
           </div>
 
           {/* Right Utilities */}
@@ -357,6 +358,11 @@ export const AppHeader = ({
             </button>
 
           </div>
+        </div>
+
+        {/* Mobile Nav Bar Row 2 (always visible on mobile, under row 1) */}
+        <div className="md:hidden w-full border-t border-[#FFFDD0]/15 bg-[#5D8246] px-3 py-1 flex items-center justify-center">
+          <CompassNavBar sections={sections} isMobile={true} />
         </div>
 
         {/* Mobile Navigation Drawer */}
