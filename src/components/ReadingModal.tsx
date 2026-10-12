@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DOMPurify from 'dompurify';
-import { decodeHtmlEntities, sanitizeText } from '@/lib/textUtils';
+import { decodeHtmlEntities, sanitizeText, upgradeThumbnailResolution } from '@/lib/textUtils';
 import { useProfile } from '@/hooks/useProfile';
 import { getCurrentMultiplier, recordReadingProgress } from '@/lib/gamification';
 import { sanitizeArticleProse } from '@/lib/cleanArticleExtraction';
@@ -380,7 +380,8 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
     }
   };
 
-  const heroImageUrl = article?.imageUrl || article?.enclosure?.url;
+  const rawHero = article?.imageUrl || article?.enclosure?.url;
+  const heroImageUrl = rawHero ? (upgradeThumbnailResolution(rawHero) || rawHero) : null;
   const activeHeroSrc = useProxy && heroImageUrl
     ? `/api/image-proxy?url=${encodeURIComponent(heroImageUrl)}`
     : heroImageUrl;
@@ -731,8 +732,9 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                       <img
                         src={activeHeroSrc}
                         alt={article.title}
-                        onError={() => {
-                          if (!useProxy && heroImageUrl && !heroImageUrl.startsWith('/api/image-proxy')) {
+                        onError={(e) => {
+                          const currentSrc = e.currentTarget.currentSrc || e.currentTarget.src || '';
+                          if (!useProxy && heroImageUrl && !currentSrc.includes('/api/image-proxy')) {
                             setUseProxy(true);
                           } else {
                             setImageError(true);

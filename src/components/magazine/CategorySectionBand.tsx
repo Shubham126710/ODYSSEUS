@@ -1,8 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { sanitizeText, cleanSource, computeReadTime, isPlaceholderOrLogoUrl, capitalizeFirstLetter } from '@/lib/textUtils';
+import { 
+  sanitizeText, 
+  cleanSource, 
+  computeReadTime, 
+  isPlaceholderOrLogoUrl, 
+  capitalizeFirstLetter,
+  upgradeThumbnailResolution,
+} from '@/lib/textUtils';
 
 interface CategorySectionBandProps {
   id: string;
@@ -23,11 +30,21 @@ const CategoryStoryBlock: React.FC<{
   isSaved?: (story: any) => boolean;
 }> = ({ story, theme, onSelectStory, onToggleSave, isSaved }) => {
   const [useProxy, setUseProxy] = useState(false);
-  const isBadInitialUrl = !story?.imageUrl || isPlaceholderOrLogoUrl(story?.imageUrl);
+  const rawImageUrl = story?.imageUrl ? upgradeThumbnailResolution(story.imageUrl) : null;
+  const isBadInitialUrl = !rawImageUrl || isPlaceholderOrLogoUrl(rawImageUrl);
   const [imageError, setImageError] = useState(isBadInitialUrl);
 
-  const handleImageError = () => {
-    if (!useProxy && story.imageUrl) {
+  // Synchronize state whenever story changes
+  useEffect(() => {
+    const upgraded = story?.imageUrl ? upgradeThumbnailResolution(story.imageUrl) : null;
+    const isBad = !upgraded || isPlaceholderOrLogoUrl(upgraded);
+    setImageError(isBad);
+    setUseProxy(false);
+  }, [story?.id, story?.link, story?.imageUrl]);
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const currentSrc = e.currentTarget.currentSrc || e.currentTarget.src || '';
+    if (!useProxy && rawImageUrl && !currentSrc.includes('/api/image-proxy')) {
       setUseProxy(true);
     } else {
       setImageError(true);
@@ -35,14 +52,15 @@ const CategoryStoryBlock: React.FC<{
   };
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    if (e.currentTarget.naturalWidth < 300) {
+    // Only reject tiny tracking pixels/icons (< 100x60)
+    if (e.currentTarget.naturalWidth < 100 || e.currentTarget.naturalHeight < 60) {
       setImageError(true);
     }
   };
 
-  const activeSrc = useProxy && story.imageUrl
-    ? `/api/image-proxy?url=${encodeURIComponent(story.imageUrl)}`
-    : story.imageUrl;
+  const activeSrc = useProxy && rawImageUrl
+    ? `/api/image-proxy?url=${encodeURIComponent(rawImageUrl)}`
+    : rawImageUrl;
 
   const hasImage = !imageError && !!activeSrc && !isPlaceholderOrLogoUrl(activeSrc);
 

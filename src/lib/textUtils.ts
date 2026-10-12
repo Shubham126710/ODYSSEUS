@@ -155,11 +155,48 @@ export function capitalizeFirstLetter(text?: string | null): string {
 }
 
 /**
+ * Upgrades known publisher thumbnail URLs to high-resolution editorial photography.
+ * Handles BBC iChef, Phys.org (BunnyCDN), Substack, etc.
+ */
+export function upgradeThumbnailResolution(url?: string | null): string | null {
+  if (!url || typeof url !== 'string') return null;
+  let u = url.trim().replace(/&amp;/g, '&');
+
+  // 1. BBC iChef CDN (e.g. standard/240 -> standard/1024)
+  if (u.includes('ichef.bbci.co.uk')) {
+    u = u
+      .replace(/\/standard\/\d+\//, '/standard/1024/')
+      .replace(/\/news\/\d+\//, '/news/1024/')
+      .replace(/\/images\/ic\/\d+x\d+\//, '/images/ic/1024x576/');
+    return u;
+  }
+
+  // 2. Phys.org / ScienceX (BunnyCDN)
+  if (u.includes('scx1.b-cdn.net') || u.includes('sciencex.com')) {
+    u = u.replace(/\/csz\/news\/tmb\//, '/csz/news/800/');
+    return u;
+  }
+
+  // 3. Substack CDN
+  if (u.includes('substackcdn.com')) {
+    u = u.replace(/\/w_\d+([,/])/, '/w_1024$1');
+    return u;
+  }
+
+  return u;
+}
+
+/**
  * Checks if an image URL indicates a small thumbnail (< 300px) that should be avoided for lead story.
  */
 export function isSmallThumbnailUrl(url?: string | null): boolean {
   if (!url) return true;
-  const lower = url.toLowerCase();
+  const upgraded = upgradeThumbnailResolution(url) || url;
+  const lower = upgraded.toLowerCase();
+  // Upgraded resolutions are high quality, not small
+  if (lower.includes('/1024/') || lower.includes('/800/') || lower.includes('1024x') || lower.includes('800x')) {
+    return false;
+  }
   if (lower.includes('/tmb/') || lower.includes('/thumb/') || lower.includes('/thumbs/')) return true;
   if (lower.includes('width=140') || lower.includes('width=150') || lower.includes('width=200')) return true;
   if (lower.includes('140x') || lower.includes('150x150') || lower.includes('100x100')) return true;

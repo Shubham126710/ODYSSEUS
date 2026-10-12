@@ -12,6 +12,7 @@ import { Toast } from "@/components/Toast";
 import { ReadingModal } from "@/components/ReadingModal";
 import { LeadStorySection } from "@/components/magazine/LeadStorySection";
 import { StoryListRow } from "@/components/magazine/StoryListRow";
+import { isPlaceholderOrLogoUrl, isSmallThumbnailUrl, upgradeThumbnailResolution } from "@/lib/textUtils";
 
 export default function CategoryFeedPage() {
   const { profile } = useProfile();
@@ -49,7 +50,13 @@ export default function CategoryFeedPage() {
   // Lead story for category
   const leadStory = useMemo(() => {
     if (!stories || stories.length === 0) return null;
-    return stories.find(s => s.imageUrl && s.imageUrl.length > 10) || stories[0];
+    return stories.find(s => {
+      const img = s.imageUrl ? (upgradeThumbnailResolution(s.imageUrl) || s.imageUrl) : null;
+      return img && img.length > 10 && !isPlaceholderOrLogoUrl(img) && !isSmallThumbnailUrl(img);
+    }) || stories.find(s => {
+      const img = s.imageUrl ? (upgradeThumbnailResolution(s.imageUrl) || s.imageUrl) : null;
+      return img && !isPlaceholderOrLogoUrl(img);
+    }) || stories[0];
   }, [stories]);
 
   // Remaining list stories

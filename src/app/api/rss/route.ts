@@ -3,6 +3,7 @@ import Parser from 'rss-parser';
 import { createClient } from '@supabase/supabase-js';
 import { getDefaultInauguralFeeds } from '@/data/prestigeSources';
 import { clusterStories } from '@/lib/storyClustering';
+import { upgradeThumbnailResolution } from '@/lib/textUtils';
 
 const parser = new Parser({
   timeout: 8000, // 8s per-feed timeout for large XML feeds
@@ -125,6 +126,7 @@ function extractImageFromItem(item: any): string | null {
     if (imageUrl.startsWith('//')) {
       imageUrl = 'https:' + imageUrl;
     }
+    imageUrl = upgradeThumbnailResolution(imageUrl) || imageUrl;
   }
 
   return imageUrl || null;
@@ -173,15 +175,17 @@ async function fetchOgImage(url: string): Promise<string | null> {
     const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
                     html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
     if (ogMatch && ogMatch[1].startsWith('http')) {
-      ogImageCache.set(url, { url: ogMatch[1], timestamp: Date.now() });
-      return ogMatch[1];
+      const up = upgradeThumbnailResolution(ogMatch[1]) || ogMatch[1];
+      ogImageCache.set(url, { url: up, timestamp: Date.now() });
+      return up;
     }
 
     const twMatch = html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i) ||
                     html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i);
     if (twMatch && twMatch[1].startsWith('http')) {
-      ogImageCache.set(url, { url: twMatch[1], timestamp: Date.now() });
-      return twMatch[1];
+      const up = upgradeThumbnailResolution(twMatch[1]) || twMatch[1];
+      ogImageCache.set(url, { url: up, timestamp: Date.now() });
+      return up;
     }
 
     ogImageCache.set(url, { url: null, timestamp: Date.now() });
@@ -321,7 +325,7 @@ export async function GET(request: Request) {
 
     // Merge: user-subscribed feeds first, plus curated feeds to ensure ALL magazine desks are represented
     const seenUrls = new Set<string>();
-    const targetFeeds: typeof curatedFeeds = [];
+    const targetFeeds: Array<{ url: string; title: string; icon_url?: string; feed_id?: string; desk: string; category: string }> = [];
 
     for (const f of userFeeds) {
       if (!seenUrls.has(f.url)) {

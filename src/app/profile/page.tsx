@@ -185,8 +185,8 @@ export default function ProfilePage() {
       category: 'Pinnacle',
       description: 'Attain Rank 5 through relentless curiosity and intellectual devotion.',
       icon: '◎',
-      isUnlocked: rank.rankLevel >= 5,
-      progress: `Rank ${rank.rankLevel}/5`,
+      isUnlocked: rank.tier >= 5,
+      progress: `Rank ${rank.tier}/5`,
     },
   ];
 
@@ -248,11 +248,11 @@ export default function ProfilePage() {
           <div className="flex flex-col items-center md:items-end gap-1.5 bg-white border border-stone-200/90 rounded-2xl p-4 sm:p-5 shadow-xs">
             <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500">Explorer Elevation</span>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-black text-[#EA580C] font-mono">Rank {rank.rankLevel}</span>
+              <span className="text-xl font-black text-[#EA580C] font-mono">Rank {rank.tier}</span>
               <span className="text-sm font-serif font-bold text-stone-900">({rank.title})</span>
             </div>
             <span className="text-[11px] text-stone-500 font-mono">
-              {rank.nextRankTitle ? `${rank.minutesNeeded}m to ${rank.nextRankTitle}` : 'Max Elevation Attained ✦'}
+              {rank.nextTitle ? `${Math.max(0, rank.targetMins - rank.currentMins)}m to ${rank.nextTitle}` : 'Max Elevation Attained ✦'}
             </span>
           </div>
         </motion.div>

@@ -13,7 +13,7 @@ import { TrendingTicker } from "@/components/magazine/TrendingTicker";
 import { LeadStorySection } from "@/components/magazine/LeadStorySection";
 import { StoryListRow } from "@/components/magazine/StoryListRow";
 import { CategorySectionBand } from "@/components/magazine/CategorySectionBand";
-import { isPlaceholderOrLogoUrl, isSmallThumbnailUrl } from "@/lib/textUtils";
+import { isPlaceholderOrLogoUrl, isSmallThumbnailUrl, upgradeThumbnailResolution } from "@/lib/textUtils";
 
 function matchesCategory(story: any, targetCategory: string): boolean {
   if (!story) return false;
@@ -102,13 +102,17 @@ export default function FeedPage() {
 
     // 1. Lead Story: choose only from stories with valid image (>= 600px wide, not logo/placeholder)
     // Fall back to best available if none qualify
-    const validImageLead = stories.find(s => 
-      s.imageUrl && 
-      s.imageUrl.length > 10 && 
-      !isPlaceholderOrLogoUrl(s.imageUrl) && 
-      !isSmallThumbnailUrl(s.imageUrl)
-    );
-    const fallbackImageLead = stories.find(s => s.imageUrl && !isPlaceholderOrLogoUrl(s.imageUrl));
+    const validImageLead = stories.find(s => {
+      const img = s.imageUrl ? (upgradeThumbnailResolution(s.imageUrl) || s.imageUrl) : null;
+      return img && 
+        img.length > 10 && 
+        !isPlaceholderOrLogoUrl(img) && 
+        !isSmallThumbnailUrl(img);
+    });
+    const fallbackImageLead = stories.find(s => {
+      const img = s.imageUrl ? (upgradeThumbnailResolution(s.imageUrl) || s.imageUrl) : null;
+      return img && !isPlaceholderOrLogoUrl(img);
+    });
     const lead = validImageLead || fallbackImageLead || stories[0];
 
     if (lead) {

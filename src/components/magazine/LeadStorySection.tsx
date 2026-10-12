@@ -1,8 +1,16 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LeadHeadline } from '@/lib/editorialTypography';
-import { sanitizeText, cleanSource, cleanCategory, computeReadTime, isPlaceholderOrLogoUrl, capitalizeFirstLetter } from '@/lib/textUtils';
+import { 
+  sanitizeText, 
+  cleanSource, 
+  cleanCategory, 
+  computeReadTime, 
+  isPlaceholderOrLogoUrl, 
+  capitalizeFirstLetter,
+  upgradeThumbnailResolution,
+} from '@/lib/textUtils';
 
 interface LeadStorySectionProps {
   story: any;
@@ -18,13 +26,23 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
   isSaved,
 }) => {
   const [useProxy, setUseProxy] = useState(false);
-  const isBadInitialUrl = !story?.imageUrl || isPlaceholderOrLogoUrl(story?.imageUrl);
+  const rawImageUrl = story?.imageUrl ? upgradeThumbnailResolution(story.imageUrl) : null;
+  const isBadInitialUrl = !rawImageUrl || isPlaceholderOrLogoUrl(rawImageUrl);
   const [imageError, setImageError] = useState(isBadInitialUrl);
+
+  // Synchronize state whenever the story changes
+  useEffect(() => {
+    const upgraded = story?.imageUrl ? upgradeThumbnailResolution(story.imageUrl) : null;
+    const isBad = !upgraded || isPlaceholderOrLogoUrl(upgraded);
+    setImageError(isBad);
+    setUseProxy(false);
+  }, [story?.id, story?.link, story?.imageUrl]);
 
   if (!story) return null;
 
-  const handleImageError = () => {
-    if (!useProxy && story.imageUrl) {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const currentSrc = e.currentTarget.currentSrc || e.currentTarget.src || '';
+    if (!useProxy && rawImageUrl && !currentSrc.includes('/api/image-proxy')) {
       setUseProxy(true);
     } else {
       setImageError(true);
@@ -32,14 +50,15 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
   };
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    if (e.currentTarget.naturalWidth < 300) {
+    // Only reject tracking pixels or tiny icons (< 100x60), allow legitimate editorial images
+    if (e.currentTarget.naturalWidth < 100 || e.currentTarget.naturalHeight < 60) {
       setImageError(true);
     }
   };
 
-  const activeSrc = useProxy && story.imageUrl
-    ? `/api/image-proxy?url=${encodeURIComponent(story.imageUrl)}`
-    : story.imageUrl;
+  const activeSrc = useProxy && rawImageUrl
+    ? `/api/image-proxy?url=${encodeURIComponent(rawImageUrl)}`
+    : rawImageUrl;
 
   const hasImage = !imageError && !!activeSrc && !isPlaceholderOrLogoUrl(activeSrc);
 
@@ -147,6 +166,7 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
                 alt={story.title} 
                 onError={handleImageError}
                 onLoad={handleImageLoad}
+                fetchPriority="high"
                 style={{ maxHeight: '320px' }}
                 className="w-full h-full object-cover" 
               />
