@@ -139,7 +139,24 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     setIsLoading(true);
 
     try {
-      // 1. Client-side fetch via Jina AI
+      // 1. Odysseus Server Reader API (fast direct fetch, Readability, anti-bot bypass)
+      const res = await fetch(`/api/read-mode?url=${encodeURIComponent(article.link)}&t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.article?.content && data.article.content.length > 300) {
+          const pureHtml = sanitizeArticleProse(data.article.content);
+          setFullContent(pureHtml);
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch { /* fall through to client fallback */ }
+
+    try {
+      // 2. Client-side fallback via Jina AI Reader
       const jinaRes = await fetch(`https://r.jina.ai/${encodeURIComponent(article.link)}`, {
         headers: { 'Accept': 'application/json' }
       });
@@ -154,55 +171,11 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
       }
     } catch { /* fall through */ }
 
-    try {
-      // 2. Client-side proxy fallback
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(article.link)}`;
-      const res = await fetch(proxyUrl);
-      if (res.ok) {
-        const html = await res.text();
-        if (html.length > 1000) {
-          const { Readability } = await import('@mozilla/readability');
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          
-          const removeSelectors = ['script', 'style', 'nav', 'footer', 'aside', '.ads', '.cookie-banner'];
-          removeSelectors.forEach(sel => {
-            doc.querySelectorAll(sel).forEach(el => el.remove());
-          });
-
-          const reader = new Readability(doc, { keepClasses: false });
-          const parsed = reader.parse();
-          
-          if (parsed && parsed.content && parsed.content.length > 500) {
-            const pureHtml = sanitizeArticleProse(parsed.content);
-            setFullContent(pureHtml);
-            setIsLoading(false);
-            return;
-          }
-        }
-      }
-    } catch { /* fall through */ }
-
-    try {
-      // 3. Server API fallback
-      const res = await fetch(`/api/read-mode?url=${encodeURIComponent(article.link)}&t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' },
-      });
-      const data = await res.json();
-
-      if (data.success && data.article?.content && data.article.content.length > 500) {
-        const pureHtml = sanitizeArticleProse(data.article.content);
-        setFullContent(pureHtml);
-        setIsLoading(false);
-        return;
-      }
-    } catch { /* fall through */ }
-
-    // 4. API failed — try rich RSS content
+    // 3. Fallback to RSS content preview (with cleaned prose)
     const rssContent = article['content:encoded'] || article.contentEncoded || article.content;
-    if (rssContent && rssContent.replace(/<[^>]*>/g, '').trim().length > 250) {
+    if (rssContent && rssContent.replace(/<[^>]*>/g, '').trim().length > 150) {
       setFullContent(sanitizeArticleProse(rssContent));
+      setPreviewOnly(true);
     } else {
       setPreviewOnly(true);
     }
@@ -214,8 +187,8 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     if (isOpen && article) {
       setImageError(false);
       setUseProxy(false);
-      // If article is imported or already has purified full content, display immediately
-      if (article.isImported || (article.content && article.content.length > 600)) {
+      // Only skip fetch if article is an imported article with pre-purified content
+      if (article.isImported && article.content) {
         setFullContent(sanitizeArticleProse(article.content));
         setIsLoading(false);
         setPreviewOnly(false);

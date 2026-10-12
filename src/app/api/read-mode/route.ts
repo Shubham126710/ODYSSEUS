@@ -1,82 +1,23 @@
 import { NextResponse } from 'next/server';
-import { JSDOM } from 'jsdom';
+import { JSDOM, VirtualConsole } from 'jsdom';
 import { Readability } from '@mozilla/readability';
 import { purifyExtractedArticle } from '@/lib/cleanArticleExtraction';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
+// Virtual console to silence CSS stylesheet parsing warnings
+const virtualConsole = new VirtualConsole();
+virtualConsole.on('error', () => {});
+virtualConsole.on('warn', () => {});
+
 // ---------------------------------------------------------------------------
 // Fetch strategies
 // ---------------------------------------------------------------------------
 
-/** Jina AI Reader — works for most sites that allow AI reader access. */
-async function fetchViaJina(url: string): Promise<{ title: string; content: string; textContent: string } | null> {
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 18000);
-    const res = await fetch(`https://r.jina.ai/${url}`, {
-      headers: { 'Accept': 'application/json', 'X-Timeout': '15' },
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    // Non-200 codes (e.g. 451 legal block, 403 blocked) mean we can't use this
-    if (data.code && data.code !== 200) return null;
-
-    const article = data?.data;
-    if (!article?.content || article.content.length < 200) return null;
-
-    // Jina returns Markdown — convert to basic HTML for the reader
-    const html = markdownToHtml(article.content);
-    return {
-      title: article.title || '',
-      content: html,
-      textContent: article.content.replace(/[#*`\[\]()!>]/g, '').replace(/\s+/g, ' ').trim(),
-    };
-  } catch {
-    return null;
-  }
-}
-
-/** Internet Archive Wayback Machine — for recently-archived articles. */
-async function fetchViaWayback(url: string): Promise<string | null> {
-  try {
-    const availRes = await fetch(
-      `https://archive.org/wayback/available?url=${encodeURIComponent(url)}`,
-      { signal: AbortSignal.timeout(5000) }
-    );
-    if (!availRes.ok) return null;
-    const avail = await availRes.json();
-    const snapshotUrl: string | undefined = avail?.archived_snapshots?.closest?.url;
-    if (!snapshotUrl) return null;
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 12000);
-    const pageRes = await fetch(snapshotUrl, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1)' },
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-    if (!pageRes.ok) return null;
-    const html = await pageRes.text();
-    return html.length > 500 ? html : null;
-  } catch {
-    return null;
-  }
-}
-
-/** Direct fetch — works for blogs and sites that don't block Vercel IPs. */
+/** Direct fetch — works for most publishers (Guardian, Verge, BBC, etc.) with zero proxy overhead. */
 async function fetchDirect(url: string): Promise<string | null> {
   const headerSets: Record<string, string>[] = [
-    {
-      'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      'From': 'googlebot(at)googlebot.com',
-      'X-Forwarded-For': '66.249.66.1', // Googlebot IP
-    },
     {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -84,13 +25,20 @@ async function fetchDirect(url: string): Promise<string | null> {
       'Accept-Encoding': 'identity',
       'Referer': 'https://www.google.com/',
       'Upgrade-Insecure-Requests': '1',
+      'Sec-Fetch-Dest': 'document',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'cross-site',
+    },
+    {
+      'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     },
   ];
 
   for (const h of headerSets) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000);
+      const timeout = setTimeout(() => controller.abort(), 7000);
       const res = await fetch(url, { headers: h, signal: controller.signal, redirect: 'follow' });
       clearTimeout(timeout);
       if (res.ok) {
@@ -105,13 +53,41 @@ async function fetchDirect(url: string): Promise<string | null> {
   return null;
 }
 
+/** Jina AI Reader — handles JS-heavy SPAs and sites that block direct server IPs. */
+async function fetchViaJina(url: string): Promise<{ title: string; content: string; textContent: string } | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(`https://r.jina.ai/${url}`, {
+      headers: { 'Accept': 'application/json', 'X-Timeout': '7' },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    if (data.code && data.code !== 200) return null;
+
+    const article = data?.data;
+    if (!article?.content || article.content.length < 200) return null;
+
+    const html = markdownToHtml(article.content);
+    return {
+      title: article.title || '',
+      content: html,
+      textContent: article.content.replace(/[#*`\[\]()!>]/g, '').replace(/\s+/g, ' ').trim(),
+    };
+  } catch {
+    return null;
+  }
+}
+
 /** Proxy fetch — bypasses IP blocks using a public proxy. */
 async function fetchViaProxy(url: string): Promise<string | null> {
-  // Try corsproxy.io first (returns raw HTML)
   try {
     const corsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(corsProxyUrl, { signal: controller.signal });
     clearTimeout(timeout);
     if (res.ok) {
@@ -120,11 +96,10 @@ async function fetchViaProxy(url: string): Promise<string | null> {
     }
   } catch { /* ignore */ }
 
-  // Fallback to allorigins.win (returns JSON)
   try {
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(proxyUrl, { signal: controller.signal });
     clearTimeout(timeout);
     if (res.ok) {
@@ -137,13 +112,45 @@ async function fetchViaProxy(url: string): Promise<string | null> {
   return null;
 }
 
+/** Internet Archive Wayback Machine — last resort for 404 / dead articles. */
+async function fetchViaWayback(url: string): Promise<string | null> {
+  try {
+    const availRes = await fetch(
+      `https://archive.org/wayback/available?url=${encodeURIComponent(url)}`,
+      { signal: AbortSignal.timeout(4000) }
+    );
+    if (!availRes.ok) return null;
+    const avail = await availRes.json();
+    const snapshotUrl: string | undefined = avail?.archived_snapshots?.closest?.url;
+    if (!snapshotUrl) return null;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const pageRes = await fetch(snapshotUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1)' },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!pageRes.ok) return null;
+    const html = await pageRes.text();
+    return html.length > 500 ? html : null;
+  } catch {
+    return null;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Content extraction
 // ---------------------------------------------------------------------------
 
 function extractWithReadability(html: string, url: string) {
   try {
-    const dom = new JSDOM(html, { url });
+    // Strip styles and external stylesheets before JSDOM to prevent heavy CSS parsing overhead
+    const cleanHtml = html
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<link[^>]*rel=["']stylesheet["'][^>]*>/gi, '');
+
+    const dom = new JSDOM(cleanHtml, { url, virtualConsole });
     const doc = dom.window.document;
     for (const sel of ['script', 'style', 'noscript', 'nav', 'footer', '.ad', '.ads',
       '.advertisement', '.paywall-overlay', '.cookie-banner', '#comments', '.comments']) {
@@ -180,7 +187,7 @@ function extractFromJsonLd(html: string): { title: string; content: string; text
 
 function extractFallbackContent(html: string, url: string): { title: string; content: string; textContent: string } | null {
   try {
-    const dom = new JSDOM(html, { url });
+    const dom = new JSDOM(html, { url, virtualConsole });
     const doc = dom.window.document;
     const title =
       doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
@@ -200,6 +207,25 @@ function extractFallbackContent(html: string, url: string): { title: string; con
       } catch { /* continue */ }
     }
   } catch { /* ignore */ }
+  return null;
+}
+
+function extractFromHtml(html: string, url: string): { title: string; content: string; textContent: string; byline?: string | null; siteName?: string | null } | null {
+  const rd = extractWithReadability(html, url);
+  if (rd?.content && (rd.textContent || '').split(/\s+/).length > 80) {
+    return { title: rd.title || '', content: rd.content, textContent: rd.textContent || '', byline: rd.byline, siteName: rd.siteName };
+  }
+  const jld = extractFromJsonLd(html);
+  if (jld && jld.textContent.split(/\s+/).length > 80) {
+    return jld;
+  }
+  const fb = extractFallbackContent(html, url);
+  if (fb && fb.textContent.split(/\s+/).length > 80) {
+    return fb;
+  }
+  if (rd?.content) {
+    return { title: rd.title || '', content: rd.content, textContent: rd.textContent || '', byline: rd.byline, siteName: rd.siteName };
+  }
   return null;
 }
 
@@ -243,71 +269,52 @@ export async function GET(request: Request) {
   if (!url) return NextResponse.json({ success: false, error: 'URL required' }, { status: 400 });
 
   try {
-    // 1. Jina AI Reader (works for most non-opted-out sites)
-    const jinaResult = await fetchViaJina(url);
-    if (jinaResult?.content) {
-      const purified = purifyExtractedArticle({
-        title: jinaResult.title,
-        content: jinaResult.content,
-        url,
-      });
+    type ArticleResult = { title: string; content: string; textContent: string; byline?: string | null; siteName?: string | null };
+    let extracted: ArticleResult | null = null;
 
-      return NextResponse.json({
-        success: true,
-        article: {
-          title: purified.title,
-          content: purified.cleanHtml,
-          textContent: purified.plainText,
-          readTime: purified.readTime,
-          wordCount: purified.wordCount,
-          byline: null,
-          siteName: null,
-        },
-      });
+    // 1. Direct fetch with real browser headers (Fastest: ~300-600ms, accurate live HTML)
+    const directHtml = await fetchDirect(url);
+    if (directHtml) {
+      extracted = extractFromHtml(directHtml, url);
     }
 
-    // 2. Wayback Machine (for archived articles)
-    const waybackHtml = await fetchViaWayback(url);
-
-    // 3. Direct fetch (works for blogs / sites that don't block cloud IPs)
-    let html = waybackHtml || await fetchDirect(url);
-
-    // 4. Proxy fetch fallback if direct fails
-    if (!html) {
-      html = await fetchViaProxy(url);
+    // 2. Jina AI Reader (handles JavaScript-heavy SPAs, Substack, and sites that block server IPs)
+    if (!extracted || extracted.textContent.split(/\s+/).length < 80) {
+      const jinaResult = await fetchViaJina(url);
+      if (jinaResult?.content && jinaResult.textContent.split(/\s+/).length >= 80) {
+        extracted = jinaResult;
+      }
     }
 
-    if (!html) {
-      return NextResponse.json({ success: false, error: 'Could not retrieve article' }, { status: 502 });
+    // 3. Proxy fetch fallback
+    if (!extracted || extracted.textContent.split(/\s+/).length < 80) {
+      const proxyHtml = await fetchViaProxy(url);
+      if (proxyHtml) {
+        const proxyExtracted = extractFromHtml(proxyHtml, url);
+        if (proxyExtracted && proxyExtracted.textContent.split(/\s+/).length >= 80) {
+          extracted = proxyExtracted;
+        }
+      }
     }
 
-    // Extract content using multiple strategies
-    type Result = { title: string; content: string; textContent: string; byline?: string | null; siteName?: string | null };
-    let result: Result | null = null;
-
-    const rd = extractWithReadability(html, url);
-    if (rd?.content && (rd.textContent || '').split(/\s+/).length > 50) {
-      result = { title: rd.title || '', content: rd.content, textContent: rd.textContent || '', byline: rd.byline, siteName: rd.siteName };
-    }
-    if (!result) {
-      const jld = extractFromJsonLd(html);
-      if (jld) result = jld;
-    }
-    if (!result) {
-      const fb = extractFallbackContent(html, url);
-      if (fb) result = fb;
-    }
-    if (!result && rd?.content) {
-      result = { title: rd.title || '', content: rd.content, textContent: rd.textContent || '', byline: rd.byline, siteName: rd.siteName };
+    // 4. Wayback Machine (last resort for 404 / dead articles)
+    if (!extracted || extracted.textContent.split(/\s+/).length < 80) {
+      const waybackHtml = await fetchViaWayback(url);
+      if (waybackHtml) {
+        const wbExtracted = extractFromHtml(waybackHtml, url);
+        if (wbExtracted && wbExtracted.textContent.split(/\s+/).length >= 80) {
+          extracted = wbExtracted;
+        }
+      }
     }
 
-    if (!result?.content) {
+    if (!extracted?.content) {
       return NextResponse.json({ success: false, error: 'Failed to parse article content' }, { status: 422 });
     }
 
     const purified = purifyExtractedArticle({
-      title: result.title,
-      content: result.content,
+      title: extracted.title,
+      content: extracted.content,
       url,
     });
 
@@ -319,8 +326,8 @@ export async function GET(request: Request) {
         textContent: purified.plainText,
         readTime: purified.readTime,
         wordCount: purified.wordCount,
-        byline: null,
-        siteName: result.siteName || null,
+        byline: extracted.byline || null,
+        siteName: extracted.siteName || null,
       },
     });
 

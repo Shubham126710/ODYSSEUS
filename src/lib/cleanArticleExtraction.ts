@@ -108,6 +108,15 @@ export function sanitizeArticleProse(rawHtml: string): string {
       }
     });
 
+    // Remove stray "Continue reading...", "Read more", "Read the full story" teaser links
+    const teaserRegex = /^(continue reading|read the full story|read more at|read full article|read more\b|read original story|see original article)/i;
+    div.querySelectorAll('p, a, span, div').forEach((el) => {
+      const text = el.textContent?.trim() || '';
+      if (text.length < 100 && (teaserRegex.test(text) || /continue reading\.{0,3}$/i.test(text))) {
+        el.remove();
+      }
+    });
+
     // Remove empty paragraphs
     div.querySelectorAll('p').forEach((p) => {
       if (!p.textContent?.trim() && !p.querySelector('img')) {
@@ -126,7 +135,9 @@ export function sanitizeArticleProse(rawHtml: string): string {
       .replace(/<p[^>]*>(?:by|written by|author:)[^<]*<\/p>/gi, '')
       .replace(/<p[^>]*>\s*\d{1,2}:\d{2}:\d{2}(?::\d{2})?\s*<\/p>/gi, '')
       .replace(/<p[^>]*>[^<]*(?:Disrupt doors|REGISTER NOW|Exhibit Table)[^<]*<\/p>/gi, '')
-      .replace(/<p[^>]*>\s*(?:Close|Dismiss)\s*<\/p>/gi, '');
+      .replace(/<p[^>]*>\s*(?:Close|Dismiss)\s*<\/p>/gi, '')
+      .replace(/<p[^>]*>[\s\S]*?(?:continue reading|read the full story|read full article)[\s\S]*?<\/p>/gi, '')
+      .replace(/<a[^>]*>[\s\S]*?(?:continue reading|read the full story|read full article)[\s\S]*?<\/a>/gi, '');
   }
 
   // Clean any stray broken anchor remnants
