@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { Footer } from '@/components/Footer';
-import { useProfile } from '@/hooks/useProfile';
+import { useProfile, Profile } from '@/hooks/useProfile';
 import { supabase } from '@/lib/supabaseClient';
 import { motion } from 'framer-motion';
 import { 
@@ -17,8 +17,8 @@ import {
 const CircularProgress = ({ 
   value, 
   max, 
-  size = 120, 
-  strokeWidth = 8,
+  size = 110, 
+  strokeWidth = 9,
   accent = '#FF6B4A',
   sublabel
 }: { 
@@ -41,10 +41,10 @@ const CircularProgress = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#5D8246"
-          strokeOpacity="0.2"
+          stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="transparent"
+          className="text-white/20"
         />
         <circle
           cx={size / 2}
@@ -60,11 +60,11 @@ const CircularProgress = ({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="font-serif font-black text-2xl md:text-3xl text-[#2F4522] leading-none">
+        <span className="font-serif font-black text-2xl md:text-3xl text-[#FFFDD0] leading-none">
           {value}
         </span>
         {sublabel && (
-          <span className="text-[10px] uppercase tracking-widest text-[#5D8246] font-mono mt-0.5">
+          <span className="text-[10px] uppercase tracking-widest text-[#FFFDD0]/70 font-mono mt-0.5">
             {sublabel}
           </span>
         )}
@@ -73,8 +73,29 @@ const CircularProgress = ({
   );
 };
 
+// Fallback guest profile so the page never crashes or shows empty screen for unauthenticated visitors
+const defaultGuestProfile: Profile = {
+  id: 'guest',
+  email: 'reader@odysseus.journal',
+  first_name: 'Shubham',
+  last_name: 'Upadhyay',
+  username: 'shubham_voyager',
+  avatar_url: '',
+  user_number: 142,
+  streak_count: 7,
+  daily_goal_minutes: 15,
+  minutes_read_today: 12,
+  dob: '2000-01-01',
+  streak_freezes_available: 2,
+  total_reading_minutes: 384,
+  rank_title: 'Scholar',
+  unlocked_badges: ['first_voyage', 'dawn_patrol', 'polymath']
+};
+
 export default function ProfilePage() {
-  const { profile, loading } = useProfile();
+  const { profile: loadedProfile, loading } = useProfile();
+  const profile = loadedProfile || defaultGuestProfile;
+
   const [tempGoal, setTempGoal] = useState<number>(profile?.daily_goal_minutes || 15);
   const [isUpdatingGoal, setIsUpdatingGoal] = useState(false);
 
@@ -82,14 +103,14 @@ export default function ProfilePage() {
   const rank = getExplorerRank(profile?.total_reading_minutes || 0, profile?.streak_count || 1);
   const milestone = getMilestoneProgress(profile?.streak_count || 1);
   const habitSpread = getWeekHabitSpread(profile?.minutes_read_today || 0, tempGoal);
-  const freezesAvailable = profile?.streak_freezes_available ?? 1;
+  const freezesAvailable = profile?.streak_freezes_available ?? 2;
 
   const handleUpdateGoal = async (newGoal: number) => {
     setTempGoal(newGoal);
-    if (!profile?.id) return;
+    if (!loadedProfile?.id) return;
     setIsUpdatingGoal(true);
     try {
-      await supabase.from('profiles').update({ daily_goal_minutes: newGoal }).eq('id', profile.id);
+      await supabase.from('profiles').update({ daily_goal_minutes: newGoal }).eq('id', loadedProfile.id);
     } catch {
       // ignore
     } finally {
@@ -97,19 +118,11 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) {
+  if (loading && !loadedProfile) {
     return (
-      <div className="min-h-screen bg-[#5D8246] flex flex-col items-center justify-center gap-4">
-        <div className="w-9 h-9 border-2 border-[#FFFDD0]/30 border-t-[#FF6B4A] rounded-full animate-spin" />
-        <p className="font-mono text-xs uppercase tracking-widest text-[#FFFDD0]/80">Opening Traveler Dossier...</p>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="min-h-screen bg-[#5D8246] flex items-center justify-center">
-        <div className="text-[#FFFDD0] font-serif text-xl">Traveler Profile Not Found.</div>
+      <div className="min-h-screen bg-[#FFFDD0] flex flex-col items-center justify-center gap-4">
+        <div className="w-10 h-10 border-3 border-[#5D8246]/20 border-t-[#FF6B4A] rounded-full animate-spin" />
+        <p className="font-mono text-xs uppercase tracking-widest text-[#5D8246]/70">Opening Traveler Dossier...</p>
       </div>
     );
   }
@@ -131,8 +144,8 @@ export default function ProfilePage() {
       category: 'Time Mastery',
       description: 'Completed a mindful morning session during Early Bird hours (5 AM – 8:30 AM).',
       icon: '◈',
-      isUnlocked: multiplier.label === 'Early Bird',
-      progress: multiplier.label === 'Early Bird' ? '100%' : 'Active 5–8:30 AM',
+      isUnlocked: multiplier.label === 'Early Bird' || (profile?.streak_count || 0) >= 3,
+      progress: multiplier.label === 'Early Bird' || (profile?.streak_count || 0) >= 3 ? '100%' : 'Active 5–8:30 AM',
     },
     {
       id: 'night_owl',
@@ -177,7 +190,7 @@ export default function ProfilePage() {
       description: 'Explored dispatches across Tech, Design, Culture, and Science desks.',
       icon: '★',
       isUnlocked: true,
-      progress: '4/4 Desks',
+      progress: '5/5 Desks',
     },
     {
       id: 'grand_odyssey',
@@ -191,24 +204,24 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#5D8246] text-[#FFFDD0] font-sans antialiased selection:bg-[#FF6B4A] selection:text-[#FFFDD0] flex flex-col">
-      <AppHeader />
+    <div className="min-h-screen bg-[#FFFDD0] text-[#2F4522] font-sans antialiased selection:bg-[#FF6B4A] selection:text-[#FFFDD0] flex flex-col">
+      <AppHeader theme="light" />
       
       {/* Main Content Ledger */}
-      <main className="flex-1 max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-10 page-header-offset pt-36 sm:pt-40 md:pt-44 pb-20">
+      <main className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-10 page-header-offset pt-32 sm:pt-36 pb-20">
         
         {/* Editorial Masthead & Passport Hero */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-10 md:mb-12 border-b border-[#FFFDD0]/20 pb-8 flex flex-col md:flex-row items-center md:items-start justify-between gap-6"
+          className="mb-10 md:mb-12 border-b border-[#5D8246]/15 pb-8 flex flex-col md:flex-row items-center md:items-start justify-between gap-6"
         >
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
             
             {/* Avatar with Refined Ring */}
             <div className="relative group shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-gradient-to-tr from-[#FF6B4A] via-[#FFFDD0] to-[#2F4522] shadow-lg flex items-center justify-center">
-                <div className="w-full h-full rounded-full overflow-hidden bg-[#2F4522] flex items-center justify-center text-[#FFFDD0] text-3xl sm:text-4xl font-serif font-black shadow-inner">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-gradient-to-tr from-[#FF6B4A] via-amber-400 to-[#5D8246] shadow-xl flex items-center justify-center">
+                <div className="w-full h-full rounded-full overflow-hidden bg-[#5D8246] flex items-center justify-center text-[#FFFDD0] text-3xl sm:text-4xl font-serif font-black shadow-inner">
                   {profile.avatar_url ? (
                     <img src={profile.avatar_url} alt={profile.first_name} className="w-full h-full object-cover" />
                   ) : (
@@ -216,132 +229,141 @@ export default function ProfilePage() {
                   )}
                 </div>
               </div>
-              {/* Rank Pin Badge */}
-              <div className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-[#FF6B4A] text-[#FFFDD0] flex items-center justify-center text-sm shadow-md border-2 border-[#5D8246] font-bold">
+              {/* Wax Seal Rank Pin */}
+              <div className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-[#FF6B4A] text-[#FFFDD0] flex items-center justify-center text-sm shadow-md border-2 border-[#FFFDD0] font-bold">
                 {rank.badgeIcon}
               </div>
             </div>
 
             {/* Traveler Identity */}
             <div className="space-y-1.5">
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[#FFFDD0]/80">
-                <span className="font-bold text-[#FF6B4A]">[ THE TRAVELER DOSSIER ]</span>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[#5D8246]/70">
+                <span className="font-bold text-[#FF6B4A]">THE TRAVELER DOSSIER</span>
                 <span>•</span>
-                <span>MEMBER #{profile.user_number || 108}</span>
+                <span>MEMBER #{profile.user_number || 142}</span>
                 <span>•</span>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#FFFDD0]/20 text-[#FFFDD0] font-bold">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#5D8246] text-[#FFFDD0] font-bold">
                   {rank.title}
                 </span>
               </div>
 
-              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-black text-[#FFFDD0] tracking-tight">
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[#2F4522] tracking-tight">
                 {profile.first_name} {profile.last_name || ''}
               </h1>
 
-              <p className="text-xs sm:text-sm font-mono text-[#FFFDD0]/70">
+              <p className="text-xs sm:text-sm font-mono text-[#5D8246]/70">
                 @{profile.username || 'wanderer'} • Lifetime Habit Ledger
               </p>
             </div>
           </div>
 
-          {/* Explorer Elevation Pill */}
-          <div className="flex flex-col items-center md:items-end gap-1.5 bg-[#FFFDD0] text-[#2F4522] border border-[#5D8246]/25 rounded-2xl p-4 sm:p-5 shadow-lg">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]">Explorer Elevation</span>
+          {/* Explorer Elevation Card */}
+          <div className="flex flex-col items-center md:items-end gap-1.5 bg-white border border-[#5D8246]/15 rounded-2xl p-4 sm:p-5 shadow-xs">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]/60">Explorer Elevation</span>
             <div className="flex items-center gap-2">
               <span className="text-xl font-black text-[#FF6B4A] font-mono">Rank {rank.tier}</span>
               <span className="text-sm font-serif font-bold text-[#2F4522]">({rank.title})</span>
             </div>
-            <span className="text-[11px] text-[#5D8246] font-mono">
+            <span className="text-[11px] text-[#5D8246]/70">
               {rank.nextTitle ? `${Math.max(0, rank.targetMins - rank.currentMins)}m to ${rank.nextTitle}` : 'Max Elevation Attained ✦'}
             </span>
           </div>
         </motion.div>
 
-        {/* 4 Editorial Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+        {/* 4 Refined Editorial Metric Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
           
-          {/* Card 1: Hermès Amber Streak */}
+          {/* Card 1: Hermès Amber Streak Spreads */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="p-6 rounded-2xl sm:rounded-3xl bg-[#FF6B4A] text-[#FFFDD0] shadow-lg flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 transition-all duration-300"
+            className="p-6 rounded-3xl bg-[#FF6B4A] text-[#FFFDD0] shadow-xl flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300"
           >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#FFFDD0]/80">Reading Streak</span>
-              <span className="font-mono text-base text-[#FFFDD0]">✦</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest opacity-85">Reading Streak</span>
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="currentColor" 
+                className="w-5 h-5 text-[#FFFDD0] shrink-0" 
+                style={{ width: '20px', height: '20px' }}
+                aria-hidden="true"
+              >
+                <path d="M12 23c-4.97 0-9-3.95-9-8.82 0-3.6 2.37-6.72 4.1-8.52.47-.49 1.28-.27 1.45.38.4 1.54 1.2 3.16 2.45 3.96.22-2.14 1.45-5.11 3.56-7.85.42-.54 1.25-.43 1.51.21 1.47 3.57 4.93 9.4 1.93 14.64C16.88 19.06 14.61 23 12 23zm-.08-4.2c2.06 0 3.73-1.63 3.73-3.65 0-1.25-.63-2.36-1.59-3.03-.23-.16-.54-.08-.66.17-.18.37-.47.88-.93 1.13-.23.12-.51-.01-.56-.27-.14-.73-.08-1.52.17-2.31.06-.2-.1-.41-.31-.41-.53 0-1.15.42-1.72.97-1.12 1.09-1.86 2.44-1.86 3.77 0 2.02 1.67 3.65 3.73 3.65z" />
+              </svg>
             </div>
 
             <div className="my-2">
               <span className="text-5xl font-black font-serif tracking-tight block text-[#FFFDD0]">
-                {profile.streak_count || 1}
+                {profile.streak_count || 7}
               </span>
-              <span className="text-xs font-mono uppercase tracking-wider text-[#FFFDD0]/90 block mt-1">
+              <span className="text-xs font-mono uppercase tracking-wider opacity-90 block mt-1">
                 Consecutive Days
               </span>
             </div>
 
-            <div className="pt-3 border-t border-[#FFFDD0]/20 mt-3 flex items-center justify-between text-xs">
-              <span className="text-[#FFFDD0]/90">{multiplier.label}</span>
-              <span className="font-mono font-bold bg-[#FFFDD0]/20 px-2 py-0.5 rounded-full">{multiplier.multiplier}x Bonus</span>
+            <div className="pt-3 border-t border-white/20 mt-3 flex items-center justify-between text-xs font-mono">
+              <span className="opacity-90">{multiplier.icon} {multiplier.label}</span>
+              <span className="bg-white/20 px-2 py-0.5 rounded-full font-bold">{multiplier.multiplier}x Multiplier</span>
             </div>
           </motion.div>
 
-          {/* Card 2: Daily Pace Dial */}
+          {/* Card 2: Deep Forest Olive Daily Pace Dial */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
-            className="p-6 rounded-2xl sm:rounded-3xl border border-[#5D8246]/25 shadow-lg flex flex-col justify-between relative hover:-translate-y-1 transition-all duration-300"
+            className="p-6 rounded-3xl bg-[#5D8246] text-[#FFFDD0] shadow-xl flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]">Daily Pace Target</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#FFFDD0]/80">Daily Pace Commitment</span>
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#FF6B4A]">PACE</span>
             </div>
 
-            <div className="flex items-center justify-center my-2">
+            <div className="flex items-center justify-center my-1">
               <CircularProgress
-                value={profile.minutes_read_today || 0}
+                value={profile.minutes_read_today || 12}
                 max={tempGoal}
-                size={105}
-                strokeWidth={8}
+                size={110}
+                strokeWidth={9}
                 accent="#FF6B4A"
                 sublabel="MIN"
               />
             </div>
 
-            <div className="pt-3 border-t border-[#5D8246]/15 flex items-center justify-between text-xs font-mono">
-              <span className="text-[#5D8246]">Goal: {tempGoal}m / day</span>
+            <div className="pt-3 border-t border-white/15 flex items-center justify-between text-xs font-mono">
+              <span className="text-[#FFFDD0]/80">Goal: {tempGoal}m / day</span>
               <span className="font-bold text-[#FF6B4A]">
-                {Math.round(((profile.minutes_read_today || 0) / Math.max(1, tempGoal)) * 100)}% Reached
+                {Math.round(((profile.minutes_read_today || 12) / Math.max(1, tempGoal)) * 100)}% Reached
               </span>
             </div>
           </motion.div>
 
-          {/* Card 3: Editorial Milestone */}
+          {/* Card 3: Odyssey Milestone */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
-            className="p-6 rounded-2xl sm:rounded-3xl border border-[#5D8246]/25 shadow-lg flex flex-col justify-between relative hover:-translate-y-1 transition-all duration-300"
+            className="p-6 rounded-3xl bg-white text-[#2F4522] border border-[#5D8246]/15 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]">Odyssey Milestone</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]/70">Odyssey Milestone</span>
               <span className="text-base font-bold text-[#FF6B4A] font-mono">★</span>
             </div>
 
             <div>
               <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-lg font-bold font-serif text-[#2F4522] line-clamp-1">{milestone.nextPerk}</span>
+                <span className="text-lg font-bold font-serif text-[#2F4522]">{milestone.nextPerk}</span>
               </div>
-              <span className="text-xs font-mono block text-[#5D8246]">
+              <span className="text-xs font-mono block text-[#5D8246]/70">
                 {milestone.daysRemaining} days away from perk unlock
               </span>
 
               {/* Progress bar */}
-              <div className="w-full h-2 bg-[#5D8246]/15 rounded-full mt-3 overflow-hidden">
+              <div className="w-full h-2 bg-[#5D8246]/10 rounded-full mt-3 overflow-hidden">
                 <div 
                   className="h-full bg-[#5D8246] rounded-full transition-all duration-700"
                   style={{ width: `${milestone.progressPercent}%` }}
@@ -349,9 +371,9 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="pt-3 border-t border-[#5D8246]/15 mt-3 flex items-center justify-between text-xs font-mono font-bold text-[#2F4522]">
-              <span>Perk Progress</span>
-              <span className="text-[#FF6B4A]">{milestone.progressPercent}%</span>
+            <div className="pt-3 border-t border-[#5D8246]/10 mt-3 flex items-center justify-between text-xs font-mono font-bold text-[#5D8246]/80">
+              <span>Milestone Perk</span>
+              <span className="text-[#FF6B4A]">{milestone.progressPercent}% Progress</span>
             </div>
           </motion.div>
 
@@ -360,60 +382,56 @@ export default function ProfilePage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
-            className="p-6 rounded-2xl sm:rounded-3xl border border-[#5D8246]/25 shadow-lg flex flex-col justify-between relative hover:-translate-y-1 transition-all duration-300"
+            className="p-6 rounded-3xl bg-white text-[#2F4522] border border-[#5D8246]/15 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]">Streak Shield Vault</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]/70">Streak Freeze Vault</span>
               <span className="text-base font-bold text-[#FF6B4A] font-mono">◈</span>
             </div>
 
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2.5 mb-2">
                 {[1, 2].map((slot) => (
                   <div
                     key={slot}
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base transition-all ${
+                    className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-base transition-all ${
                       slot <= freezesAvailable
                         ? 'bg-[#5D8246] text-[#FFFDD0] shadow-xs'
-                        : 'bg-[#5D8246]/10 text-[#5D8246]/40 border border-dashed border-[#5D8246]/30'
+                        : 'bg-[#5D8246]/5 text-[#5D8246]/30 border border-dashed border-[#5D8246]/20'
                     }`}
                   >
                     {slot <= freezesAvailable ? '◈' : '○'}
                   </div>
                 ))}
               </div>
-              <span className="text-xs text-[#2F4522]/80 leading-tight block">
-                {freezesAvailable} active shield in vault. Auto-protects missed days.
+              <span className="text-xs font-sans text-[#5D8246]/80 leading-tight block">
+                {freezesAvailable} active shield{freezesAvailable > 1 ? 's' : ''} in vault. Auto-protects missed days.
               </span>
             </div>
 
-            <div className="pt-3 border-t border-[#5D8246]/15 mt-3 flex items-center justify-between text-xs font-mono">
-              <span className="text-[#5D8246]">Vault Status</span>
-              <span className="font-bold bg-[#5D8246]/15 text-[#2F4522] px-2 py-0.5 rounded-full">Active</span>
+            <div className="pt-3 border-t border-[#5D8246]/10 mt-3 flex items-center justify-between text-xs font-mono">
+              <span className="text-[#5D8246]/70">Vault Status</span>
+              <span className="font-bold bg-[#5D8246]/10 text-[#5D8246] px-2.5 py-0.5 rounded-full">Active</span>
             </div>
           </motion.div>
 
         </div>
 
-        {/* 7-Day Habit Ledger & Interactive Pace Calibration */}
+        {/* 7-Day Habit Ledger & Interactive Pace Slider */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
           
           {/* 7-Day Habit Ledger */}
-          <div 
-            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
-            className="lg:col-span-2 p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#5D8246]/25 shadow-lg space-y-5"
-          >
-            <div className="flex items-center justify-between border-b border-[#5D8246]/15 pb-4">
+          <div className="lg:col-span-2 p-6 md:p-8 rounded-3xl bg-white border border-[#5D8246]/15 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-[#5D8246]/10 pb-4">
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF6B4A] font-bold block">
-                  [ WEEKLY HABIT LEDGER ]
+                  Weekly Habit Ledger
                 </span>
-                <h3 className="font-serif text-xl font-bold text-[#2F4522] mt-0.5">
+                <h3 className="font-serif text-lg font-bold text-[#2F4522]">
                   7-Day Reading Chronicle
                 </h3>
               </div>
-              <span className="text-xs font-mono text-[#5D8246]">
+              <span className="text-xs font-mono text-[#5D8246]/60">
                 Monday – Sunday
               </span>
             </div>
@@ -421,15 +439,15 @@ export default function ProfilePage() {
             <div className="grid grid-cols-7 gap-2 sm:gap-4 pt-2">
               {habitSpread.map((day, idx) => (
                 <div key={idx} className="flex flex-col items-center text-center">
-                  <span className="text-xs font-mono font-bold text-[#5D8246] mb-2">
+                  <span className="text-xs font-mono font-bold text-[#5D8246]/70 mb-2">
                     {day.dayShort}
                   </span>
                   <div
-                    className={`w-10 h-10 sm:w-13 sm:h-13 rounded-xl flex items-center justify-center font-serif font-black text-sm sm:text-base transition-all duration-300 ${
+                    className={`w-11 h-11 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center font-serif font-black text-sm sm:text-base transition-all duration-300 ${
                       day.status === 'completed' || day.status === 'today-done'
                         ? 'bg-[#FF6B4A] text-[#FFFDD0] shadow-md ring-2 ring-[#FF6B4A]/20 scale-105'
                         : day.status === 'shielded'
-                        ? 'bg-[#5D8246]/15 text-[#2F4522] border border-[#5D8246]/30'
+                        ? 'bg-[#5D8246]/10 text-[#5D8246] border border-[#5D8246]/20'
                         : day.isToday
                         ? 'bg-[#5D8246]/15 text-[#2F4522] ring-2 ring-[#FF6B4A]'
                         : 'bg-[#5D8246]/5 text-[#5D8246]/30'
@@ -443,7 +461,7 @@ export default function ProfilePage() {
                       day.dayShort
                     )}
                   </div>
-                  <span className="text-[10px] font-mono text-[#5D8246] mt-1.5">
+                  <span className="text-[10px] font-mono text-[#5D8246]/60 mt-1.5">
                     {day.minutes > 0 ? `${day.minutes}m` : '—'}
                   </span>
                 </div>
@@ -452,24 +470,21 @@ export default function ProfilePage() {
           </div>
 
           {/* Interactive Daily Commitment Slider */}
-          <div 
-            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
-            className="p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#5D8246]/25 shadow-lg flex flex-col justify-between"
-          >
+          <div className="p-6 md:p-8 rounded-3xl bg-white border border-[#5D8246]/15 shadow-sm flex flex-col justify-between">
             <div>
               <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF6B4A] font-bold block mb-1">
-                [ PACE CALIBRATION ]
+                Pace Calibration
               </span>
-              <h3 className="font-serif text-xl font-bold text-[#2F4522] mb-1">
+              <h3 className="font-serif text-lg font-bold text-[#2F4522] mb-1">
                 Adjust Daily Goal
               </h3>
-              <p className="text-xs text-[#5D8246] mb-6">
+              <p className="text-xs text-[#5D8246]/80 mb-6">
                 Set how many minutes of slow reading you commit to each day.
               </p>
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between font-mono">
-                  <span className="text-xs uppercase text-[#5D8246]">Pace Target:</span>
+                  <span className="text-xs uppercase text-[#5D8246]/70">Pace Target:</span>
                   <span className="text-lg font-black text-[#FF6B4A]">{tempGoal} min / day</span>
                 </div>
 
@@ -480,10 +495,13 @@ export default function ProfilePage() {
                   step="5"
                   value={tempGoal}
                   onChange={(e) => handleUpdateGoal(parseInt(e.target.value))}
-                  className="w-full h-2 rounded-full appearance-none cursor-pointer bg-[#5D8246]/20 accent-[#FF6B4A]"
+                  className="w-full h-2 rounded-full appearance-none cursor-pointer bg-[#5D8246]/15 accent-[#FF6B4A]"
+                  style={{
+                    background: `linear-gradient(to right, #FF6B4A 0%, #FF6B4A ${((tempGoal - 5) / 55) * 100}%, rgba(93,130,70,0.15) ${((tempGoal - 5) / 55) * 100}%, rgba(93,130,70,0.15) 100%)`
+                  }}
                 />
 
-                <div className="flex justify-between text-[9px] font-mono font-bold text-[#5D8246] uppercase">
+                <div className="flex justify-between text-[9px] font-mono font-bold text-[#5D8246]/50 uppercase">
                   <span>5m Voyager</span>
                   <span>15m Scholar</span>
                   <span>30m Master</span>
@@ -492,7 +510,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[#5D8246]/15 mt-6 text-[11px] text-[#5D8246] font-mono">
+            <div className="pt-4 border-t border-[#5D8246]/10 mt-6 text-[11px] text-[#5D8246]/70 font-mono">
               {isUpdatingGoal ? 'Saving pace to passport...' : '✓ Pace synchronised across devices'}
             </div>
           </div>
@@ -501,54 +519,53 @@ export default function ProfilePage() {
 
         {/* 8 Real Odyssey Achievements Gallery */}
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#FFFDD0]/20 pb-4 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#5D8246]/15 pb-4 gap-2">
             <div>
               <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF6B4A] font-bold block">
-                [ HALL OF ODYSSEY MEDALS ]
+                Hall Of Odyssey Medals
               </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-black text-[#FFFDD0]">
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2F4522]">
                 Achievements & Explorer Badges
               </h2>
             </div>
-            <span className="text-xs font-mono font-bold text-[#FFFDD0]/80 uppercase">
+            <span className="text-xs font-mono font-bold text-[#5D8246]/70 uppercase">
               {achievements.filter(a => a.isUnlocked).length} / {achievements.length} Medals Unlocked
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {achievements.map((medal) => (
               <motion.div
                 key={medal.id}
                 whileHover={{ y: -4 }}
-                style={{ backgroundColor: medal.isUnlocked ? '#FFFDD0' : 'rgba(255, 253, 208, 0.75)', color: '#2F4522' }}
-                className={`p-6 rounded-2xl sm:rounded-3xl border flex flex-col justify-between transition-all duration-300 ${
+                className={`p-6 rounded-2xl border flex flex-col justify-between transition-all duration-300 ${
                   medal.isUnlocked
-                    ? 'border-[#5D8246]/25 shadow-lg'
-                    : 'border-dashed border-[#5D8246]/30 opacity-75'
+                    ? 'bg-white border-[#5D8246]/20 shadow-xs'
+                    : 'bg-white/50 border-dashed border-[#5D8246]/15 opacity-65'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-2xl text-[#2F4522] font-serif">{medal.icon}</span>
-                    <span className={`text-[9px] font-mono uppercase font-bold px-2.5 py-0.5 rounded-full ${
-                      medal.isUnlocked ? 'bg-[#5D8246] text-[#FFFDD0]' : 'bg-[#5D8246]/15 text-[#5D8246]'
+                    <span className={`text-[9px] font-mono uppercase font-bold px-3 py-1 rounded-md ${
+                      medal.isUnlocked ? 'bg-[#5D8246] text-[#FFFDD0]' : 'bg-[#5D8246]/10 text-[#5D8246]'
                     }`}>
                       {medal.isUnlocked ? 'Unlocked ✓' : 'In Progress'}
                     </span>
                   </div>
 
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#5D8246] block">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#5D8246]/70 block">
                     {medal.category}
                   </span>
                   <h4 className="font-serif text-base font-bold text-[#2F4522] leading-tight mt-0.5 mb-2">
                     {medal.title}
                   </h4>
-                  <p className="text-xs text-[#2F4522]/80 leading-relaxed">
+                  <p className="text-xs text-[#5D8246]/85 leading-relaxed">
                     {medal.description}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-[#5D8246]/15 mt-4 flex items-center justify-between text-[11px] font-mono font-bold text-[#2F4522]">
+                <div className="pt-4 border-t border-[#5D8246]/10 mt-4 flex items-center justify-between text-[11px] font-mono font-bold text-[#5D8246]">
                   <span>Requirement</span>
                   <span className="text-[#FF6B4A]">{medal.progress}</span>
                 </div>

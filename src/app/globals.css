@@ -3146,8 +3146,14 @@ body {
 .text-warm-orange, .text-\[\#FF6B4A\], .text-\[\#ff6b4a\] {
   color: #FF6B4A !important;
 }
-.bg-warm-orange, .bg-\[\#FF6B4A\], .bg-\[\#ff6b4a\] {
+.bg-warm-orange, .bg-\[\#FF6B4A\], .bg-\[\#ff6b4a\], .bg-\[\#EA580C\], .bg-\[\#ea580c\] {
   background-color: #FF6B4A !important;
+}
+.text-\[\#EA580C\], .text-\[\#ea580c\] {
+  color: #FF6B4A !important;
+}
+.border-\[\#EA580C\], .border-\[\#ea580c\] {
+  border-color: #FF6B4A !important;
 }
 .modal-parchment {
   background-color: #FFFDD0 !important;
@@ -3173,12 +3179,65 @@ body {
 .border-stone-200 { border-color: #e7e5e4 !important; }
 .border-stone-300 { border-color: #d6d3d1 !important; }
 .border-stone-400 { border-color: #a8a29e !important; }
-/* Arbitrary z-indexes that were missing in compiled CSS */
-.z-60 { z-index: 9998 !important; }
-.z-70 { z-index: 9999 !important; }
-.z-80 { z-index: 9998 !important; }
-.z-90 { z-index: 9999 !important; }
-.z-120 { z-index: 9999 !important; }
+/* Essential layout & spacing utilities */
+.flex-row { flex-direction: row !important; }
+.items-end { align-items: flex-end !important; }
+.self-start { align-self: flex-start !important; }
+.self-end { align-self: flex-end !important; }
+.self-center { align-self: center !important; }
+.h-fit { height: fit-content !important; }
+.w-fit { width: fit-content !important; }
+.py-2\.5 { padding-top: 0.625rem !important; padding-bottom: 0.625rem !important; }
+.px-2\.5 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
+.gap-2\.5 { gap: 0.625rem !important; }
+.gap-5 { gap: 1.25rem !important; }
+
+@media (min-width: 640px) {
+  .sm\:flex-row { flex-direction: row !important; }
+  .sm\:items-center { align-items: center !important; }
+  .sm\:items-end { align-items: flex-end !important; }
+  .sm\:self-auto { align-self: auto !important; }
+}
+
+@media (min-width: 768px) {
+  .md\:flex-row { flex-direction: row !important; }
+  .md\:items-end { align-items: flex-end !important; }
+  .md\:items-center { align-items: center !important; }
+  .md\:self-auto { align-self: auto !important; }
+}
+
+/* Grid Column Utilities */
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+.grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+.grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)) !important; }
+
+@media (min-width: 640px) {
+  .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+}
+
+@media (min-width: 768px) {
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+}
+
+@media (min-width: 1024px) {
+  .lg\:flex-row { flex-direction: row !important; }
+  .lg\:items-center { align-items: center !important; }
+}
+
 @property --tw-translate-x {
   syntax: "*";
   inherits: false;
