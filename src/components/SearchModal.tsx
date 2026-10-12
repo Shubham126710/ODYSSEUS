@@ -147,7 +147,6 @@ function SearchResultItem({ story, onClose }: { story: Story; onClose: () => voi
       {/* Thumbnail */}
       {story.imageUrl ? (
         <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-stone-100 border border-stone-200/60">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={story.imageUrl} alt="" className="w-full h-full object-cover" />
         </div>
       ) : (

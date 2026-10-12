@@ -1,15 +1,9 @@
 import { NextResponse } from 'next/server';
-import { JSDOM, VirtualConsole } from 'jsdom';
+import { parseHTML } from 'linkedom';
 import { Readability } from '@mozilla/readability';
 import { purifyExtractedArticle } from '@/lib/cleanArticleExtraction';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60;
-
-// Virtual console to silence CSS stylesheet parsing warnings
-const virtualConsole = new VirtualConsole();
-virtualConsole.on('error', () => {});
-virtualConsole.on('warn', () => {});
 
 // ---------------------------------------------------------------------------
 // Fetch strategies
@@ -145,18 +139,17 @@ async function fetchViaWayback(url: string): Promise<string | null> {
 
 function extractWithReadability(html: string, url: string) {
   try {
-    // Strip styles and external stylesheets before JSDOM to prevent heavy CSS parsing overhead
+    // Strip styles and external stylesheets before parsing
     const cleanHtml = html
       .replace(/<style[\s\S]*?<\/style>/gi, '')
       .replace(/<link[^>]*rel=["']stylesheet["'][^>]*>/gi, '');
 
-    const dom = new JSDOM(cleanHtml, { url, virtualConsole });
-    const doc = dom.window.document;
+    const { document } = parseHTML(cleanHtml);
     for (const sel of ['script', 'style', 'noscript', 'nav', 'footer', '.ad', '.ads',
       '.advertisement', '.paywall-overlay', '.cookie-banner', '#comments', '.comments']) {
-      try { doc.querySelectorAll(sel).forEach((el: Element) => el.remove()); } catch { /* skip */ }
+      try { document.querySelectorAll(sel).forEach((el: any) => el.remove()); } catch { /* skip */ }
     }
-    return new Readability(doc, { charThreshold: 20, nbTopCandidates: 10, keepClasses: false }).parse();
+    return new Readability(document as any, { charThreshold: 20, nbTopCandidates: 10, keepClasses: false }).parse();
   } catch { return null; }
 }
 
@@ -187,20 +180,19 @@ function extractFromJsonLd(html: string): { title: string; content: string; text
 
 function extractFallbackContent(html: string, url: string): { title: string; content: string; textContent: string } | null {
   try {
-    const dom = new JSDOM(html, { url, virtualConsole });
-    const doc = dom.window.document;
+    const { document } = parseHTML(html);
     const title =
-      doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-      doc.querySelector('h1')?.textContent?.trim() ||
-      doc.querySelector('title')?.textContent?.trim() || '';
+      document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+      document.querySelector('h1')?.textContent?.trim() ||
+      document.querySelector('title')?.textContent?.trim() || '';
 
     for (const sel of ['article [class*="body"]', 'article', '[class*="article-body"]',
       '[class*="article-content"]', '[class*="story-body"]', '[class*="post-content"]',
       '[class*="entry-content"]', '[role="article"]', 'main', '#content']) {
       try {
-        const el = doc.querySelector(sel);
+        const el = document.querySelector(sel);
         if (el) {
-          el.querySelectorAll('script,style,nav,.ad,.ads,.social-share,aside').forEach((n: Element) => n.remove());
+          el.querySelectorAll('script,style,nav,.ad,.ads,.social-share,aside').forEach((n: any) => n.remove());
           const textContent = el.textContent?.trim() || '';
           if (textContent.split(/\s+/).length > 80) return { title, content: el.innerHTML.trim(), textContent };
         }

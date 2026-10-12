@@ -1,10 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['jsdom', '@mozilla/readability'],
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  serverExternalPackages: ['@mozilla/readability', 'linkedom'],
   typescript: {
     ignoreBuildErrors: true,
   },

@@ -120,7 +120,6 @@ export default function StoryPage() {
             {/* Hero Image */}
             {initialImageUrl && (
               <div className="mb-12 rounded-2xl overflow-hidden shadow-xl aspect-video bg-stone-100 border border-stone-200/90 w-full">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={initialImageUrl} alt="" className="w-full h-full object-cover" />
               </div>
             )}
