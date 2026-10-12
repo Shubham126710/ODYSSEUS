@@ -204,6 +204,13 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
   const { profile } = useProfile();
   const currentTheme = THEMES[theme] || THEMES.paper;
 
+  const stopSpeaking = useCallback(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsPlaying(false);
+  }, []);
+
   // Escape key listener to close reader
   useEffect(() => {
     if (!isOpen) return;
@@ -364,13 +371,6 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
       window.speechSynthesis.speak(utterance);
       setIsPlaying(true);
     }
-  };
-
-  const stopSpeaking = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-    setIsPlaying(false);
   };
 
   const handleSaveToggle = () => {

@@ -205,14 +205,14 @@ export default function FeedPage() {
   return (
     <div className="min-h-screen bg-[#5D8246] text-[#FFFDD0] font-sans selection:bg-[#FF6B4A] selection:text-[#FFFDD0] relative overflow-x-hidden">
       
-      {/* Fixed Header (top-0, z-50, olive background, full width) */}
-      <AppHeader sections={renderedSections} />
+      {/* Fixed Header with all sections (FOR YOU, TECH, DESIGN, CULTURE, SCIENCE, SPORTS) */}
+      <AppHeader />
 
       {/* Main content with matching top padding (72px desktop, 100px mobile for 2-row header) */}
       <main className="w-full relative z-10 hub-main">
         
         {/* === SECTION 1: #for-you BAND (Olive Background, Cream Text) === */}
-        <section id="for-you" className="w-full bg-[#5D8246] text-[#FFFDD0] hub-for-you flex flex-col justify-between">
+        <section id="for-you" className="w-full bg-[#5D8246] text-[#FFFDD0] hub-for-you">
           
           {/* Slim Orange Ticker (Directly below header) */}
           <TrendingTicker

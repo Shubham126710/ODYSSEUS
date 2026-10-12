@@ -76,7 +76,6 @@ export default function Home() {
         ref={containerRef}
         onScroll={handleScroll}
         data-lenis-prevent="true"
-        data-lenis-prevent
         tabIndex={0}
         className="hidden md:flex h-[100dvh] w-full overflow-y-scroll snap-y snap-mandatory flex-col font-sans bg-background text-foreground overflow-x-hidden relative selection:bg-secondary selection:text-white scroll-smooth outline-none"
       >
