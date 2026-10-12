@@ -244,7 +244,31 @@ export async function GET(request: Request) {
   }
 
   try {
-    let targetFeeds: Array<{ url: string; title: string; icon_url?: string; feed_id?: string }> = [];
+    const mapDeskAndCategory = (desk?: string, name?: string) => {
+      const d = (desk || '').toLowerCase();
+      const n = (name || '').toLowerCase();
+      if (d === 'vanguard' || n.includes('tech') || n.includes('verge') || n.includes('wired') || n.includes('polygon') || n.includes('technology review')) {
+        return { desk: 'vanguard', category: 'tech' };
+      }
+      if (d === 'atelier' || n.includes('design') || n.includes('dezeen') || n.includes('smashing') || n.includes('boom')) {
+        return { desk: 'atelier', category: 'design' };
+      }
+      if (d === 'forum' || n.includes('culture') || n.includes('atlantic') || n.includes('aeon') || n.includes('new yorker')) {
+        return { desk: 'forum', category: 'culture' };
+      }
+      if (d === 'observatory' || n.includes('science') || n.includes('quanta') || n.includes('scientific') || n.includes('phys')) {
+        return { desk: 'observatory', category: 'science' };
+      }
+      if (d === 'sports' || n.includes('sport')) {
+        return { desk: 'sports', category: 'sports' };
+      }
+      if (d === 'chronicle' || n.includes('bloomberg') || n.includes('reuters') || n.includes('market')) {
+        return { desk: 'chronicle', category: 'chronicle' };
+      }
+      return { desk: 'general', category: 'general' };
+    };
+
+    let userFeeds: Array<{ url: string; title: string; icon_url?: string; feed_id?: string; desk: string; category: string }> = [];
 
     // 1. If user ID provided, attempt to fetch user subscriptions
     if (userId) {
@@ -262,29 +286,54 @@ export async function GET(request: Request) {
           .eq('user_id', userId);
 
         if (subscriptions && subscriptions.length > 0) {
-          targetFeeds = subscriptions
+          userFeeds = subscriptions
             .filter((sub: any) => sub.feeds && sub.feeds.url)
-            .map((sub: any) => ({
-              url: sub.feeds.url,
-              title: sub.feeds.title,
-              icon_url: sub.feeds.icon_url,
-              feed_id: sub.feed_id,
-            }));
+            .map((sub: any) => {
+              const meta = mapDeskAndCategory(undefined, sub.feeds.title);
+              return {
+                url: sub.feeds.url,
+                title: sub.feeds.title,
+                icon_url: sub.feeds.icon_url,
+                feed_id: sub.feed_id,
+                desk: meta.desk,
+                category: meta.category,
+              };
+            });
         }
       } catch (subErr) {
         console.warn('RSS API: Error fetching user subscriptions, falling back to curated feeds:', subErr);
       }
     }
 
-    // 2. If user has no subscriptions, default to curated prestige feeds
-    if (targetFeeds.length === 0) {
-      const inaugural = getDefaultInauguralFeeds();
-      targetFeeds = inaugural.map((pub) => ({
+    // 2. Curated prestige feeds for each core magazine desk
+    const inaugural = getDefaultInauguralFeeds();
+    const curatedFeeds = inaugural.map((pub) => {
+      const meta = mapDeskAndCategory(pub.desk, pub.name);
+      return {
         url: pub.feedUrl,
         title: pub.name,
         icon_url: `${pub.url}/favicon.ico`,
         feed_id: pub.id,
-      }));
+        desk: meta.desk,
+        category: meta.category,
+      };
+    });
+
+    // Merge: user-subscribed feeds first, plus curated feeds to ensure ALL magazine desks are represented
+    const seenUrls = new Set<string>();
+    const targetFeeds: typeof curatedFeeds = [];
+
+    for (const f of userFeeds) {
+      if (!seenUrls.has(f.url)) {
+        seenUrls.add(f.url);
+        targetFeeds.push(f);
+      }
+    }
+    for (const f of curatedFeeds) {
+      if (!seenUrls.has(f.url)) {
+        seenUrls.add(f.url);
+        targetFeeds.push(f);
+      }
     }
 
     // 3. Fetch and parse all feeds in parallel (with caching)
@@ -306,6 +355,8 @@ export async function GET(request: Request) {
           source: sub.title || feed.title,
           sourceIcon: sub.icon_url,
           feedId: sub.feed_id,
+          desk: sub.desk || item.desk || null,
+          category: sub.category || item.category || null,
           imageUrl: extractImageFromItem(item),
         }));
 
@@ -336,6 +387,8 @@ export async function GET(request: Request) {
             source: sub.title || stale.title,
             sourceIcon: sub.icon_url,
             feedId: sub.feed_id,
+            desk: sub.desk || item.desk || null,
+            category: sub.category || item.category || null,
             imageUrl: extractImageFromItem(item),
           }));
         }

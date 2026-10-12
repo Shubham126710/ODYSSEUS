@@ -11,6 +11,7 @@ export interface Story {
   readTime: string;
   date: string;
   category: string;
+  desk?: string | null;
   imageUrl: string | null;
   link: string;
   content: string;
@@ -31,9 +32,9 @@ const CLIENT_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 const getCategoryForFeed = (source: string) => {
   const s = source.toLowerCase();
   if (s.includes('chronicle') || s.includes('bloomberg') || s.includes('financial') || s.includes('wsj') || s.includes('reuters') || s.includes('economist') || s.includes('business') || s.includes('market')) return 'chronicle';
-  if (s.includes('verge') || s.includes('tech') || s.includes('wired') || s.includes('hacker') || s.includes('ars') || s.includes('technologyreview')) return 'tech';
-  if (s.includes('design') || s.includes('smashing') || s.includes('ux') || s.includes('apart') || s.includes('nice that') || s.includes('dezeen') || s.includes('wallpaper')) return 'design';
-  if (s.includes('culture') || s.includes('atlantic') || s.includes('new yorker') || s.includes('paris') || s.includes('harper') || s.includes('aeon')) return 'culture';
+  if (s.includes('verge') || s.includes('tech') || s.includes('wired') || s.includes('hacker') || s.includes('ars') || s.includes('technology') || s.includes('polygon') || s.includes('gizmodo') || s.includes('engadget')) return 'tech';
+  if (s.includes('design') || s.includes('smashing') || s.includes('ux') || s.includes('apart') || s.includes('nice that') || s.includes('dezeen') || s.includes('wallpaper') || s.includes('boom') || s.includes('architect')) return 'design';
+  if (s.includes('culture') || s.includes('atlantic') || s.includes('new yorker') || s.includes('paris') || s.includes('harper') || s.includes('aeon') || s.includes('essay') || s.includes('literary')) return 'culture';
   if (s.includes('science') || s.includes('space') || s.includes('nature') || s.includes('nasa') || s.includes('quanta') || s.includes('scientific') || s.includes('nautilus') || s.includes('phys')) return 'science';
   if (s.includes('sport') || s.includes('espn') || s.includes('athletic')) return 'sports';
   return 'general';
@@ -187,7 +188,8 @@ export function useFeedFetcher(userId: string | undefined, options?: { category?
             source: decodeHtmlEntities(item.source || 'RSS Feed'),
             readTime: readTime,
             date: item.isoDate ? formatDistanceToNow(new Date(item.isoDate), { addSuffix: true }) : 'Just now',
-            category: getCategoryForFeed(item.source || ''),
+            category: item.category || getCategoryForFeed(item.source || ''),
+            desk: item.desk || null,
             imageUrl: imageUrl,
             link: item.link,
             content: item.content || item['content:encoded'] || item.description || item.summary,

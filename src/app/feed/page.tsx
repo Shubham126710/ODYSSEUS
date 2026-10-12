@@ -18,36 +18,44 @@ import { isPlaceholderOrLogoUrl, isSmallThumbnailUrl } from "@/lib/textUtils";
 function matchesCategory(story: any, targetCategory: string): boolean {
   if (!story) return false;
   const cat = (story.category || '').toLowerCase();
+  const desk = (story.desk || '').toLowerCase();
   const src = (story.source || '').toLowerCase();
 
   // Bloomberg / Reuters / markets / chronicle stories must NEVER appear under culture, tech, design, science, sports
   if (
     cat === 'chronicle' ||
+    desk === 'chronicle' ||
     cat === 'business' ||
     cat === 'finance' ||
     cat === 'markets' ||
     src.includes('bloomberg') ||
     src.includes('financial times') ||
     src.includes('wsj') ||
-    src.includes('economist')
+    src.includes('economist') ||
+    src.includes('reuters')
   ) {
     return false;
   }
 
   if (targetCategory === 'tech') {
-    return cat === 'tech' || cat === 'technology' || cat === 'vanguard';
+    return cat === 'tech' || cat === 'technology' || cat === 'vanguard' || desk === 'vanguard' ||
+      src.includes('verge') || src.includes('wired') || src.includes('tech') || src.includes('polygon') || src.includes('technology review');
   }
   if (targetCategory === 'design') {
-    return cat === 'design' || cat === 'atelier';
+    return cat === 'design' || cat === 'atelier' || desk === 'atelier' ||
+      src.includes('dezeen') || src.includes('designboom') || src.includes('smashing') || src.includes('design');
   }
   if (targetCategory === 'culture') {
-    return cat === 'culture' || cat === 'forum';
+    return cat === 'culture' || cat === 'forum' || desk === 'forum' ||
+      src.includes('atlantic') || src.includes('aeon') || src.includes('new yorker') || src.includes('harper');
   }
   if (targetCategory === 'science') {
-    return cat === 'science' || cat === 'observatory';
+    return cat === 'science' || cat === 'observatory' || desk === 'observatory' ||
+      src.includes('quanta') || src.includes('scientific american') || src.includes('phys.org') || src.includes('nature') || src.includes('nautilus');
   }
   if (targetCategory === 'sports') {
-    return cat === 'sports' || cat === 'sport';
+    return cat === 'sports' || cat === 'sport' || desk === 'sports' ||
+      src.includes('sport') || src.includes('espn') || src.includes('athletic');
   }
   return false;
 }
@@ -79,7 +87,7 @@ export default function FeedPage() {
   }, []);
 
   // Strict content budget and deduplication:
-  // 1 Lead + max 5 Latest + 5 Bands x 3 = 21 stories maximum
+  // 1 Lead + 5 Bands x 3 + max 5 Latest = 21 stories maximum
   const { leadStory, latestStories, bands } = useMemo(() => {
     if (!stories || stories.length === 0) {
       return {
@@ -107,19 +115,8 @@ export default function FeedPage() {
       seenKeys.add(getStoryKey(lead));
     }
 
-    // 2. Latest Stories: max 5 rows, TEXT ONLY
-    const latest: any[] = [];
-    for (const s of stories) {
-      if (latest.length >= 5) break;
-      const key = getStoryKey(s);
-      if (!seenKeys.has(key)) {
-        seenKeys.add(key);
-        latest.push(s);
-      }
-    }
-
-    // 3. Bands: allow 2 stories if only 2 available, otherwise up to 3; hide if < 2
-    // Prefer stories with valid images first to avoid mixing image and image-less cards
+    // 2. Bands: pick top 3 stories for each category (Tech, Design, Culture, Science, Sports)
+    // Picking bands first guarantees that Latest Dispatches never starves small categories
     const pickBand = (categoryName: string) => {
       const candidates: any[] = [];
       for (const s of stories) {
@@ -150,6 +147,17 @@ export default function FeedPage() {
     const culture = pickBand('culture');
     const science = pickBand('science');
     const sports = pickBand('sports');
+
+    // 3. Latest Stories: max 5 rows, TEXT ONLY (from remaining stories not used in lead or bands)
+    const latest: any[] = [];
+    for (const s of stories) {
+      if (latest.length >= 5) break;
+      const key = getStoryKey(s);
+      if (!seenKeys.has(key)) {
+        seenKeys.add(key);
+        latest.push(s);
+      }
+    }
 
     return {
       leadStory: lead,
