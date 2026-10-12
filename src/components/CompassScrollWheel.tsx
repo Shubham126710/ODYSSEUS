@@ -160,7 +160,7 @@ export const CompassScrollWheel: React.FC = () => {
                 onClick={() => scrollToMilestone(m.id)}
                 className={`group flex items-center gap-1 transition-all duration-200 cursor-pointer text-left py-1 ${
                   isActive
-                    ? 'text-[#EA580C] font-black scale-105'
+                    ? 'text-[#FF6B4A] font-black scale-105'
                     : 'text-white/40 hover:text-white/90 font-semibold'
                 }`}
                 title={`Jump to ${m.num} / ${m.label}`}
@@ -169,7 +169,7 @@ export const CompassScrollWheel: React.FC = () => {
                 <span
                   className={`w-1.5 h-1.5 rounded-full transition-all shrink-0 ${
                     isActive
-                      ? 'bg-[#EA580C] shadow-[0_0_6px_#EA580C]'
+                      ? 'bg-[#FF6B4A] shadow-[0_0_6px_#FF6B4A]'
                       : 'bg-white/20 group-hover:bg-white/60'
                   }`}
                 />
@@ -199,7 +199,7 @@ export const CompassScrollWheel: React.FC = () => {
 
           {/* Active Fill Spine (Hermès Orange progress tape) */}
           <div
-            className="absolute right-0 top-0 w-[2px] bg-[#EA580C] transition-[height] duration-75 ease-out shadow-[0_0_8px_rgba(234,88,12,0.8)]"
+            className="absolute right-0 top-0 w-[2px] bg-[#FF6B4A] transition-[height] duration-75 ease-out shadow-[0_0_8px_rgba(234,88,12,0.8)]"
             style={{ height: `${scrollProgress * 100}%` }}
           />
 
@@ -220,7 +220,7 @@ export const CompassScrollWheel: React.FC = () => {
                   {isMajor && (
                     <span
                       className={`absolute right-4 font-mono text-[7px] font-bold transition-colors ${
-                        isNearActive ? 'text-[#EA580C]' : 'text-white/40'
+                        isNearActive ? 'text-[#FF6B4A]' : 'text-white/40'
                       }`}
                     >
                       {Math.round(tickPercent * 100).toString().padStart(2, '0')}
@@ -231,7 +231,7 @@ export const CompassScrollWheel: React.FC = () => {
                   <span
                     className={`transition-all duration-150 rounded-full ${
                       isNearActive
-                        ? 'w-5 h-[2px] bg-[#EA580C] shadow-[0_0_8px_rgba(234,88,12,0.9)]'
+                        ? 'w-5 h-[2px] bg-[#FF6B4A] shadow-[0_0_8px_rgba(234,88,12,0.9)]'
                         : isMajor
                         ? 'w-3.5 h-[1.5px] bg-white/80'
                         : isMedium
@@ -250,15 +250,15 @@ export const CompassScrollWheel: React.FC = () => {
             style={{ top: `${scrollProgress * 100}%`, transform: 'translateY(-50%)' }}
           >
             {/* Attached Live Numerical Readout Pill (inspired by getartcraft 085%✦) */}
-            <div className="mr-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/75 border border-[#EA580C]/70 shadow-lg backdrop-blur-md">
-              <span className="font-mono text-[8px] sm:text-[9px] font-black text-[#EA580C] tracking-tight">
+            <div className="mr-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/75 border border-[#FF6B4A]/70 shadow-lg backdrop-blur-md">
+              <span className="font-mono text-[8px] sm:text-[9px] font-black text-[#FF6B4A] tracking-tight">
                 {Math.round(scrollProgress * 100).toString().padStart(3, '0')}%
               </span>
-              <span className="text-[7px] text-[#EA580C]">✦</span>
+              <span className="text-[7px] text-[#FF6B4A]">✦</span>
             </div>
 
             {/* Glowing Active Slider Line */}
-            <div className="w-5 h-[2.5px] rounded-full bg-[#EA580C] shadow-[0_0_10px_#EA580C]" />
+            <div className="w-5 h-[2.5px] rounded-full bg-[#FF6B4A] shadow-[0_0_10px_#FF6B4A]" />
           </div>
         </div>
 
@@ -266,7 +266,7 @@ export const CompassScrollWheel: React.FC = () => {
 
       {/* Bottom Cardinal Readout */}
       <div className="mt-2 shrink-0 flex flex-col items-center">
-        <span className="font-mono text-[8px] font-black text-[#EA580C] uppercase tracking-wider">
+        <span className="font-mono text-[8px] font-black text-[#FF6B4A] uppercase tracking-wider">
           {getCardinal(degrees)}
         </span>
         <span className="font-mono text-[7px] text-white/50 uppercase tracking-widest">
@@ -285,7 +285,7 @@ export const CompassScrollWheel: React.FC = () => {
             className="absolute right-18 top-1/2 -translate-y-1/2 w-48 bg-[#4D6E39]/95 backdrop-blur-xl border border-[#FFFDD0]/30 rounded-2xl p-3 shadow-2xl text-white pointer-events-auto"
           >
             <div className="flex items-center justify-between border-b border-white/15 pb-2 mb-2">
-              <span className="text-[9px] font-mono font-bold uppercase tracking-[0.18em] text-[#EA580C]">
+              <span className="text-[9px] font-mono font-bold uppercase tracking-[0.18em] text-[#FF6B4A]">
                 ✦ Chrono Nav
               </span>
               <span className="text-[9px] font-mono font-bold text-white/80">
@@ -302,7 +302,7 @@ export const CompassScrollWheel: React.FC = () => {
                     onClick={() => scrollToMilestone(m.id)}
                     className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-left transition-all ${
                       isActive
-                        ? 'bg-[#EA580C] text-white font-bold shadow-md'
+                        ? 'bg-[#FF6B4A] text-white font-bold shadow-md'
                         : 'text-white/80 hover:bg-white/10 hover:text-white'
                     }`}
                   >

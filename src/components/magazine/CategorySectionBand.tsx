@@ -77,18 +77,18 @@ const CategoryStoryBlock: React.FC<{
   return (
     <article className="flex flex-col justify-between space-y-4 group">
       <div>
-        {/* Fixed 16:10 image box: never rendered if broken, < 300px, or placeholder logo */}
+        {/* Fixed 16:10 image box: never rendered if broken or placeholder logo */}
         {hasImage && (
           <div 
             onClick={() => onSelectStory(story)}
-            className="w-full aspect-[16/10] h-auto overflow-hidden mb-4 cursor-pointer"
+            className="w-full aspect-[16/10] h-auto overflow-hidden mb-4 cursor-pointer rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all duration-300"
           >
             <img
               src={activeSrc}
               alt={story.title}
               onError={handleImageError}
               onLoad={handleImageLoad}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-xl sm:rounded-2xl group-hover:scale-102 transition-transform duration-500"
             />
           </div>
         )}

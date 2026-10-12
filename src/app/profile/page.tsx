@@ -19,7 +19,7 @@ const CircularProgress = ({
   max, 
   size = 120, 
   strokeWidth = 8,
-  accent = '#EA580C',
+  accent = '#FF6B4A',
   sublabel
 }: { 
   value: number; 
@@ -41,10 +41,10 @@ const CircularProgress = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="currentColor"
+          stroke="#5D8246"
+          strokeOpacity="0.2"
           strokeWidth={strokeWidth}
           fill="transparent"
-          className="text-stone-200"
         />
         <circle
           cx={size / 2}
@@ -60,11 +60,11 @@ const CircularProgress = ({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="font-serif font-black text-2xl md:text-3xl text-stone-900 leading-none">
+        <span className="font-serif font-black text-2xl md:text-3xl text-[#2F4522] leading-none">
           {value}
         </span>
         {sublabel && (
-          <span className="text-[10px] uppercase tracking-widest text-stone-500 font-mono mt-0.5">
+          <span className="text-[10px] uppercase tracking-widest text-[#5D8246] font-mono mt-0.5">
             {sublabel}
           </span>
         )}
@@ -99,17 +99,17 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center gap-4">
-        <div className="w-9 h-9 border-2 border-stone-300 border-t-[#EA580C] rounded-full animate-spin" />
-        <p className="font-mono text-xs uppercase tracking-widest text-stone-500">Opening Traveler Dossier...</p>
+      <div className="min-h-screen bg-[#5D8246] flex flex-col items-center justify-center gap-4">
+        <div className="w-9 h-9 border-2 border-[#FFFDD0]/30 border-t-[#FF6B4A] rounded-full animate-spin" />
+        <p className="font-mono text-xs uppercase tracking-widest text-[#FFFDD0]/80">Opening Traveler Dossier...</p>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
-        <div className="text-stone-900 font-serif text-xl">Traveler Profile Not Found.</div>
+      <div className="min-h-screen bg-[#5D8246] flex items-center justify-center">
+        <div className="text-[#FFFDD0] font-serif text-xl">Traveler Profile Not Found.</div>
       </div>
     );
   }
@@ -191,24 +191,24 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-[#141518] font-sans antialiased selection:bg-[#EA580C] selection:text-white flex flex-col">
-      <AppHeader theme="dark" />
+    <div className="min-h-screen bg-[#5D8246] text-[#FFFDD0] font-sans antialiased selection:bg-[#FF6B4A] selection:text-[#FFFDD0] flex flex-col">
+      <AppHeader />
       
       {/* Main Content Ledger */}
-      <main className="flex-1 max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-10 pt-8 md:pt-12 pb-20">
+      <main className="flex-1 max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-10 page-header-offset pt-36 sm:pt-40 md:pt-44 pb-20">
         
         {/* Editorial Masthead & Passport Hero */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-10 md:mb-12 border-b border-stone-200/90 pb-8 flex flex-col md:flex-row items-center md:items-start justify-between gap-6"
+          className="mb-10 md:mb-12 border-b border-[#FFFDD0]/20 pb-8 flex flex-col md:flex-row items-center md:items-start justify-between gap-6"
         >
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
             
             {/* Avatar with Refined Ring */}
             <div className="relative group shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-gradient-to-tr from-[#EA580C] via-stone-300 to-[#131E15] shadow-lg flex items-center justify-center">
-                <div className="w-full h-full rounded-full overflow-hidden bg-[#131E15] flex items-center justify-center text-white text-3xl sm:text-4xl font-serif font-black shadow-inner">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-gradient-to-tr from-[#FF6B4A] via-[#FFFDD0] to-[#2F4522] shadow-lg flex items-center justify-center">
+                <div className="w-full h-full rounded-full overflow-hidden bg-[#2F4522] flex items-center justify-center text-[#FFFDD0] text-3xl sm:text-4xl font-serif font-black shadow-inner">
                   {profile.avatar_url ? (
                     <img src={profile.avatar_url} alt={profile.first_name} className="w-full h-full object-cover" />
                   ) : (
@@ -217,41 +217,41 @@ export default function ProfilePage() {
                 </div>
               </div>
               {/* Rank Pin Badge */}
-              <div className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-[#EA580C] text-white flex items-center justify-center text-sm shadow-md border-2 border-[#FAF9F6] font-bold">
+              <div className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-[#FF6B4A] text-[#FFFDD0] flex items-center justify-center text-sm shadow-md border-2 border-[#5D8246] font-bold">
                 {rank.badgeIcon}
               </div>
             </div>
 
             {/* Traveler Identity */}
             <div className="space-y-1.5">
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-stone-500">
-                <span className="font-bold text-[#EA580C]">THE TRAVELER DOSSIER</span>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[#FFFDD0]/80">
+                <span className="font-bold text-[#FF6B4A]">[ THE TRAVELER DOSSIER ]</span>
                 <span>•</span>
                 <span>MEMBER #{profile.user_number || 108}</span>
                 <span>•</span>
-                <span className="px-2 py-0.5 rounded-full bg-stone-900 text-white font-bold">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#FFFDD0]/20 text-[#FFFDD0] font-bold">
                   {rank.title}
                 </span>
               </div>
 
-              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-stone-900 tracking-tight">
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-black text-[#FFFDD0] tracking-tight">
                 {profile.first_name} {profile.last_name || ''}
               </h1>
 
-              <p className="text-xs sm:text-sm font-mono text-stone-500">
+              <p className="text-xs sm:text-sm font-mono text-[#FFFDD0]/70">
                 @{profile.username || 'wanderer'} • Lifetime Habit Ledger
               </p>
             </div>
           </div>
 
           {/* Explorer Elevation Pill */}
-          <div className="flex flex-col items-center md:items-end gap-1.5 bg-white border border-stone-200/90 rounded-2xl p-4 sm:p-5 shadow-xs">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500">Explorer Elevation</span>
+          <div className="flex flex-col items-center md:items-end gap-1.5 bg-[#FFFDD0] text-[#2F4522] border border-[#5D8246]/25 rounded-2xl p-4 sm:p-5 shadow-lg">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]">Explorer Elevation</span>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-black text-[#EA580C] font-mono">Rank {rank.tier}</span>
-              <span className="text-sm font-serif font-bold text-stone-900">({rank.title})</span>
+              <span className="text-xl font-black text-[#FF6B4A] font-mono">Rank {rank.tier}</span>
+              <span className="text-sm font-serif font-bold text-[#2F4522]">({rank.title})</span>
             </div>
-            <span className="text-[11px] text-stone-500 font-mono">
+            <span className="text-[11px] text-[#5D8246] font-mono">
               {rank.nextTitle ? `${Math.max(0, rank.targetMins - rank.currentMins)}m to ${rank.nextTitle}` : 'Max Elevation Attained ✦'}
             </span>
           </div>
@@ -265,25 +265,25 @@ export default function ProfilePage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="p-6 rounded-2xl bg-gradient-to-br from-[#EA580C] to-[#C2410C] text-white shadow-lg flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 transition-all duration-300"
+            className="p-6 rounded-2xl sm:rounded-3xl bg-[#FF6B4A] text-[#FFFDD0] shadow-lg flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 transition-all duration-300"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-white/80">Reading Streak</span>
-              <span className="font-mono text-base">✦</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#FFFDD0]/80">Reading Streak</span>
+              <span className="font-mono text-base text-[#FFFDD0]">✦</span>
             </div>
 
             <div className="my-2">
-              <span className="text-5xl font-black font-serif tracking-tight block">
+              <span className="text-5xl font-black font-serif tracking-tight block text-[#FFFDD0]">
                 {profile.streak_count || 1}
               </span>
-              <span className="text-xs font-mono uppercase tracking-wider text-white/90 block mt-1">
+              <span className="text-xs font-mono uppercase tracking-wider text-[#FFFDD0]/90 block mt-1">
                 Consecutive Days
               </span>
             </div>
 
-            <div className="pt-3 border-t border-white/20 mt-3 flex items-center justify-between text-xs">
-              <span className="text-white/90">{multiplier.label}</span>
-              <span className="font-mono font-bold bg-white/20 px-2 py-0.5 rounded-full">{multiplier.multiplier}x Bonus</span>
+            <div className="pt-3 border-t border-[#FFFDD0]/20 mt-3 flex items-center justify-between text-xs">
+              <span className="text-[#FFFDD0]/90">{multiplier.label}</span>
+              <span className="font-mono font-bold bg-[#FFFDD0]/20 px-2 py-0.5 rounded-full">{multiplier.multiplier}x Bonus</span>
             </div>
           </motion.div>
 
@@ -292,11 +292,12 @@ export default function ProfilePage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-6 rounded-2xl bg-white border border-stone-200/90 shadow-xs flex flex-col justify-between relative hover:-translate-y-1 transition-all duration-300"
+            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
+            className="p-6 rounded-2xl sm:rounded-3xl border border-[#5D8246]/25 shadow-lg flex flex-col justify-between relative hover:-translate-y-1 transition-all duration-300"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500">Daily Pace Target</span>
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#EA580C]">PACE</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]">Daily Pace Target</span>
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#FF6B4A]">PACE</span>
             </div>
 
             <div className="flex items-center justify-center my-2">
@@ -305,14 +306,14 @@ export default function ProfilePage() {
                 max={tempGoal}
                 size={105}
                 strokeWidth={8}
-                accent="#EA580C"
+                accent="#FF6B4A"
                 sublabel="MIN"
               />
             </div>
 
-            <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs font-mono">
-              <span className="text-stone-500">Goal: {tempGoal}m / day</span>
-              <span className="font-bold text-[#EA580C]">
+            <div className="pt-3 border-t border-[#5D8246]/15 flex items-center justify-between text-xs font-mono">
+              <span className="text-[#5D8246]">Goal: {tempGoal}m / day</span>
+              <span className="font-bold text-[#FF6B4A]">
                 {Math.round(((profile.minutes_read_today || 0) / Math.max(1, tempGoal)) * 100)}% Reached
               </span>
             </div>
@@ -323,33 +324,34 @@ export default function ProfilePage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="p-6 rounded-2xl bg-white border border-stone-200/90 shadow-xs flex flex-col justify-between relative hover:-translate-y-1 transition-all duration-300"
+            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
+            className="p-6 rounded-2xl sm:rounded-3xl border border-[#5D8246]/25 shadow-lg flex flex-col justify-between relative hover:-translate-y-1 transition-all duration-300"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500">Odyssey Milestone</span>
-              <span className="text-base font-bold text-[#EA580C] font-mono">★</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]">Odyssey Milestone</span>
+              <span className="text-base font-bold text-[#FF6B4A] font-mono">★</span>
             </div>
 
             <div>
               <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-lg font-bold font-serif text-stone-900 line-clamp-1">{milestone.nextPerk}</span>
+                <span className="text-lg font-bold font-serif text-[#2F4522] line-clamp-1">{milestone.nextPerk}</span>
               </div>
-              <span className="text-xs font-mono block text-stone-500">
+              <span className="text-xs font-mono block text-[#5D8246]">
                 {milestone.daysRemaining} days away from perk unlock
               </span>
 
               {/* Progress bar */}
-              <div className="w-full h-2 bg-stone-100 rounded-full mt-3 overflow-hidden">
+              <div className="w-full h-2 bg-[#5D8246]/15 rounded-full mt-3 overflow-hidden">
                 <div 
-                  className="h-full bg-[#131E15] rounded-full transition-all duration-700"
+                  className="h-full bg-[#5D8246] rounded-full transition-all duration-700"
                   style={{ width: `${milestone.progressPercent}%` }}
                 />
               </div>
             </div>
 
-            <div className="pt-3 border-t border-stone-100 mt-3 flex items-center justify-between text-xs font-mono font-bold text-stone-700">
+            <div className="pt-3 border-t border-[#5D8246]/15 mt-3 flex items-center justify-between text-xs font-mono font-bold text-[#2F4522]">
               <span>Perk Progress</span>
-              <span className="text-[#EA580C]">{milestone.progressPercent}%</span>
+              <span className="text-[#FF6B4A]">{milestone.progressPercent}%</span>
             </div>
           </motion.div>
 
@@ -358,11 +360,12 @@ export default function ProfilePage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-6 rounded-2xl bg-white border border-stone-200/90 shadow-xs flex flex-col justify-between relative hover:-translate-y-1 transition-all duration-300"
+            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
+            className="p-6 rounded-2xl sm:rounded-3xl border border-[#5D8246]/25 shadow-lg flex flex-col justify-between relative hover:-translate-y-1 transition-all duration-300"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500">Streak Shield Vault</span>
-              <span className="text-base font-bold text-[#EA580C] font-mono">◈</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]">Streak Shield Vault</span>
+              <span className="text-base font-bold text-[#FF6B4A] font-mono">◈</span>
             </div>
 
             <div>
@@ -372,22 +375,22 @@ export default function ProfilePage() {
                     key={slot}
                     className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base transition-all ${
                       slot <= freezesAvailable
-                        ? 'bg-[#131E15] text-white shadow-xs'
-                        : 'bg-stone-100 text-stone-400 border border-dashed border-stone-200'
+                        ? 'bg-[#5D8246] text-[#FFFDD0] shadow-xs'
+                        : 'bg-[#5D8246]/10 text-[#5D8246]/40 border border-dashed border-[#5D8246]/30'
                     }`}
                   >
                     {slot <= freezesAvailable ? '◈' : '○'}
                   </div>
                 ))}
               </div>
-              <span className="text-xs text-stone-600 leading-tight block">
+              <span className="text-xs text-[#2F4522]/80 leading-tight block">
                 {freezesAvailable} active shield in vault. Auto-protects missed days.
               </span>
             </div>
 
-            <div className="pt-3 border-t border-stone-100 mt-3 flex items-center justify-between text-xs font-mono">
-              <span className="text-stone-500">Vault Status</span>
-              <span className="font-bold bg-stone-100 text-stone-800 px-2 py-0.5 rounded-full">Active</span>
+            <div className="pt-3 border-t border-[#5D8246]/15 mt-3 flex items-center justify-between text-xs font-mono">
+              <span className="text-[#5D8246]">Vault Status</span>
+              <span className="font-bold bg-[#5D8246]/15 text-[#2F4522] px-2 py-0.5 rounded-full">Active</span>
             </div>
           </motion.div>
 
@@ -397,17 +400,20 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
           
           {/* 7-Day Habit Ledger */}
-          <div className="lg:col-span-2 p-6 sm:p-8 rounded-2xl bg-white border border-stone-200/90 shadow-xs space-y-5">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-4">
+          <div 
+            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
+            className="lg:col-span-2 p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#5D8246]/25 shadow-lg space-y-5"
+          >
+            <div className="flex items-center justify-between border-b border-[#5D8246]/15 pb-4">
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-[#EA580C] font-bold block">
-                  Weekly Habit Ledger
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF6B4A] font-bold block">
+                  [ WEEKLY HABIT LEDGER ]
                 </span>
-                <h3 className="font-serif text-xl font-bold text-stone-900 mt-0.5">
+                <h3 className="font-serif text-xl font-bold text-[#2F4522] mt-0.5">
                   7-Day Reading Chronicle
                 </h3>
               </div>
-              <span className="text-xs font-mono text-stone-500">
+              <span className="text-xs font-mono text-[#5D8246]">
                 Monday – Sunday
               </span>
             </div>
@@ -415,18 +421,18 @@ export default function ProfilePage() {
             <div className="grid grid-cols-7 gap-2 sm:gap-4 pt-2">
               {habitSpread.map((day, idx) => (
                 <div key={idx} className="flex flex-col items-center text-center">
-                  <span className="text-xs font-mono font-bold text-stone-500 mb-2">
+                  <span className="text-xs font-mono font-bold text-[#5D8246] mb-2">
                     {day.dayShort}
                   </span>
                   <div
                     className={`w-10 h-10 sm:w-13 sm:h-13 rounded-xl flex items-center justify-center font-serif font-black text-sm sm:text-base transition-all duration-300 ${
                       day.status === 'completed' || day.status === 'today-done'
-                        ? 'bg-[#EA580C] text-white shadow-md ring-2 ring-[#EA580C]/20 scale-105'
+                        ? 'bg-[#FF6B4A] text-[#FFFDD0] shadow-md ring-2 ring-[#FF6B4A]/20 scale-105'
                         : day.status === 'shielded'
-                        ? 'bg-stone-100 text-stone-800 border border-stone-300'
+                        ? 'bg-[#5D8246]/15 text-[#2F4522] border border-[#5D8246]/30'
                         : day.isToday
-                        ? 'bg-stone-100 text-stone-900 ring-2 ring-[#EA580C]'
-                        : 'bg-stone-50 text-stone-300'
+                        ? 'bg-[#5D8246]/15 text-[#2F4522] ring-2 ring-[#FF6B4A]'
+                        : 'bg-[#5D8246]/5 text-[#5D8246]/30'
                     }`}
                   >
                     {day.status === 'completed' || day.status === 'today-done' ? (
@@ -437,7 +443,7 @@ export default function ProfilePage() {
                       day.dayShort
                     )}
                   </div>
-                  <span className="text-[10px] font-mono text-stone-500 mt-1.5">
+                  <span className="text-[10px] font-mono text-[#5D8246] mt-1.5">
                     {day.minutes > 0 ? `${day.minutes}m` : '—'}
                   </span>
                 </div>
@@ -446,22 +452,25 @@ export default function ProfilePage() {
           </div>
 
           {/* Interactive Daily Commitment Slider */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-white border border-stone-200/90 shadow-xs flex flex-col justify-between">
+          <div 
+            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
+            className="p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#5D8246]/25 shadow-lg flex flex-col justify-between"
+          >
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#EA580C] font-bold block mb-1">
-                Pace Calibration
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF6B4A] font-bold block mb-1">
+                [ PACE CALIBRATION ]
               </span>
-              <h3 className="font-serif text-xl font-bold text-stone-900 mb-1">
+              <h3 className="font-serif text-xl font-bold text-[#2F4522] mb-1">
                 Adjust Daily Goal
               </h3>
-              <p className="text-xs text-stone-500 mb-6">
+              <p className="text-xs text-[#5D8246] mb-6">
                 Set how many minutes of slow reading you commit to each day.
               </p>
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between font-mono">
-                  <span className="text-xs uppercase text-stone-500">Pace Target:</span>
-                  <span className="text-lg font-black text-[#EA580C]">{tempGoal} min / day</span>
+                  <span className="text-xs uppercase text-[#5D8246]">Pace Target:</span>
+                  <span className="text-lg font-black text-[#FF6B4A]">{tempGoal} min / day</span>
                 </div>
 
                 <input
@@ -471,10 +480,10 @@ export default function ProfilePage() {
                   step="5"
                   value={tempGoal}
                   onChange={(e) => handleUpdateGoal(parseInt(e.target.value))}
-                  className="w-full h-2 rounded-full appearance-none cursor-pointer bg-stone-100 accent-[#EA580C]"
+                  className="w-full h-2 rounded-full appearance-none cursor-pointer bg-[#5D8246]/20 accent-[#FF6B4A]"
                 />
 
-                <div className="flex justify-between text-[9px] font-mono font-bold text-stone-400 uppercase">
+                <div className="flex justify-between text-[9px] font-mono font-bold text-[#5D8246] uppercase">
                   <span>5m Voyager</span>
                   <span>15m Scholar</span>
                   <span>30m Master</span>
@@ -483,7 +492,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-stone-100 mt-6 text-[11px] text-stone-500 font-mono">
+            <div className="pt-4 border-t border-[#5D8246]/15 mt-6 text-[11px] text-[#5D8246] font-mono">
               {isUpdatingGoal ? 'Saving pace to passport...' : '✓ Pace synchronised across devices'}
             </div>
           </div>
@@ -492,16 +501,16 @@ export default function ProfilePage() {
 
         {/* 8 Real Odyssey Achievements Gallery */}
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stone-200/90 pb-4 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#FFFDD0]/20 pb-4 gap-2">
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#EA580C] font-bold block">
-                Hall Of Odyssey Medals
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF6B4A] font-bold block">
+                [ HALL OF ODYSSEY MEDALS ]
               </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
+              <h2 className="font-serif text-2xl sm:text-3xl font-black text-[#FFFDD0]">
                 Achievements & Explorer Badges
               </h2>
             </div>
-            <span className="text-xs font-mono font-bold text-stone-500 uppercase">
+            <span className="text-xs font-mono font-bold text-[#FFFDD0]/80 uppercase">
               {achievements.filter(a => a.isUnlocked).length} / {achievements.length} Medals Unlocked
             </span>
           </div>
@@ -511,36 +520,37 @@ export default function ProfilePage() {
               <motion.div
                 key={medal.id}
                 whileHover={{ y: -4 }}
-                className={`p-6 rounded-2xl border flex flex-col justify-between transition-all duration-300 ${
+                style={{ backgroundColor: medal.isUnlocked ? '#FFFDD0' : 'rgba(255, 253, 208, 0.75)', color: '#2F4522' }}
+                className={`p-6 rounded-2xl sm:rounded-3xl border flex flex-col justify-between transition-all duration-300 ${
                   medal.isUnlocked
-                    ? 'bg-white border-stone-200/90 shadow-xs'
-                    : 'bg-stone-50/70 border-dashed border-stone-200 opacity-60'
+                    ? 'border-[#5D8246]/25 shadow-lg'
+                    : 'border-dashed border-[#5D8246]/30 opacity-75'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-2xl text-stone-900 font-serif">{medal.icon}</span>
+                    <span className="text-2xl text-[#2F4522] font-serif">{medal.icon}</span>
                     <span className={`text-[9px] font-mono uppercase font-bold px-2.5 py-0.5 rounded-full ${
-                      medal.isUnlocked ? 'bg-[#131E15] text-white' : 'bg-stone-200 text-stone-600'
+                      medal.isUnlocked ? 'bg-[#5D8246] text-[#FFFDD0]' : 'bg-[#5D8246]/15 text-[#5D8246]'
                     }`}>
                       {medal.isUnlocked ? 'Unlocked ✓' : 'In Progress'}
                     </span>
                   </div>
 
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500 block">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#5D8246] block">
                     {medal.category}
                   </span>
-                  <h4 className="font-serif text-base font-bold text-stone-900 leading-tight mt-0.5 mb-2">
+                  <h4 className="font-serif text-base font-bold text-[#2F4522] leading-tight mt-0.5 mb-2">
                     {medal.title}
                   </h4>
-                  <p className="text-xs text-stone-600 leading-relaxed">
+                  <p className="text-xs text-[#2F4522]/80 leading-relaxed">
                     {medal.description}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-stone-100 mt-4 flex items-center justify-between text-[11px] font-mono font-bold text-stone-600">
+                <div className="pt-4 border-t border-[#5D8246]/15 mt-4 flex items-center justify-between text-[11px] font-mono font-bold text-[#2F4522]">
                   <span>Requirement</span>
-                  <span className="text-[#EA580C]">{medal.progress}</span>
+                  <span className="text-[#FF6B4A]">{medal.progress}</span>
                 </div>
               </motion.div>
             ))}

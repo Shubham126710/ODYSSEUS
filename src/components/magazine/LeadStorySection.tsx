@@ -119,7 +119,7 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
             <div 
               onClick={() => onSelectStory(story)}
               style={{ maxHeight: '220px', aspectRatio: '16/10' }}
-              className="lead-img-mobile w-full overflow-hidden my-4 cursor-pointer"
+              className="lead-img-mobile w-full overflow-hidden my-4 cursor-pointer rounded-xl sm:rounded-2xl border border-[#FFFDD0]/10 shadow-md"
             >
               <img 
                 src={activeSrc} 
@@ -127,7 +127,7 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
                 onError={handleImageError}
                 onLoad={handleImageLoad}
                 style={{ maxHeight: '220px' }}
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-cover rounded-xl sm:rounded-2xl" 
               />
             </div>
 
@@ -159,7 +159,7 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
             <div 
               onClick={() => onSelectStory(story)}
               style={{ maxHeight: '320px', aspectRatio: '4/3' }}
-              className="w-full overflow-hidden cursor-pointer"
+              className="w-full overflow-hidden cursor-pointer rounded-2xl border border-[#FFFDD0]/15 shadow-xl"
             >
               <img 
                 src={activeSrc} 
@@ -168,7 +168,7 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
                 onLoad={handleImageLoad}
                 fetchPriority="high"
                 style={{ maxHeight: '320px' }}
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-cover rounded-2xl" 
               />
             </div>
           </div>

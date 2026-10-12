@@ -63,10 +63,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   if (variant === 'compact' || variant === 'horizontal') {
     return (
       <article 
-        className={`group relative flex gap-4 items-start p-3 bg-white/[0.02] hover:bg-white/[0.05] border border-[#FFFDD0]/10 hover:border-[#FFFDD0]/25 transition-all duration-300 ${className}`}
+        className={`group relative flex gap-4 items-start p-3 bg-white/[0.02] hover:bg-white/[0.05] border border-[#FFFDD0]/10 hover:border-[#FFFDD0]/25 rounded-2xl transition-all duration-300 ${className}`}
       >
         {/* Thumbnail */}
-        <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 overflow-hidden bg-[#1E2E20] border border-[#FFFDD0]/10">
+        <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 overflow-hidden bg-[#1E2E20] border border-[#FFFDD0]/10 rounded-xl sm:rounded-2xl">
           {!imageFailed && activeSrc ? (
             <div className="relative w-full h-full">
               <img 
@@ -74,7 +74,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
                 alt={title} 
                 onError={handleImageError}
                 loading="lazy"
-                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                className="w-full h-full object-cover rounded-xl sm:rounded-2xl transition-transform duration-700 ease-out group-hover:scale-105"
               />
               {/* Subtle green duotone/tint overlay, removed on hover */}
               <div className="absolute inset-0 bg-[#243826]/35 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 pointer-events-none" />
@@ -94,7 +94,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           <div className="space-y-1">
             {/* Meta */}
             <div className="flex items-center gap-2 text-[9px] font-mono uppercase tracking-[0.2em] text-[#FFFDD0]/60">
-              <span className="text-[#EA580C] font-bold group-hover:text-[#FF7A59] transition-colors">{category}</span>
+              <span className="text-[#FF6B4A] font-bold group-hover:text-[#FF8A6E] transition-colors">{category}</span>
               <span>•</span>
               <span className="truncate">{source}</span>
             </div>
@@ -107,7 +107,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
           <div className="flex items-center justify-between text-[9px] font-mono uppercase tracking-wider text-[#FFFDD0]/50 pt-2 border-t border-[#FFFDD0]/10 mt-2">
             <span>{readTime}</span>
-            <span className="text-[#EA580C] font-bold group-hover:translate-x-1 transition-transform">
+            <span className="text-[#FF6B4A] font-bold group-hover:translate-x-1 transition-transform">
               READ →
             </span>
           </div>
@@ -119,10 +119,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   // Standard & Tall Magazine Card
   return (
     <article 
-      className={`group relative flex flex-col h-full bg-white/[0.02] hover:bg-white/[0.05] border border-[#FFFDD0]/12 hover:border-[#FFFDD0]/30 transition-all duration-300 ${className}`}
+      className={`group relative flex flex-col h-full bg-white/[0.02] hover:bg-white/[0.05] border border-[#FFFDD0]/12 hover:border-[#FFFDD0]/30 rounded-2xl overflow-hidden transition-all duration-300 ${className}`}
     >
       {/* Magazine Image Frame */}
-      <div className={`relative w-full ${imageAspectClass} overflow-hidden bg-[#1E2E20] shrink-0 border-b border-[#FFFDD0]/10`}>
+      <div className={`relative w-full ${imageAspectClass} overflow-hidden bg-[#1E2E20] shrink-0 border-b border-[#FFFDD0]/10 rounded-t-2xl`}>
         {!imageFailed && activeSrc ? (
           <div className="relative w-full h-full">
             <img 
@@ -130,7 +130,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
               alt={title} 
               onError={handleImageError}
               loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              className="w-full h-full object-cover rounded-t-2xl transition-transform duration-700 ease-out group-hover:scale-105"
             />
             {/* Subtle green duotone tint overlay for cohesion across publishers, removed on hover */}
             <div className="absolute inset-0 bg-[#243826]/35 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 pointer-events-none" />
@@ -145,7 +145,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         )}
         
         {/* Category Label (Small, top-left) */}
-        <div className="absolute top-2.5 left-2.5 bg-[#1E2E20]/90 backdrop-blur-xs px-2 py-0.5 text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#EA580C] border border-[#FFFDD0]/20">
+        <div className="absolute top-2.5 left-2.5 bg-[#1E2E20]/90 backdrop-blur-xs px-2.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#FF6B4A] border border-[#FFFDD0]/20">
           {category}
         </div>
       </div>
@@ -155,7 +155,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         <div className="space-y-2">
           {/* Metadata Row: SOURCE · 4 MIN */}
           <div className="flex items-center justify-between text-[9px] font-mono uppercase tracking-[0.2em] text-[#FFFDD0]/60">
-            <span className="font-bold text-[#EA580C] truncate max-w-[140px] group-hover:text-[#FF7A59] transition-colors">
+            <span className="font-bold text-[#FF6B4A] truncate max-w-[140px] group-hover:text-[#FF8A6E] transition-colors">
               {source}
             </span>
             <span className="text-[#FFFDD0]/50">{readTime}</span>
@@ -187,7 +187,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
                   e.stopPropagation();
                   onToggleSave();
                 }}
-                className={`transition-colors p-1 hover:text-[#EA580C] ${isSaved ? 'text-[#EA580C]' : 'text-[#FFFDD0]/40'}`}
+                className={`transition-colors p-1 hover:text-[#FF6B4A] ${isSaved ? 'text-[#FF6B4A]' : 'text-[#FFFDD0]/40'}`}
                 title={isSaved ? "Saved to Library" : "Save for Later"}
                 aria-label={isSaved ? "Saved to Library" : "Save for Later"}
               >
@@ -198,7 +198,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
             )}
 
             {/* Read Arrow */}
-            <span className="text-[#FFFDD0] group-hover:text-[#EA580C] font-bold flex items-center gap-1 transition-colors">
+            <span className="text-[#FFFDD0] group-hover:text-[#FF6B4A] font-bold flex items-center gap-1 transition-colors">
               <span>READ</span>
               <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
             </span>

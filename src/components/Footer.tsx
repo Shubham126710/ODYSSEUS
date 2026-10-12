@@ -6,19 +6,19 @@ export const Footer = () => {
       <div className="max-w-4xl mx-auto text-center space-y-8">
         
         <div className="space-y-2">
-          <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-[#EA580C] font-bold block">
-            THE ODYSSEUS JOURNAL • COLOPHON & CORRESPONDENCE
+          <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-[#FF6B4A] font-bold block">
+            [ THE ODYSSEUS JOURNAL • COLOPHON & CORRESPONDENCE ]
           </span>
-          <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white">
+          <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-[#FFFDD0]">
             Get in Touch
           </h2>
         </div>
         
         <div className="space-y-2">
-          <p className="text-base sm:text-lg font-serif text-white/80">Shubham Upadhyay</p>
+          <p className="text-base sm:text-lg font-serif text-[#FFFDD0]/90">Shubham Upadhyay</p>
           <a 
             href="mailto:shubham360upadhyay@gmail.com" 
-            className="text-lg sm:text-2xl md:text-3xl font-serif italic text-white/90 hover:text-[#EA580C] transition-colors duration-300 block break-all"
+            className="text-lg sm:text-2xl md:text-3xl font-serif italic text-[#FFFDD0]/90 hover:text-[#FF6B4A] transition-colors duration-300 block break-all"
           >
             shubham360upadhyay@gmail.com
           </a>
@@ -31,7 +31,7 @@ export const Footer = () => {
             href="https://github.com/Shubham126710" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#EA580C] hover:border-[#EA580C] text-white/80 hover:text-white transition-all duration-300" 
+            className="w-11 h-11 rounded-full bg-[#FFFDD0]/10 border border-[#FFFDD0]/20 flex items-center justify-center hover:bg-[#FF6B4A] hover:border-[#FF6B4A] text-[#FFFDD0]/80 hover:text-[#FFFDD0] transition-all duration-300" 
             aria-label="GitHub"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -44,7 +44,7 @@ export const Footer = () => {
             href="https://www.linkedin.com/in/shubham-upadhyay-a12a9428b/" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#EA580C] hover:border-[#EA580C] text-white/80 hover:text-white transition-all duration-300" 
+            className="w-11 h-11 rounded-full bg-[#FFFDD0]/10 border border-[#FFFDD0]/20 flex items-center justify-center hover:bg-[#FF6B4A] hover:border-[#FF6B4A] text-[#FFFDD0]/80 hover:text-[#FFFDD0] transition-all duration-300" 
             aria-label="LinkedIn"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -57,7 +57,7 @@ export const Footer = () => {
             href="https://instagram.com/iamshubham_15" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#EA580C] hover:border-[#EA580C] text-white/80 hover:text-white transition-all duration-300" 
+            className="w-11 h-11 rounded-full bg-[#FFFDD0]/10 border border-[#FFFDD0]/20 flex items-center justify-center hover:bg-[#FF6B4A] hover:border-[#FF6B4A] text-[#FFFDD0]/80 hover:text-[#FFFDD0] transition-all duration-300" 
             aria-label="Instagram"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -70,7 +70,7 @@ export const Footer = () => {
             href="https://twitter.com/iamshubham_15" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#EA580C] hover:border-[#EA580C] text-white/80 hover:text-white transition-all duration-300" 
+            className="w-11 h-11 rounded-full bg-[#FFFDD0]/10 border border-[#FFFDD0]/20 flex items-center justify-center hover:bg-[#FF6B4A] hover:border-[#FF6B4A] text-[#FFFDD0]/80 hover:text-[#FFFDD0] transition-all duration-300" 
             aria-label="Twitter"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -79,7 +79,7 @@ export const Footer = () => {
           </a>
         </div>
 
-        <div className="pt-8 border-t border-white/10 text-white/40 font-mono text-xs uppercase tracking-widest">
+        <div className="pt-8 border-t border-[#FFFDD0]/15 text-[#FFFDD0]/50 font-mono text-xs uppercase tracking-widest">
           Designed by Shubham Upadhyay • Odysseus Digital Salon
         </div>
       </div>

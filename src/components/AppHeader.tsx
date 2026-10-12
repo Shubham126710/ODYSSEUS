@@ -173,7 +173,9 @@ export const AppHeader = ({
               title="Import Article (Pocket & Instapaper Clean Reader)"
               aria-label="Import Article"
             >
-              <span className="text-[#FF6B4A]">✦</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#FF6B4A" className="shrink-0">
+                <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
+              </svg>
               <span className="hidden sm:inline">Import</span>
             </button>
 
@@ -194,37 +196,39 @@ export const AppHeader = ({
                   onClick={() => setIsStatsOpen(!isStatsOpen)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-all text-xs font-mono font-bold tracking-wider ${
                     isStatsOpen 
-                      ? 'bg-[#FF6B4A] text-white border-[#FF6B4A] shadow-sm' 
+                      ? 'bg-[#FF6B4A] text-[#FFFDD0] border-[#FF6B4A] shadow-sm' 
                       : 'bg-white/10 hover:bg-white/15 text-white border-white/20'
                   }`}
                   title="Traveler's Chamber"
                   aria-label="Streak"
                 >
-                  <span className="text-[#FF6B4A]">✦</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-[#FF6B4A] shrink-0">
+                    <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
+                  </svg>
                   <span>{profile.streak_count || 1}D</span>
                 </button>
 
-                {/* Sleek Floating Chamber Popover */}
+                {/* Sleek Floating Chamber Popover in Cream/Olive Magazine Palette */}
                 {isStatsOpen && (
                   <div 
-                    style={{ zIndex: 9999, backgroundColor: '#FAF7EE', color: '#131E15' }}
-                    className="absolute right-0 top-full mt-3 w-80 rounded-2xl p-5 shadow-2xl border border-[#131E15]/15 z-modal origin-top-right animate-in fade-in zoom-in-95 duration-150"
+                    style={{ zIndex: 9999, backgroundColor: '#FFFDD0', color: '#2F4522' }}
+                    className="absolute right-0 top-full mt-3 w-80 rounded-2xl p-5 shadow-2xl border border-[#5D8246]/25 z-modal origin-top-right animate-in fade-in zoom-in-95 duration-150"
                   >
                     
                     {/* Header */}
-                    <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#5D8246]/15 mb-4">
                       <div>
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400 font-bold block">
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-[#5D8246]/70 font-bold block">
                           TRAVELER DOSSIER
                         </span>
-                        <h4 className="font-serif font-bold text-base text-stone-900">
+                        <h4 className="font-sans font-black text-base text-[#2F4522]">
                           {rank.title}
                         </h4>
                       </div>
                       <Link 
                         href="/profile" 
                         onClick={() => setIsStatsOpen(false)}
-                        className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-700 hover:text-amber-800"
+                        className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FF6B4A] hover:text-[#FF6B4A]/80 transition-colors"
                       >
                         Ledger →
                       </Link>
@@ -232,43 +236,43 @@ export const AppHeader = ({
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-2.5 mb-4">
-                      <div className="bg-stone-50 rounded-xl p-3 border border-stone-100 text-center">
-                        <span className="font-serif font-bold text-2xl text-amber-600 block">
+                      <div className="bg-[#5D8246]/10 rounded-xl p-3 border border-[#5D8246]/15 text-center">
+                        <span className="font-sans font-black text-2xl text-[#FF6B4A] block">
                           {profile.streak_count || 1}
                         </span>
-                        <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider font-bold">
+                        <span className="text-[10px] font-mono text-[#2F4522]/60 uppercase tracking-wider font-bold">
                           Day Streak
                         </span>
                       </div>
-                      <div className="bg-stone-50 rounded-xl p-3 border border-stone-100 text-center">
-                        <span className="font-serif font-bold text-2xl text-stone-900 block">
+                      <div className="bg-[#5D8246]/10 rounded-xl p-3 border border-[#5D8246]/15 text-center">
+                        <span className="font-sans font-black text-2xl text-[#2F4522] block">
                           {minutesToday}m
                         </span>
-                        <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider font-bold">
+                        <span className="text-[10px] font-mono text-[#2F4522]/60 uppercase tracking-wider font-bold">
                           Today ({tempGoal}m goal)
                         </span>
                       </div>
                     </div>
 
                     {/* 7-Day Habit Ledger */}
-                    <div className="bg-stone-50 p-3 rounded-xl border border-stone-100 mb-4">
-                      <div className="flex items-center justify-between text-[10px] font-mono uppercase text-stone-400 mb-2 font-bold">
+                    <div className="bg-[#5D8246]/10 p-3 rounded-xl border border-[#5D8246]/15 mb-4">
+                      <div className="flex items-center justify-between text-[10px] font-mono uppercase text-[#2F4522]/60 mb-2 font-bold">
                         <span>7-Day Spread</span>
                         <span>Mon – Sun</span>
                       </div>
                       <div className="grid grid-cols-7 gap-1">
                         {habitSpread.map((day, idx) => (
                           <div key={idx} className="flex flex-col items-center">
-                            <span className="text-[9px] font-mono text-stone-400 mb-1">{day.dayShort}</span>
+                            <span className="text-[9px] font-mono text-[#2F4522]/60 mb-1">{day.dayShort}</span>
                             <div 
                               className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-mono font-bold transition-all ${
                                 day.status === 'completed' || day.status === 'today-done'
-                                  ? 'bg-[#EA580C] text-white shadow-xs'
+                                  ? 'bg-[#FF6B4A] text-[#FFFDD0] shadow-xs'
                                   : day.status === 'shielded'
-                                  ? 'bg-stone-200 text-stone-700'
+                                  ? 'bg-[#5D8246]/25 text-[#2F4522]'
                                   : day.isToday
-                                  ? 'border-2 border-[#EA580C] text-[#EA580C] bg-white font-bold'
-                                  : 'bg-stone-200/50 text-stone-300'
+                                  ? 'border-2 border-[#FF6B4A] text-[#FF6B4A] bg-[#FFFDD0] font-bold'
+                                  : 'bg-[#5D8246]/15 text-[#2F4522]/30'
                               }`}
                             >
                               {day.status === 'completed' || day.status === 'today-done' ? '✓' : '•'}
@@ -280,9 +284,9 @@ export const AppHeader = ({
 
                     {/* Daily Goal Adjuster */}
                     <div className="pt-1">
-                      <div className="flex items-center justify-between text-[10px] font-mono uppercase text-stone-500 mb-1 font-bold">
+                      <div className="flex items-center justify-between text-[10px] font-mono uppercase text-[#2F4522]/70 mb-1 font-bold">
                         <span>Daily Pace</span>
-                        <span className="text-amber-700">{tempGoal} min / day</span>
+                        <span className="text-[#FF6B4A] font-bold font-mono">{tempGoal} min / day</span>
                       </div>
                       <input 
                         type="range" 
@@ -291,7 +295,7 @@ export const AppHeader = ({
                         step="5" 
                         value={tempGoal}
                         onChange={(e) => updateGoal(parseInt(e.target.value))}
-                        className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-stone-200 accent-[#EA580C]"
+                        className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#5D8246]/20 accent-[#FF6B4A]"
                       />
                     </div>
 
@@ -304,7 +308,7 @@ export const AppHeader = ({
             <div className="relative group hidden md:block w-9 h-9 shrink-0">
               <button 
                 style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', maxWidth: '36px', maxHeight: '36px' }}
-                className="w-9 h-9 min-w-[36px] min-h-[36px] max-w-[36px] max-h-[36px] shrink-0 rounded-full bg-stone-800 text-white flex items-center justify-center font-serif font-bold text-sm ring-2 ring-white/20 group-hover:ring-[#EA580C] transition-all overflow-hidden cursor-pointer"
+                className="w-9 h-9 min-w-[36px] min-h-[36px] max-w-[36px] max-h-[36px] shrink-0 rounded-full bg-[#2F4522] text-[#FFFDD0] flex items-center justify-center font-serif font-bold text-sm ring-2 ring-[#FFFDD0]/30 group-hover:ring-[#FF6B4A] transition-all overflow-hidden cursor-pointer"
               >
                 {profile?.avatar_url ? (
                   <img 
@@ -318,29 +322,32 @@ export const AppHeader = ({
                 )}
               </button>
               
-              <div className="absolute right-0 top-full mt-3 w-56 bg-white rounded-2xl shadow-xl border border-stone-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50 overflow-hidden">
+              <div 
+                style={{ backgroundColor: '#FFFDD0', color: '#2F4522', zIndex: 9999, width: '220px', minWidth: '220px' }}
+                className="absolute right-0 top-full mt-3 w-56 rounded-2xl shadow-2xl border border-[#5D8246]/25 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 overflow-hidden"
+              >
                 {profile && (
-                  <div className="p-4 border-b border-stone-100 bg-stone-50">
-                    <p className="font-bold text-stone-900 text-sm truncate">{profile.first_name} {profile.last_name}</p>
-                    <p className="text-[11px] text-stone-400 font-mono mt-0.5">@{profile.username}</p>
+                  <div className="p-4 border-b border-[#5D8246]/15 bg-[#5D8246]/10">
+                    <p className="font-bold text-[#2F4522] text-sm truncate font-sans">{profile.first_name} {profile.last_name}</p>
+                    <p className="text-[11px] text-[#5D8246] font-mono mt-0.5">@{profile.username}</p>
                   </div>
                 )}
                 <div className="p-1.5 text-xs font-mono">
-                  <Link href="/profile" className="flex items-center gap-2.5 px-3.5 py-2.5 text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-xl transition-colors">
-                    <UserIcon className="w-4 h-4 text-stone-400" />
+                  <Link href="/profile" className="flex items-center gap-2.5 px-3.5 py-2.5 text-[#2F4522] hover:text-[#2F4522] hover:bg-[#5D8246]/15 rounded-xl transition-colors">
+                    <UserIcon className="w-4 h-4 text-[#5D8246]" />
                     <span>Traveler Profile</span>
                   </Link>
-                  <Link href="/saved" className="flex items-center gap-2.5 px-3.5 py-2.5 text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-xl transition-colors">
-                    <BookmarkIcon className="w-4 h-4 text-stone-400" />
+                  <Link href="/saved" className="flex items-center gap-2.5 px-3.5 py-2.5 text-[#2F4522] hover:text-[#2F4522] hover:bg-[#5D8246]/15 rounded-xl transition-colors">
+                    <BookmarkIcon className="w-4 h-4 text-[#5D8246]" />
                     <span>Saved Library</span>
                   </Link>
-                  <Link href="/settings" className="flex items-center gap-2.5 px-3.5 py-2.5 text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-xl transition-colors">
-                    <SettingsIcon className="w-4 h-4 text-stone-400" />
+                  <Link href="/settings" className="flex items-center gap-2.5 px-3.5 py-2.5 text-[#2F4522] hover:text-[#2F4522] hover:bg-[#5D8246]/15 rounded-xl transition-colors">
+                    <SettingsIcon className="w-4 h-4 text-[#5D8246]" />
                     <span>Preferences</span>
                   </Link>
-                  <div className="h-px bg-stone-100 my-1" />
-                  <button onClick={handleSignOut} className="w-full text-left flex items-center gap-2.5 px-3.5 py-2.5 text-red-600 hover:bg-red-50 rounded-xl transition-colors">
-                    <LogOutIcon className="w-4 h-4 text-red-400" />
+                  <div className="h-px bg-[#5D8246]/15 my-1" />
+                  <button onClick={handleSignOut} className="w-full text-left flex items-center gap-2.5 px-3.5 py-2.5 text-[#FF6B4A] hover:bg-[#FF6B4A]/10 rounded-xl transition-colors cursor-pointer">
+                    <LogOutIcon className="w-4 h-4 text-[#FF6B4A]" />
                     <span>Sign Out</span>
                   </button>
                 </div>
@@ -426,7 +433,14 @@ export const AppHeader = ({
           localStorage.setItem('nav_tabs', JSON.stringify(newTabs));
         }}
       />
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchModal 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+        onSelectStory={(story) => {
+          setReaderArticle(story);
+          setIsSearchOpen(false);
+        }}
+      />
       <OnboardingModal isOpen={isOnboardingOpen} onClose={() => setIsOnboardingOpen(false)} userId={profile?.id} userName={profile?.first_name} />
       <ImportArticleModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} userId={profile?.id} onReadArticle={(art) => setReaderArticle(art)} />
       {readerArticle && (

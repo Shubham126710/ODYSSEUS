@@ -15,7 +15,7 @@ const THEME_STYLES: Record<string, { bg: string; accent: string; glyph: string }
   },
   design: {
     bg: 'linear-gradient(135deg, #1C1917 0%, #292524 100%)',
-    accent: '#EA580C',
+    accent: '#FF6B4A',
     glyph: '◈',
   },
   culture: {
@@ -30,7 +30,7 @@ const THEME_STYLES: Record<string, { bg: string; accent: string; glyph: string }
   },
   default: {
     bg: 'linear-gradient(135deg, #18181B 0%, #27272A 100%)',
-    accent: '#EA580C',
+    accent: '#FF6B4A',
     glyph: '✦',
   },
 };
@@ -58,7 +58,7 @@ export const EditorialMonogramPoster: React.FC<EditorialMonogramPosterProps> = (
   return (
     <div
       style={{ background: theme.bg }}
-      className={`relative overflow-hidden select-none flex flex-col justify-between p-5 text-stone-100 ${className}`}
+      className={`relative overflow-hidden select-none flex flex-col justify-between p-5 text-[#FFFDD0] ${className}`}
     >
       {/* Background Architectural Grid Pattern */}
       <div 

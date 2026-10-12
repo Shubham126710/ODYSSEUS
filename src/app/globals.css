@@ -3118,10 +3118,10 @@ body {
   color: #FFFDD0 !important;
 }
 .text-orange-accent {
-  color: #EA580C !important;
+  color: #FF6B4A !important;
 }
 .bg-orange-accent {
-  background-color: #EA580C !important;
+  background-color: #FF6B4A !important;
 }
 .border-forest {
   border-color: rgba(255, 253, 208, 0.15) !important;
@@ -3133,9 +3133,25 @@ body {
 .z-modal-backdrop {
   z-index: 9998 !important;
 }
+/* Odysseus Magazine Design System Classes */
+.bg-cream-paper, .bg-\[\#FFFDD0\], .bg-\[\#fffdd0\] {
+  background-color: #FFFDD0 !important;
+}
+.text-deep-olive, .text-\[\#2F4522\], .text-\[\#2f4522\] {
+  color: #2F4522 !important;
+}
+.text-olive-primary, .text-\[\#5D8246\], .text-\[\#5d8246\] {
+  color: #5D8246 !important;
+}
+.text-warm-orange, .text-\[\#FF6B4A\], .text-\[\#ff6b4a\] {
+  color: #FF6B4A !important;
+}
+.bg-warm-orange, .bg-\[\#FF6B4A\], .bg-\[\#ff6b4a\] {
+  background-color: #FF6B4A !important;
+}
 .modal-parchment {
-  background-color: #FAF7EE !important;
-  color: #131E15 !important;
+  background-color: #FFFDD0 !important;
+  color: #2F4522 !important;
 }
 /* Fallback utilities for missing Tailwind v4 classes */
 .text-stone-900 { color: #1c1917 !important; }
@@ -3598,3 +3614,28 @@ body {
     min-height: calc(100vh - 72px) !important;
   }
 }
+
+/* Page Header Offset for non-feed pages */
+.page-header-offset {
+  padding-top: 130px !important;
+}
+@media (min-width: 768px) {
+  .page-header-offset {
+    padding-top: 110px !important;
+  }
+}
+
+/* Explicit padding-top utilities for fixed header headroom */
+.pt-36 { padding-top: 9rem !important; }
+.pt-40 { padding-top: 10rem !important; }
+.pt-44 { padding-top: 11rem !important; }
+@media (min-width: 640px) {
+  .sm\:pt-40 { padding-top: 10rem !important; }
+}
+@media (min-width: 768px) {
+  .md\:pt-44 { padding-top: 11rem !important; }
+}
+
+.w-56 { width: 14rem !important; }
+
+

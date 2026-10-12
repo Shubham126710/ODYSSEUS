@@ -48,16 +48,16 @@ const SavedStoryCard = ({
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ delay: index * 0.03, duration: 0.25 }}
       onClick={onOpen}
-      className="group relative flex flex-col bg-[#FAF7EE] text-[#131E15] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl border border-white/20 hover:border-[#EA580C] hover:-translate-y-1 transition-all duration-300 cursor-pointer flex-1"
+      className="group relative flex flex-col bg-[#FFFDD0] text-[#2F4522] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl border border-[#5D8246]/20 hover:border-[#FF6B4A] hover:-translate-y-1 transition-all duration-300 cursor-pointer flex-1"
     >
       {/* Visual Header */}
-      <div className="relative w-full aspect-[16/10] overflow-hidden bg-stone-200 shrink-0">
+      <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#2F4522]/10 shrink-0 rounded-t-2xl">
         {!imgFailed && imgSrc ? (
           <img
             src={imgSrc}
             alt={story.title}
             onError={handleImgError}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            className="w-full h-full object-cover rounded-t-2xl group-hover:scale-105 transition-transform duration-700"
             loading="lazy"
           />
         ) : (
@@ -70,14 +70,14 @@ const SavedStoryCard = ({
         )}
 
         {/* Source Badge */}
-        <div className="absolute top-3 left-3 bg-[#131E15]/90 text-white backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border border-white/10">
+        <div className="absolute top-3 left-3 bg-[#5D8246]/95 text-[#FFFDD0] backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border border-[#FFFDD0]/20">
           {sourceName}
         </div>
 
         {/* Remove Bookmark Button */}
         <button
           onClick={onRemove}
-          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/95 hover:bg-red-50 text-stone-500 hover:text-red-500 flex items-center justify-center transition-colors shadow-xs border border-black/5"
+          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-[#FFFDD0]/95 hover:bg-red-50 text-[#5D8246] hover:text-red-500 flex items-center justify-center transition-colors shadow-xs border border-[#5D8246]/15"
           title="Remove from saved stories"
           aria-label="Remove story"
         >
@@ -89,22 +89,22 @@ const SavedStoryCard = ({
       <div className="p-5 flex flex-col flex-grow justify-between space-y-3">
         <div className="space-y-2">
           <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider">
-            <span className="font-bold text-[#EA580C]">{sourceName}</span>
-            <span className="text-stone-500">{story.read_time || '5 min read'}</span>
+            <span className="font-bold text-[#FF6B4A]">{sourceName}</span>
+            <span className="text-[#2F4522]/60 font-medium">{story.read_time || '5 min read'}</span>
           </div>
 
-          <h3 className="font-serif text-lg font-bold text-[#131E15] leading-snug group-hover:text-[#EA580C] transition-colors line-clamp-2">
+          <h3 className="font-serif text-lg font-bold text-[#2F4522] leading-snug group-hover:text-[#FF6B4A] transition-colors line-clamp-2">
             {decodeHtmlEntities(story.title)}
           </h3>
 
-          <p className="text-xs text-[#37493A] leading-relaxed line-clamp-2 font-sans">
+          <p className="text-xs text-[#2F4522]/75 leading-relaxed line-clamp-2 font-sans">
             {decodeHtmlEntities(story.excerpt || 'Purified essay archived for focused offline reading.')}
           </p>
         </div>
 
         {/* Footer */}
-        <div className="pt-3 border-t border-stone-200/80 flex items-center justify-between text-xs font-mono">
-          <span className="font-bold text-[#131E15] group-hover:text-[#EA580C] flex items-center gap-1 transition-colors">
+        <div className="pt-3 border-t border-[#5D8246]/15 flex items-center justify-between text-xs font-mono">
+          <span className="font-bold text-[#2F4522] group-hover:text-[#FF6B4A] flex items-center gap-1 transition-colors">
             <span>Read In Chamber</span>
             <span className="text-sm font-sans transition-transform group-hover:translate-x-0.5">→</span>
           </span>
@@ -115,7 +115,7 @@ const SavedStoryCard = ({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-[10px] text-stone-500 hover:text-[#EA580C] uppercase tracking-wider transition-colors"
+              className="text-[10px] text-[#5D8246] hover:text-[#FF6B4A] uppercase tracking-wider transition-colors"
               title="Open original website"
             >
               Source ↗
@@ -217,13 +217,13 @@ export default function SavedPage() {
     <div className="min-h-screen bg-juice-green text-juice-cream font-sans selection:bg-juice-orange selection:text-juice-cream relative overflow-x-hidden">
       <AppHeader />
       
-      <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-12 py-8 sm:py-12 space-y-10 relative z-10">
+      <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-12 page-header-offset pt-36 sm:pt-40 md:pt-44 pb-20 space-y-10 relative z-10">
         
         {/* Editorial Masthead */}
         <div className="border-b border-[#FFFDD0]/15 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-[#FFFDD0]/70 font-bold">
-              <span className="text-[#EA580C]">✦</span>
+              <span className="text-[#FF6B4A]">✦</span>
               <span>THE OFFLINE SALON • {savedStories.length} STORIES CURATED</span>
             </div>
             <h1 className="font-serif text-3xl sm:text-5xl font-bold text-[#FFFDD0] leading-tight">
@@ -236,7 +236,7 @@ export default function SavedPage() {
 
           <button
             onClick={() => setIsImportModalOpen(true)}
-            className="self-start md:self-auto px-6 py-3 rounded-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-mono font-bold text-xs uppercase tracking-wider shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 shrink-0"
+            className="self-start md:self-auto px-6 py-3 rounded-full bg-[#FF6B4A] hover:bg-[#E55A3A] text-[#FFFDD0] font-mono font-bold text-xs uppercase tracking-wider shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 shrink-0 cursor-pointer"
           >
             <span>✦</span>
             <span>Import Custom Article</span>
@@ -244,16 +244,19 @@ export default function SavedPage() {
         </div>
 
         {/* Quick Purify Bar */}
-        <div className="p-5 sm:p-6 rounded-2xl bg-[#FAF7EE] text-[#131E15] border border-white/20 shadow-xl">
+        <div 
+          style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
+          className="p-5 sm:p-6 rounded-2xl border border-[#5D8246]/20 shadow-xl"
+        >
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="space-y-1">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#EA580C] block">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#FF6B4A] block">
                 Pocket & Instapaper Clean Protocol
               </span>
-              <h3 className="font-serif text-base font-bold text-[#131E15]">
+              <h3 className="font-serif text-base font-bold text-[#2F4522]">
                 Purify Any Web Article In Seconds
               </h3>
-              <p className="text-xs text-[#37493A]">
+              <p className="text-xs text-[#2F4522]/80">
                 Paste any link from Substack, Medium, blogs, or news to read pure text in Odysseus.
               </p>
             </div>
@@ -264,15 +267,15 @@ export default function SavedPage() {
                 value={quickUrl}
                 onChange={(e) => setQuickUrl(e.target.value)}
                 placeholder="https://example.com/essay-or-article..."
-                className="flex-1 bg-white border border-stone-300 focus:border-[#EA580C] rounded-xl px-4 py-2.5 text-xs text-[#131E15] placeholder:text-stone-400 focus:outline-none transition-all shadow-xs"
+                className="flex-1 bg-white border border-[#5D8246]/30 focus:border-[#FF6B4A] rounded-xl px-4 py-2.5 text-xs text-[#2F4522] placeholder:text-[#2F4522]/40 outline-none focus:outline-none focus:ring-0 transition-all shadow-xs"
               />
               <button
                 type="submit"
                 disabled={isPurifyingQuick || !quickUrl.trim()}
-                className="px-5 py-2.5 rounded-xl bg-[#EA580C] hover:bg-[#C2410C] disabled:opacity-50 text-white font-mono font-bold text-xs uppercase tracking-wider shrink-0 transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                className="px-5 py-2.5 rounded-xl bg-[#FF6B4A] hover:bg-[#E55A3A] disabled:opacity-50 text-[#FFFDD0] font-mono font-bold text-xs uppercase tracking-wider shrink-0 transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
               >
                 {isPurifyingQuick ? (
-                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="w-3.5 h-3.5 border-2 border-[#FFFDD0]/30 border-t-[#FFFDD0] rounded-full animate-spin" />
                 ) : (
                   'Purify & Read →'
                 )}
@@ -285,30 +288,30 @@ export default function SavedPage() {
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 ${
+            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
               activeTab === 'all'
-                ? 'bg-[#EA580C] text-white shadow-md'
-                : 'bg-white/10 text-juice-cream/80 hover:text-juice-cream hover:bg-white/20 border border-white/15'
+                ? 'bg-[#FF6B4A] text-[#FFFDD0] shadow-md'
+                : 'bg-[#FFFDD0]/10 text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-[#FFFDD0]/20 border border-[#FFFDD0]/15'
             }`}
           >
             All Saved ({savedStories.length})
           </button>
           <button
             onClick={() => setActiveTab('imported')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 ${
+            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
               activeTab === 'imported'
-                ? 'bg-[#EA580C] text-white shadow-md'
-                : 'bg-white/10 text-juice-cream/80 hover:text-juice-cream hover:bg-white/20 border border-white/15'
+                ? 'bg-[#FF6B4A] text-[#FFFDD0] shadow-md'
+                : 'bg-[#FFFDD0]/10 text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-[#FFFDD0]/20 border border-[#FFFDD0]/15'
             }`}
           >
             ✦ Imported Web Prose
           </button>
           <button
             onClick={() => setActiveTab('prestige')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 ${
+            className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
               activeTab === 'prestige'
-                ? 'bg-[#EA580C] text-white shadow-md'
-                : 'bg-white/10 text-juice-cream/80 hover:text-juice-cream hover:bg-white/20 border border-white/15'
+                ? 'bg-[#FF6B4A] text-[#FFFDD0] shadow-md'
+                : 'bg-[#FFFDD0]/10 text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-[#FFFDD0]/20 border border-[#FFFDD0]/15'
             }`}
           >
             Prestige Publications
@@ -318,32 +321,35 @@ export default function SavedPage() {
         {/* Stories Content Grid */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-28 gap-4">
-            <div className="w-8 h-8 border-3 border-[#EA580C]/20 border-t-[#EA580C] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-3 border-[#FFFDD0]/30 border-t-[#FF6B4A] rounded-full animate-spin" />
             <p className="font-mono text-xs uppercase tracking-widest text-[#FFFDD0]/70">
               Retrieving your offline library...
             </p>
           </div>
         ) : filteredStories.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-center py-24 px-6 rounded-3xl bg-[#FAF7EE] text-[#131E15] border border-white/20 shadow-xl space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#EA580C]/15 text-[#EA580C] flex items-center justify-center text-2xl font-serif font-bold shadow-xs">
+          <div 
+            style={{ backgroundColor: '#FFFDD0', color: '#2F4522' }}
+            className="flex flex-col items-center justify-center text-center py-24 px-6 rounded-3xl border border-[#5D8246]/25 shadow-xl space-y-4"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-[#FF6B4A]/15 text-[#FF6B4A] flex items-center justify-center text-2xl font-serif font-bold shadow-xs">
               ✦
             </div>
-            <h3 className="font-serif text-2xl font-bold text-[#131E15]">
+            <h3 className="font-serif text-2xl font-bold text-[#2F4522]">
               Your Offline Salon Awaits
             </h3>
-            <p className="text-xs sm:text-sm text-[#37493A] max-w-md mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#5D8246] max-w-md mx-auto leading-relaxed">
               Bookmark stories while browsing the Odysseus broadsheet or paste any article URL to curate pure, distraction-free prose.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <button
                 onClick={() => setIsImportModalOpen(true)}
-                className="px-6 py-2.5 rounded-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-md"
+                className="px-6 py-2.5 rounded-full bg-[#FF6B4A] hover:bg-[#E55A3A] text-[#FFFDD0] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
               >
                 ✦ Import Web Article
               </button>
               <Link
                 href="/feed"
-                className="px-6 py-2.5 rounded-full bg-white border border-[#131E15]/20 text-[#131E15] font-mono font-bold text-xs uppercase tracking-wider hover:bg-stone-50 transition-all"
+                className="px-6 py-2.5 rounded-full bg-[#5D8246]/10 border border-[#5D8246]/30 text-[#2F4522] font-mono font-bold text-xs uppercase tracking-wider hover:bg-[#5D8246]/20 transition-all cursor-pointer"
               >
                 Explore Live Feed →
               </Link>

@@ -725,10 +725,10 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                   className="my-6 border-t"
                 />
 
-                {/* 4. Hero image: 16:10 or 4:3, border-radius 8px */}
+                {/* 4. Hero image: 16:10 or 4:3, border-radius 16px */}
                 {hasHeroImage && (
-                  <figure className="my-6 rounded-lg overflow-hidden" style={{ border: `1px solid ${currentTheme.border}` }}>
-                    <div style={{ aspectRatio: '16/10', maxHeight: '440px' }} className="w-full overflow-hidden">
+                  <figure className="my-6 rounded-2xl overflow-hidden shadow-md" style={{ border: `1px solid ${currentTheme.border}` }}>
+                    <div style={{ aspectRatio: '16/10', maxHeight: '440px' }} className="w-full overflow-hidden rounded-2xl">
                       <img
                         src={activeHeroSrc}
                         alt={article.title}
@@ -740,7 +740,7 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                             setImageError(true);
                           }
                         }}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover rounded-2xl"
                       />
                     </div>
                   </figure>
