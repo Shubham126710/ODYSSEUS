@@ -13,7 +13,7 @@ export interface Publication {
   name: string;
   url: string;
   feedUrl: string;
-  desk: 'vanguard' | 'atelier' | 'forum' | 'chronicle' | 'observatory';
+  desk: 'vanguard' | 'atelier' | 'forum' | 'chronicle' | 'observatory' | 'sports';
   deskLabel: string;
   category: string;
   monogram: string;
@@ -136,7 +136,7 @@ export const PRESTIGE_SOURCES: Publication[] = [
     category: 'Visual Craft',
     monogram: 'NT',
     tagline: 'Championing creativity and aesthetic expression',
-    isFeatured: true,
+    isFeatured: false,
   },
   {
     id: 'smashing',
@@ -148,6 +148,7 @@ export const PRESTIGE_SOURCES: Publication[] = [
     category: 'Web Craft',
     monogram: 'SM',
     tagline: 'Editorial focus on user experience and front-end design',
+    isFeatured: true,
   },
   {
     id: 'alistapart',
@@ -170,6 +171,7 @@ export const PRESTIGE_SOURCES: Publication[] = [
     category: 'Industrial Design',
     monogram: 'DB',
     tagline: 'The first global magazine on contemporary art and design',
+    isFeatured: true,
   },
 
   // THE FORUM (Culture, Philosophy & Essays)
@@ -325,6 +327,33 @@ export const PRESTIGE_SOURCES: Publication[] = [
     category: 'Physics & Nano',
     monogram: 'PO',
     tagline: 'Daily research news in physics, nanotech and engineering',
+    isFeatured: true,
+  },
+
+  // THE ARENA (Sports)
+  {
+    id: 'guardiansport',
+    name: 'The Guardian Sport',
+    url: 'https://www.theguardian.com/sport',
+    feedUrl: 'https://www.theguardian.com/sport/rss',
+    desk: 'sports',
+    deskLabel: 'The Arena',
+    category: 'Sports',
+    monogram: 'GS',
+    tagline: 'Slow-form athletic analysis, investigative sports journalism and narrative features',
+    isFeatured: true,
+  },
+  {
+    id: 'bbcsport',
+    name: 'BBC Sport',
+    url: 'https://www.bbc.com/sport',
+    feedUrl: 'http://feeds.bbci.co.uk/sport/rss.xml',
+    desk: 'sports',
+    deskLabel: 'The Arena',
+    category: 'Sports',
+    monogram: 'BS',
+    tagline: 'Global sports coverage, comprehensive dispatches and live reporting',
+    isFeatured: true,
   },
 ];
 

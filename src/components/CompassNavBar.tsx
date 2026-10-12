@@ -21,7 +21,11 @@ export const COMPASS_SECTIONS: CompassSection[] = [
 
 const ITEM_WIDTH = 112; // Exactly 112px per item for exact mathematical alignment
 
-export const CompassNavBar: React.FC = () => {
+export interface CompassNavBarProps {
+  sections?: CompassSection[];
+}
+
+export const CompassNavBar: React.FC<CompassNavBarProps> = ({ sections = COMPASS_SECTIONS }) => {
   const router = useRouter();
   const pathname = usePathname();
   const isFeedHome = pathname === '/feed';
@@ -46,9 +50,9 @@ export const CompassNavBar: React.FC = () => {
   const routeActiveIndex = useMemo(() => {
     if (isFeedHome) return 0;
     const currentCat = pathname.replace('/feed/', '').toLowerCase();
-    const idx = COMPASS_SECTIONS.findIndex(s => s.id === currentCat);
+    const idx = sections.findIndex(s => s.id === currentCat);
     return idx !== -1 ? idx : 0;
-  }, [pathname, isFeedHome]);
+  }, [pathname, isFeedHome, sections]);
 
   const [activeIdx, setActiveIdx] = useState<number>(routeActiveIndex);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -63,12 +67,18 @@ export const CompassNavBar: React.FC = () => {
     return () => media.removeEventListener('change', listener);
   }, []);
 
-  // Update active index if route changes
+  // Update active index if route changes or sections change
+  useEffect(() => {
+    if (activeIdx >= sections.length) {
+      setActiveIdx(Math.max(0, sections.length - 1));
+    }
+  }, [sections, activeIdx]);
+
   useEffect(() => {
     setActiveIdx(routeActiveIndex);
   }, [routeActiveIndex]);
 
-  // Scroll tracking on /feed for sections: for-you, tech, design, culture, science, sports
+  // Scroll tracking on /feed for currently rendered sections
   useEffect(() => {
     if (!isFeedHome || typeof window === 'undefined') return;
 
@@ -77,8 +87,8 @@ export const CompassNavBar: React.FC = () => {
       const triggerThreshold = headerHeight + 80;
 
       let currentIdx = 0;
-      for (let i = 0; i < COMPASS_SECTIONS.length; i++) {
-        const el = document.getElementById(COMPASS_SECTIONS[i].id);
+      for (let i = 0; i < sections.length; i++) {
+        const el = document.getElementById(sections[i].id);
         if (el) {
           const rect = el.getBoundingClientRect();
           if (rect.top <= triggerThreshold) {
@@ -92,7 +102,7 @@ export const CompassNavBar: React.FC = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isFeedHome]);
+  }, [isFeedHome, sections]);
 
   // Click handler: smooth-scroll if on /feed, or navigate route
   const handleItemClick = useCallback((index: number, section: CompassSection) => {
@@ -134,12 +144,20 @@ export const CompassNavBar: React.FC = () => {
         WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 16%, black 84%, transparent 100%)',
       }}
     >
-      {/* Fixed Orange Needle Marker: 2px x 10px orange line at exact horizontal center of the window, above tick row */}
+      {/* Fixed Orange Needle Marker: placed on the tick row below the labels, aligned with the active tick, never overlapping label text */}
       <div 
         aria-hidden="true"
-        className="absolute left-1/2 -translate-x-1/2 top-[24px] z-30 pointer-events-none flex flex-col items-center"
+        style={{
+          position: 'absolute',
+          left: '50%',
+          bottom: '5px',
+          transform: 'translateX(-50%)',
+          zIndex: 30,
+          pointerEvents: 'none',
+        }}
+        className="flex flex-col items-center"
       >
-        <div style={{ backgroundColor: '#FF6B4A', width: '2px', height: '10px' }} className="rounded-full shadow-xs" />
+        <div style={{ backgroundColor: '#FF6B4A', width: '2px', height: '10px', borderRadius: '1px' }} />
       </div>
 
       {/* Horizontally translating motion track (width: max-content) */}
@@ -155,7 +173,7 @@ export const CompassNavBar: React.FC = () => {
       >
         {/* Labels Row */}
         <div className="flex items-center" style={{ width: 'max-content' }}>
-          {COMPASS_SECTIONS.map((section, idx) => {
+          {sections.map((section, idx) => {
             const isActive = activeIdx === idx;
             return (
               <button
@@ -181,7 +199,7 @@ export const CompassNavBar: React.FC = () => {
           className="flex items-end h-3 border-t border-[#FFFDD0]/20 mt-1 pointer-events-none"
           style={{ width: 'max-content' }}
         >
-          {COMPASS_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <div 
               key={`bezel-${section.id}`} 
               style={{ flex: '0 0 112px', width: '112px' }}

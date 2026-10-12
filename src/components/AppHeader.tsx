@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { StaticOrangeCompass } from './StaticOrangeCompass';
-import { CompassNavBar } from './CompassNavBar';
+import { CompassNavBar, CompassSection } from './CompassNavBar';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter, usePathname } from 'next/navigation';
@@ -37,7 +37,13 @@ const LogOutIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
 );
 
-export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'orange' }) => {
+export const AppHeader = ({ 
+  theme = 'light',
+  sections,
+}: { 
+  theme?: 'light' | 'dark' | 'orange';
+  sections?: CompassSection[];
+}) => {
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -138,7 +144,7 @@ export const AppHeader = ({ theme = 'light' }: { theme?: 'light' | 'dark' | 'ora
 
           {/* Center Compass Navigation Bar */}
           <div className="flex-1 flex justify-center px-2 min-w-0">
-            <CompassNavBar />
+            <CompassNavBar sections={sections} />
           </div>
 
           {/* Right Utilities */}

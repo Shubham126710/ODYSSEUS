@@ -5,7 +5,7 @@ import { getDefaultInauguralFeeds } from '@/data/prestigeSources';
 import { clusterStories } from '@/lib/storyClustering';
 
 const parser = new Parser({
-  timeout: 5000, // 5s per-feed timeout
+  timeout: 8000, // 8s per-feed timeout for large XML feeds
   customFields: {
     item: [
       ['media:content', 'media:content', {keepArray: true}],
@@ -60,10 +60,13 @@ function extractImageFromItem(item: any): string | null {
   const mediaContent = item['media:content'] || item.mediaGroup?.['media:content'];
   if (!imageUrl && mediaContent) {
     if (Array.isArray(mediaContent)) {
-      const imageMedia = mediaContent.find((m: any) =>
-        m['$']?.medium === 'image' || m['$']?.type?.startsWith('image') || m.medium === 'image' || m.type?.startsWith('image')
-      );
-      imageUrl = imageMedia?.['$']?.url || imageMedia?.url || mediaContent[0]?.['$']?.url || mediaContent[0]?.url;
+      const sorted = [...mediaContent].sort((a: any, b: any) => {
+        const wA = parseInt(a['$']?.width || a.width || 0, 10);
+        const wB = parseInt(b['$']?.width || b.width || 0, 10);
+        return wB - wA;
+      });
+      const best = sorted[0];
+      imageUrl = best?.['$']?.url || best?.url || mediaContent[0]?.['$']?.url || mediaContent[0]?.url;
     } else {
       imageUrl = mediaContent?.['$']?.url || mediaContent?.url;
     }
@@ -324,6 +327,18 @@ export async function GET(request: Request) {
         return processed;
       } catch (e) {
         console.error(`Error parsing feed ${sub.url}:`, e);
+        // Fall back to stale cache if available
+        const stale = feedCache.get(sub.url)?.data;
+        if (stale && stale.items) {
+          const items = stale.items.slice(0, 15);
+          return items.map((item: any) => ({
+            ...item,
+            source: sub.title || stale.title,
+            sourceIcon: sub.icon_url,
+            feedId: sub.feed_id,
+            imageUrl: extractImageFromItem(item),
+          }));
+        }
         return [];
       }
     });

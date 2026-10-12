@@ -3537,7 +3537,7 @@ body {
     display: grid !important;
     grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
     gap: 2.5rem !important;
-    align-items: center !important;
+    align-items: start !important;
   }
   .lead-col-left {
     grid-column: span 7 / span 7 !important;

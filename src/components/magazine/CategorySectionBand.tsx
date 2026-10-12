@@ -9,6 +9,7 @@ interface CategorySectionBandProps {
   title: string;
   stories: any[];
   theme: 'cream' | 'olive';
+  totalCount?: number;
   onSelectStory: (story: any) => void;
   onToggleSave?: (story: any) => void;
   isSaved?: (story: any) => boolean;
@@ -129,16 +130,18 @@ export const CategorySectionBand: React.FC<CategorySectionBandProps> = ({
   title,
   stories,
   theme,
+  totalCount,
   onSelectStory,
   onToggleSave,
   isSaved,
 }) => {
-  // Hide a band if it has fewer than 3 valid stories
-  if (!stories || stories.length < 3) return null;
+  // Allow a band to render with 2 stories; hide it only if it has fewer than 2
+  if (!stories || stories.length < 2) return null;
 
-  // Take exactly 3 stories per category section
+  // Take up to 3 stories per category section
   const sectionStories = stories.slice(0, 3);
   const isCream = theme === 'cream';
+  const displayCount = totalCount && totalCount > 0 ? totalCount : sectionStories.length;
 
   return (
     <section 
@@ -167,7 +170,7 @@ export const CategorySectionBand: React.FC<CategorySectionBandProps> = ({
             
             <div className="flex items-center gap-4 pb-2">
               <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest opacity-60">
-                [{stories.length} DISPATCHES]
+                [{displayCount} DISPATCHES]
               </span>
               <Link
                 href={`/feed/${id}`}
@@ -182,8 +185,8 @@ export const CategorySectionBand: React.FC<CategorySectionBandProps> = ({
           </div>
         </div>
 
-        {/* 3 Story Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10">
+        {/* 2 or 3 Story Columns */}
+        <div className={`grid grid-cols-1 ${sectionStories.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-8 sm:gap-10`}>
           {sectionStories.map((story) => (
             <CategoryStoryBlock
               key={story.id || story.link}

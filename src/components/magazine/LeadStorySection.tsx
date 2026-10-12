@@ -55,7 +55,7 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
         <div className="lead-story-grid w-full">
           
           {/* Left Column (7/12 at >= 900px): small mono source + category, big headline, 2-line summary, Read story */}
-          <div className="lead-col-left flex flex-col justify-center">
+          <div className="lead-col-left flex flex-col justify-start">
             
             {/* Metadata (Clean Source + Category) */}
             <div className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-[#FFFDD0]/60 flex items-center gap-2">
@@ -74,10 +74,15 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
               )}
             </div>
 
-            {/* Big Headline */}
+            {/* Dominant Big Headline: font-size clamp(40px, 5.2vw, 76px), line-height 0.95, tight tracking (-0.03em), exactly one italic-serif word */}
             <h2 
               onClick={() => onSelectStory(story)}
-              className="cursor-pointer font-sans font-black text-3xl sm:text-4xl min-[900px]:text-5xl text-[#FFFDD0] tracking-tighter leading-[0.95] mt-4 mb-3 group"
+              style={{
+                fontSize: 'clamp(40px, 5.2vw, 76px)',
+                lineHeight: 0.95,
+                letterSpacing: '-0.03em',
+              }}
+              className="cursor-pointer font-sans font-black text-[#FFFDD0] mt-3 mb-3 group"
             >
               <LeadHeadline 
                 title={story.title} 
@@ -169,7 +174,12 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
 
           <h2 
             onClick={() => onSelectStory(story)}
-            className="cursor-pointer font-sans font-black text-3xl sm:text-4xl min-[900px]:text-5xl text-[#FFFDD0] tracking-tighter leading-[0.95] mt-4 mb-3 group"
+            style={{
+              fontSize: 'clamp(40px, 5.2vw, 76px)',
+              lineHeight: 0.95,
+              letterSpacing: '-0.03em',
+            }}
+            className="cursor-pointer font-sans font-black text-[#FFFDD0] mt-3 mb-3 group"
           >
             <LeadHeadline 
               title={story.title} 

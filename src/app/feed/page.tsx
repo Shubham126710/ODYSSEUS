@@ -109,7 +109,7 @@ export default function FeedPage() {
       }
     }
 
-    // 3. Bands: exactly 3 stories if available, otherwise 0 (hide band)
+    // 3. Bands: allow 2 stories if only 2 available, otherwise up to 3; hide if < 2
     const pickBand = (categoryName: string) => {
       const candidates: any[] = [];
       for (const s of stories) {
@@ -118,7 +118,7 @@ export default function FeedPage() {
           candidates.push(s);
         }
       }
-      if (candidates.length < 3) {
+      if (candidates.length < 2) {
         return [];
       }
       const selected = candidates.slice(0, 3);
@@ -141,6 +141,31 @@ export default function FeedPage() {
       bands: { tech, design, culture, science, sports },
     };
   }, [stories]);
+
+  // Compute real total number of stories in each category from the feed
+  const totalCategoryCounts = useMemo(() => {
+    if (!stories || stories.length === 0) return {};
+    return {
+      tech: stories.filter(s => matchesCategory(s, 'tech')).length,
+      design: stories.filter(s => matchesCategory(s, 'design')).length,
+      culture: stories.filter(s => matchesCategory(s, 'culture')).length,
+      science: stories.filter(s => matchesCategory(s, 'science')).length,
+      sports: stories.filter(s => matchesCategory(s, 'sports')).length,
+    };
+  }, [stories]);
+
+  // Dynamically list ONLY the sections that actually rendered
+  const renderedSections = useMemo(() => {
+    const list = [
+      { id: 'for-you', label: 'FOR YOU', route: '/feed' },
+    ];
+    if (bands.tech.length >= 2) list.push({ id: 'tech', label: 'TECH', route: '/feed/tech' });
+    if (bands.design.length >= 2) list.push({ id: 'design', label: 'DESIGN', route: '/feed/design' });
+    if (bands.culture.length >= 2) list.push({ id: 'culture', label: 'CULTURE', route: '/feed/culture' });
+    if (bands.science.length >= 2) list.push({ id: 'science', label: 'SCIENCE', route: '/feed/science' });
+    if (bands.sports.length >= 2) list.push({ id: 'sports', label: 'SPORTS', route: '/feed/sports' });
+    return list;
+  }, [bands]);
 
   const handleToggleSave = async (story: any) => {
     if (!profile) return;
@@ -165,7 +190,7 @@ export default function FeedPage() {
     <div className="min-h-screen bg-[#5D8246] text-[#FFFDD0] font-sans selection:bg-[#FF6B4A] selection:text-[#FFFDD0] relative overflow-x-hidden">
       
       {/* Fixed Header (top-0, z-50, olive background, full width) */}
-      <AppHeader />
+      <AppHeader sections={renderedSections} />
 
       {/* Main content with matching top padding (64px) so content isn't hidden under fixed header */}
       <main style={{ paddingTop: '64px' }} className="w-full relative z-10">
@@ -186,9 +211,13 @@ export default function FeedPage() {
             })}
           />
 
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10 sm:space-y-14">
+          {/* Top Spacing: 24px between ticker and greeting, 64px bottom padding before cream Tech band */}
+          <div 
+            style={{ paddingTop: '24px', paddingBottom: '64px' }}
+            className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8"
+          >
             
-            {/* Greeting Row */}
+            {/* Greeting Row: 24px below ticker, rule at bottom */}
             <div className="border-b border-[#FFFDD0]/15 pb-4 flex flex-wrap items-baseline justify-between gap-3">
               <p className="font-serif text-sm sm:text-base text-[#FFFDD0]/80">
                 Welcome back, <span className="italic text-[#FFFDD0]">{profile?.first_name || 'Traveler'}</span>.
@@ -198,20 +227,22 @@ export default function FeedPage() {
               </span>
             </div>
 
-            {/* Lead Story: 7/12 & 5/12 at >= 900px, fixed 4:3 box, max-height 320px */}
+            {/* Lead Story: 24px between greeting rule and lead story */}
             {leadStory && (
-              <LeadStorySection
-                story={leadStory}
-                onSelectStory={setReadingArticle}
-                onToggleSave={handleToggleSave}
-                isSaved={isSaved}
-              />
+              <div style={{ marginTop: '24px' }}>
+                <LeadStorySection
+                  story={leadStory}
+                  onSelectStory={setReadingArticle}
+                  onToggleSave={handleToggleSave}
+                  isSaved={isSaved}
+                />
+              </div>
             )}
 
-            {/* "Latest" list: max 5 rows, TEXT ONLY (no thumbnails), hairline separators */}
+            {/* "Latest" list: 48px above it, 16px below label, hairline between rows */}
             {latestStories.length > 0 && (
-              <div aria-label="Latest Stories" className="pt-2">
-                <div className="border-b border-[#FFFDD0]/15 pb-2 mb-1 flex items-center justify-between">
+              <div aria-label="Latest Stories" style={{ marginTop: '48px' }}>
+                <div style={{ marginBottom: '16px' }} className="border-b border-[#FFFDD0]/15 pb-2 flex items-center justify-between">
                   <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-[#FFFDD0]/60 font-bold">
                     LATEST DISPATCHES
                   </span>
@@ -231,11 +262,12 @@ export default function FeedPage() {
         </section>
 
         {/* === SECTION 2: #tech BAND (Cream Background, Olive Text) === */}
-        {bands.tech.length >= 3 && (
+        {bands.tech.length >= 2 && (
           <CategorySectionBand
             id="tech"
             title="TECH"
             stories={bands.tech}
+            totalCount={totalCategoryCounts['tech']}
             theme="cream"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
@@ -244,11 +276,12 @@ export default function FeedPage() {
         )}
 
         {/* === SECTION 3: #design BAND (Olive Background, Cream Text) === */}
-        {bands.design.length >= 3 && (
+        {bands.design.length >= 2 && (
           <CategorySectionBand
             id="design"
             title="DESIGN"
             stories={bands.design}
+            totalCount={totalCategoryCounts['design']}
             theme="olive"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
@@ -257,11 +290,12 @@ export default function FeedPage() {
         )}
 
         {/* === SECTION 4: #culture BAND (Cream Background, Olive Text) === */}
-        {bands.culture.length >= 3 && (
+        {bands.culture.length >= 2 && (
           <CategorySectionBand
             id="culture"
             title="CULTURE"
             stories={bands.culture}
+            totalCount={totalCategoryCounts['culture']}
             theme="cream"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
@@ -270,11 +304,12 @@ export default function FeedPage() {
         )}
 
         {/* === SECTION 5: #science BAND (Olive Background, Cream Text) === */}
-        {bands.science.length >= 3 && (
+        {bands.science.length >= 2 && (
           <CategorySectionBand
             id="science"
             title="SCIENCE"
             stories={bands.science}
+            totalCount={totalCategoryCounts['science']}
             theme="olive"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
@@ -283,11 +318,12 @@ export default function FeedPage() {
         )}
 
         {/* === SECTION 6: #sports BAND (Cream Background, Olive Text) === */}
-        {bands.sports.length >= 3 && (
+        {bands.sports.length >= 2 && (
           <CategorySectionBand
             id="sports"
             title="SPORTS"
             stories={bands.sports}
+            totalCount={totalCategoryCounts['sports']}
             theme="cream"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}

@@ -30,7 +30,10 @@ export const StoryListRow: React.FC<StoryListRowProps> = ({
   const borderColor = isCream ? 'border-[#5D8246]/15' : 'border-[#FFFDD0]/15';
 
   return (
-    <article className={`border-b ${borderColor} py-3.5 sm:py-4 flex items-center justify-between gap-4 sm:gap-6 group transition-colors`}>
+    <article 
+      style={{ paddingTop: '15px', paddingBottom: '15px' }}
+      className={`border-b ${borderColor} flex items-center justify-between gap-4 sm:gap-6 group transition-colors`}
+    >
       <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
         {/* Tiny mono source */}
         <span className={`font-mono text-[10px] sm:text-[11px] uppercase tracking-wider font-bold shrink-0 w-24 sm:w-28 truncate ${metaColor}`}>
