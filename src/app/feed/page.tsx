@@ -208,11 +208,11 @@ export default function FeedPage() {
       {/* Fixed Header (top-0, z-50, olive background, full width) */}
       <AppHeader sections={renderedSections} />
 
-      {/* Main content with matching top padding (64px desktop, 100px mobile for 2-row header) */}
-      <main className="w-full relative z-10 pt-[100px] md:pt-[64px]">
+      {/* Main content with matching top padding (72px desktop, 100px mobile for 2-row header) */}
+      <main className="w-full relative z-10 hub-main">
         
         {/* === SECTION 1: #for-you BAND (Olive Background, Cream Text) === */}
-        <section id="for-you" className="scroll-mt-[100px] md:scroll-mt-[64px] w-full bg-[#5D8246] text-[#FFFDD0]">
+        <section id="for-you" className="w-full bg-[#5D8246] text-[#FFFDD0] hub-for-you flex flex-col justify-between">
           
           {/* Slim Orange Ticker (Directly below header) */}
           <TrendingTicker

@@ -73,12 +73,12 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
               )}
             </div>
 
-            {/* Dominant Big Headline: font-size clamp(34px, 4.2vw, 60px), line-height 1.0, tracking -0.03em, line-clamp 3 max */}
+            {/* Dominant Big Headline: font-size clamp(40px, 5.2vw, 76px), line-height 0.95, tracking -0.03em */}
             <h2 
               onClick={() => onSelectStory(story)}
               style={{
-                fontSize: 'clamp(34px, 4.2vw, 60px)',
-                lineHeight: 1.0,
+                fontSize: 'clamp(40px, 5.2vw, 76px)',
+                lineHeight: 0.95,
                 letterSpacing: '-0.03em',
               }}
               className="cursor-pointer font-sans font-black text-[#FFFDD0] mt-3 mb-4 group line-clamp-3"
@@ -88,6 +88,13 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
                 className="group-hover:underline underline-offset-8 decoration-[#FFFDD0]/40 transition-all"
               />
             </h2>
+
+            {/* 2-line summary */}
+            {(story.excerpt || story.contentSnippet || story.description) && (
+              <p className="text-xs sm:text-sm text-[#FFFDD0]/70 line-clamp-2 mb-4 leading-relaxed font-sans max-w-xl">
+                {sanitizeText(story.excerpt || story.contentSnippet || story.description)}
+              </p>
+            )}
 
             {/* Mobile / <900px Image: Placed below headline, capped at max 220px tall */}
             <div 
@@ -169,8 +176,8 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
           <h2 
             onClick={() => onSelectStory(story)}
             style={{
-              fontSize: 'clamp(34px, 4.2vw, 60px)',
-              lineHeight: 1.0,
+              fontSize: 'clamp(40px, 5.2vw, 76px)',
+              lineHeight: 0.95,
               letterSpacing: '-0.03em',
             }}
             className="cursor-pointer font-sans font-black text-[#FFFDD0] mt-3 mb-4 group line-clamp-3"
@@ -180,6 +187,13 @@ export const LeadStorySection: React.FC<LeadStorySectionProps> = ({
               className="group-hover:underline underline-offset-8 decoration-[#FFFDD0]/40 transition-all"
             />
           </h2>
+
+          {/* 2-line summary */}
+          {(story.excerpt || story.contentSnippet || story.description) && (
+            <p className="text-xs sm:text-sm text-[#FFFDD0]/70 line-clamp-2 mb-4 leading-relaxed font-sans max-w-xl">
+              {sanitizeText(story.excerpt || story.contentSnippet || story.description)}
+            </p>
+          )}
 
           <div className="flex items-center gap-6 mt-2">
             <button

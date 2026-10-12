@@ -36,7 +36,10 @@ export const TrendingTicker: React.FC<TrendingTickerProps> = ({
       {/* Scrolling Marquee Container */}
       <div className="flex-1 overflow-hidden relative h-full flex items-center">
         {/* Marquee Track (Smooth, pauses on hover) */}
-        <div className="flex items-center gap-8 pl-4 animate-marquee hover:[animation-play-state:paused] whitespace-nowrap cursor-pointer">
+        <div 
+          style={{ animationDuration: '38s' }}
+          className="flex items-center gap-8 pl-4 animate-marquee hover:[animation-play-state:paused] whitespace-nowrap cursor-pointer"
+        >
           {displayItems.map((item, idx) => {
             const num = (idx % headlines.length) + 1;
             const source = item.source ? item.source.split('>')[0].trim() : 'Wire';

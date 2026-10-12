@@ -3100,7 +3100,7 @@ body {
   }
 }
 .animate-marquee {
-  animation: marquee 28s linear infinite;
+  animation: marquee 38s linear infinite;
 }
 .animate-marquee:hover {
   animation-play-state: paused;
@@ -3578,3 +3578,23 @@ body {
   }
 }
 
+/* Odysseus Hub Layout Anchors */
+.hub-main {
+  padding-top: 100px !important;
+}
+@media (min-width: 768px) {
+  .hub-main {
+    padding-top: 72px !important;
+  }
+}
+
+.hub-for-you {
+  scroll-margin-top: 100px !important;
+  min-height: calc(100vh - 100px) !important;
+}
+@media (min-width: 768px) {
+  .hub-for-you {
+    scroll-margin-top: 72px !important;
+    min-height: calc(100vh - 72px) !important;
+  }
+}

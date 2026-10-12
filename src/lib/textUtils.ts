@@ -160,6 +160,7 @@ export function capitalizeFirstLetter(text?: string | null): string {
 export function isSmallThumbnailUrl(url?: string | null): boolean {
   if (!url) return true;
   const lower = url.toLowerCase();
+  if (lower.includes('/tmb/') || lower.includes('/thumb/') || lower.includes('/thumbs/')) return true;
   if (lower.includes('width=140') || lower.includes('width=150') || lower.includes('width=200')) return true;
   if (lower.includes('140x') || lower.includes('150x150') || lower.includes('100x100')) return true;
   return false;

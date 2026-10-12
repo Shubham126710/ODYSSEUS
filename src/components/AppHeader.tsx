@@ -133,7 +133,10 @@ export const AppHeader = ({
         className="fixed top-0 left-0 right-0 w-full z-50 text-[#FFFDD0] shadow-sm transition-colors duration-300"
       >
         {/* Row 1: Brand Logo, Desktop Nav (md:flex), Right Utilities */}
-        <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 h-14 md:h-16 flex items-center justify-between gap-4">
+        <div 
+          style={{ minHeight: '72px' }}
+          className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 min-h-14 md:min-h-[72px] h-14 md:h-[72px] flex items-center justify-between gap-4"
+        >
           
           {/* Brand Logo */}
           <Link href="/feed" className="flex items-center gap-2.5 group shrink-0">
@@ -154,11 +157,11 @@ export const AppHeader = ({
             {/* Search Button */}
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+              className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-white/15 hover:border-white/30 text-white/70 hover:text-white flex items-center justify-center transition-colors"
               title="Search Articles (⌘K)"
               aria-label="Search"
             >
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </button>
@@ -166,7 +169,7 @@ export const AppHeader = ({
             {/* Custom Article Import Button */}
             <button
               onClick={() => setIsImportOpen(true)}
-              className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-white/90 hover:text-white border border-white/15 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-xs"
+              className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-white/90 hover:text-white border border-white/15 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-xs"
               title="Import Article (Pocket & Instapaper Clean Reader)"
               aria-label="Import Article"
             >
@@ -177,7 +180,7 @@ export const AppHeader = ({
             {/* Traveler's Field Guide */}
             <button
               onClick={() => setIsOnboardingOpen(true)}
-              className="w-8 h-8 rounded-full border border-white/15 hover:border-white/30 text-white/70 hover:text-white flex items-center justify-center transition-colors text-xs font-serif font-bold"
+              className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-white/15 hover:border-white/30 text-white/70 hover:text-white flex items-center justify-center transition-colors text-xs font-serif font-bold"
               title="Traveler's Field Guide"
               aria-label="Guide"
             >

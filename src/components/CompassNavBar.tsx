@@ -120,7 +120,7 @@ export const CompassNavBar: React.FC<CompassNavBarProps> = ({
     const updateScrollMarker = () => {
       if (sections.length === 0 || cellCenters.length === 0) return;
 
-      const headerHeight = isMobile ? 100 : 64;
+      const headerHeight = isMobile ? 100 : 72;
       const scrollY = window.scrollY;
       const y = scrollY + headerHeight + 40;
 
@@ -195,7 +195,7 @@ export const CompassNavBar: React.FC<CompassNavBarProps> = ({
     if (isFeedHome) {
       const el = document.getElementById(section.id);
       if (el) {
-        const headerHeight = isMobile ? 100 : 64;
+        const headerHeight = isMobile ? 100 : 72;
         const top = el.getBoundingClientRect().top + window.scrollY - headerHeight;
         window.scrollTo({
           top: Math.max(0, top),

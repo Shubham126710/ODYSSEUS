@@ -1,26 +1,126 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DOMPurify from 'isomorphic-dompurify';
-import { decodeHtmlEntities } from '@/lib/textUtils';
+import { decodeHtmlEntities, sanitizeText } from '@/lib/textUtils';
 import { useProfile } from '@/hooks/useProfile';
 import { getCurrentMultiplier, recordReadingProgress } from '@/lib/gamification';
 import { sanitizeArticleProse } from '@/lib/cleanArticleExtraction';
 
-const calculateReadTime = (text: string) => {
-  const words = text.trim().split(/\s+/).length;
-  return `${Math.ceil(words / 130)} min`;
+export type ReaderTheme = 'paper' | 'olive' | 'dark';
+
+interface ThemeConfig {
+  name: ReaderTheme;
+  bg: string;
+  text: string;
+  headerBg: string;
+  border: string;
+  subtle: string;
+  buttonBg: string;
+  buttonHoverBg: string;
+  link: string;
+  dotBg: string;
+  dotBorder: string;
+}
+
+const THEMES: Record<ReaderTheme, ThemeConfig> = {
+  paper: {
+    name: 'paper',
+    bg: '#FFFDD0',
+    text: '#5D8246',
+    headerBg: '#FFFDD0',
+    border: 'rgba(93, 130, 70, 0.2)',
+    subtle: 'rgba(93, 130, 70, 0.6)',
+    buttonBg: 'rgba(93, 130, 70, 0.08)',
+    buttonHoverBg: 'rgba(93, 130, 70, 0.15)',
+    link: '#5D8246',
+    dotBg: '#FFFDD0',
+    dotBorder: 'rgba(93, 130, 70, 0.4)',
+  },
+  olive: {
+    name: 'olive',
+    bg: '#5D8246',
+    text: '#FFFDD0',
+    headerBg: '#5D8246',
+    border: 'rgba(255, 253, 208, 0.2)',
+    subtle: 'rgba(255, 253, 208, 0.65)',
+    buttonBg: 'rgba(255, 253, 208, 0.12)',
+    buttonHoverBg: 'rgba(255, 253, 208, 0.2)',
+    link: '#FFFDD0',
+    dotBg: '#5D8246',
+    dotBorder: 'rgba(255, 253, 208, 0.4)',
+  },
+  dark: {
+    name: 'dark',
+    bg: '#111317',
+    text: '#E5E7EB',
+    headerBg: '#111317',
+    border: 'rgba(255, 255, 255, 0.12)',
+    subtle: 'rgba(255, 255, 255, 0.55)',
+    buttonBg: 'rgba(255, 255, 255, 0.08)',
+    buttonHoverBg: 'rgba(255, 255, 255, 0.16)',
+    link: '#E5E7EB',
+    dotBg: '#111317',
+    dotBorder: 'rgba(255, 255, 255, 0.3)',
+  },
 };
 
-/** Lightweight markdown → HTML for client-side parsing. */
+const calculateReadTime = (text: string) => {
+  const words = text.trim().split(/\s+/).length;
+  return `${Math.ceil(words / 130)} MIN READ`;
+};
+
+/** Normalize image URL to compare hero and body images regardless of query params or protocols */
+function normalizeImageUrl(url?: string | null): string {
+  if (!url) return '';
+  try {
+    const u = new URL(url, 'https://example.com');
+    return (u.hostname + u.pathname)
+      .toLowerCase()
+      .replace(/[-_](\d+x\d+)/, '')
+      .replace(/\.(jpe?g|png|webp|avif)/, '');
+  } catch {
+    return String(url).split('?')[0].split('#')[0].toLowerCase();
+  }
+}
+
+/** Deduplicate hero image: strip the first body image if it matches the hero image */
+function deduplicateHeroImage(html: string, heroUrl?: string | null): string {
+  if (!html || !heroUrl) return html;
+  const normHero = normalizeImageUrl(heroUrl);
+  if (!normHero || normHero.length < 5) return html;
+
+  // Check first figure
+  const firstFigureMatch = html.match(/<figure[^>]*>[\s\S]*?<img[^>]+src=["']([^"']+)["'][^>]*>[\s\S]*?<\/figure>/i);
+  if (firstFigureMatch) {
+    const src = firstFigureMatch[1];
+    const normSrc = normalizeImageUrl(src);
+    if (normSrc === normHero || normSrc.includes(normHero) || normHero.includes(normSrc)) {
+      return html.replace(firstFigureMatch[0], '');
+    }
+  }
+
+  // Check first standalone img
+  const firstImgMatch = html.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/i);
+  if (firstImgMatch) {
+    const src = firstImgMatch[1];
+    const normSrc = normalizeImageUrl(src);
+    if (normSrc === normHero || normSrc.includes(normHero) || normHero.includes(normSrc)) {
+      return html.replace(firstImgMatch[0], '');
+    }
+  }
+
+  return html;
+}
+
+/** Lightweight markdown to HTML parser for Jina AI fallback */
 function markdownToHtml(md: string): string {
-  // Strip common scraper artifacts from Jina / TechCrunch / Cloudflare
-  let cleanMd = md
+  const cleanMd = md
     .replace(/^Title:\s*.*$/gim, '')
     .replace(/^URL Source:\s*.*$/gim, '')
     .replace(/^Markdown Content:\s*.*$/gim, '')
-    .replace(/^\d{1,2}:\d{2}:\d{2}(?::\d{2})?$/gm, '') // countdown timers like 02:02:21:40
+    .replace(/^\d{1,2}:\d{2}:\d{2}(?::\d{2})?$/gm, '')
     .replace(/^.*?(Disrupt doors open|exhibit your breakthrough|Book Exhibit Table|REGISTER NOW|at Disrupt is on).*?$/gim, '')
     .replace(/^(Close|Dismiss|Skip to content|Accept all cookies)$/gim, '')
     .replace(/Image \d+<\/a>[^<\n]*/gi, '');
@@ -32,26 +132,18 @@ function markdownToHtml(md: string): string {
     .replace(/^###\s(.+)$/gm, '<h3>$1</h3>')
     .replace(/^##\s(.+)$/gm, '<h2>$1</h2>')
     .replace(/^#\s(.+)$/gm, '<h1>$1</h1>')
-    .replace(/^(.+)\n={3,}$/gm, '<h1>$1</h1>')
-    .replace(/^(.+)\n-{3,}$/gm, '<h2>$1</h2>')
     .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/`(.+?)`/g, '<code>$1</code>')
-    // Strip decorative logo/header markdown images
-    .replace(/!\[.*?(logo|icon|avatar|badge).*?\]\(.*?\)/gi, '')
-    // Markdown images MUST precede links:
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
     .replace(/^>\s(.+)$/gm, '<blockquote>$1</blockquote>')
     .replace(/^---+$/gm, '<hr>')
     .split(/\n{2,}/)
-    .map(block => {
+    .map((block) => {
       block = block.trim();
       if (!block) return '';
-      if (/^\d{1,2}:\d{2}:\d{2}/.test(block)) return '';
-      if (/Disrupt|REGISTER NOW|Exhibit Table/i.test(block) && block.length < 250) return '';
-      if (/^(Close|Dismiss|Desktop Logo|Mobile Logo)$/i.test(block)) return '';
       if (/^<(h[1-6]|ul|ol|li|blockquote|hr|img|figure|div)/.test(block)) return block;
       return `<p>${block.replace(/\n/g, '<br>')}</p>`;
     })
@@ -66,28 +158,78 @@ interface ReadingModalProps {
   onSave?: (article: any) => void;
 }
 
-export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalProps) => {
+export const ReadingModal: React.FC<ReadingModalProps> = ({
+  isOpen,
+  onClose,
+  article,
+  onSave,
+}) => {
   const [fullContent, setFullContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [previewOnly, setPreviewOnly] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [useProxy, setUseProxy] = useState(false);
-  
-  // Settings & layout
-  const [theme, setTheme] = useState<'dark' | 'sepia' | 'light'>('dark');
-  const [fontSize, setFontSize] = useState<number>(18);
+
+  // Persistent theme: "paper" default, "olive" second, "dark" opt-in
+  const [theme, setTheme] = useState<ReaderTheme>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('odysseus_reader_theme');
+        if (saved === 'paper' || saved === 'olive' || saved === 'dark') {
+          return saved;
+        }
+      } catch {}
+    }
+    return 'paper';
+  });
+
+  const handleThemeChange = (newTheme: ReaderTheme) => {
+    setTheme(newTheme);
+    try {
+      localStorage.setItem('odysseus_reader_theme', newTheme);
+    } catch {}
+  };
+
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [readSeconds, setReadSeconds] = useState(0);
   const [sessionCredited, setSessionCredited] = useState(false);
+  const [isArticleSaved, setIsArticleSaved] = useState(false);
+
   const hasCreditedRef = useRef(false);
-  const { profile } = useProfile();
-  const multiplier = getCurrentMultiplier();
-  
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
+  const { profile } = useProfile();
+  const currentTheme = THEMES[theme] || THEMES.paper;
+
+  // Escape key listener to close reader
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        stopSpeaking();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
+
+  // Read seconds ticker
   useEffect(() => {
     if (!isOpen) {
       setReadSeconds(0);
@@ -105,19 +247,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     return () => clearInterval(interval);
   }, [isOpen]);
 
-  // Lock body scroll when reader is open to completely prevent background jitter
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-    if (isOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    }
-  }, [isOpen]);
-
-  // Credit reading progress when reaching 85% or on significant read duration
+  // Credit gamification progress
   useEffect(() => {
     if (isOpen && scrollProgress >= 85 && !hasCreditedRef.current && readSeconds >= 12) {
       hasCreditedRef.current = true;
@@ -131,7 +261,8 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     }
   }, [isOpen, scrollProgress, readSeconds, profile?.id, article]);
 
-  const fetchContent = async () => {
+  // Fetch full article content
+  const fetchContent = useCallback(async () => {
     if (!article?.link) return;
 
     setFullContent(null);
@@ -139,10 +270,10 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     setIsLoading(true);
 
     try {
-      // 1. Odysseus Server Reader API (fast direct fetch, Readability, anti-bot bypass)
+      // 1. Odysseus Server Reader API
       const res = await fetch(`/api/read-mode?url=${encodeURIComponent(article.link)}&t=${Date.now()}`, {
         cache: 'no-store',
-        headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' },
+        headers: { Pragma: 'no-cache', 'Cache-Control': 'no-cache' },
       });
       if (res.ok) {
         const data = await res.json();
@@ -153,12 +284,14 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
           return;
         }
       }
-    } catch { /* fall through to client fallback */ }
+    } catch {
+      // Fall through to client fallback
+    }
 
     try {
-      // 2. Client-side fallback via Jina AI Reader
+      // 2. Client-side fallback via Jina AI
       const jinaRes = await fetch(`https://r.jina.ai/${encodeURIComponent(article.link)}`, {
-        headers: { 'Accept': 'application/json' }
+        headers: { Accept: 'application/json' },
       });
       if (jinaRes.ok) {
         const jinaData = await jinaRes.json();
@@ -169,9 +302,11 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
           return;
         }
       }
-    } catch { /* fall through */ }
+    } catch {
+      // Fall through
+    }
 
-    // 3. Fallback to RSS content preview (with cleaned prose)
+    // 3. Fallback to RSS snippet preview
     const rssContent = article['content:encoded'] || article.contentEncoded || article.content;
     if (rssContent && rssContent.replace(/<[^>]*>/g, '').trim().length > 150) {
       setFullContent(sanitizeArticleProse(rssContent));
@@ -181,13 +316,13 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     }
 
     setIsLoading(false);
-  };
+  }, [article]);
 
   useEffect(() => {
     if (isOpen && article) {
       setImageError(false);
       setUseProxy(false);
-      // Only skip fetch if article is an imported article with pre-purified content
+      setIsArticleSaved(false);
       if (article.isImported && article.content) {
         setFullContent(sanitizeArticleProse(article.content));
         setIsLoading(false);
@@ -199,8 +334,7 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     } else {
       stopSpeaking();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, article?.link]);
+  }, [isOpen, article, fetchContent]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
@@ -211,14 +345,18 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
 
   const toggleSpeak = () => {
     if (!('speechSynthesis' in window)) return;
-    
+
     if (isPlaying) {
       window.speechSynthesis.cancel();
       setIsPlaying(false);
     } else {
-      const textToRead = contentRef.current?.innerText || fullContent?.replace(/<[^>]*>/g, '') || article?.description || article?.title;
+      const textToRead =
+        contentRef.current?.innerText ||
+        fullContent?.replace(/<[^>]*>/g, '') ||
+        article?.description ||
+        article?.title;
       if (!textToRead) return;
-      
+
       const utterance = new SpeechSynthesisUtterance(textToRead);
       utterance.rate = 0.95;
       utterance.onend = () => setIsPlaying(false);
@@ -235,13 +373,28 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     setIsPlaying(false);
   };
 
-  // Memoize body content and sanitized HTML to prevent expensive re-sanitization on every scroll tick
+  const handleSaveToggle = () => {
+    setIsArticleSaved(!isArticleSaved);
+    if (onSave) {
+      onSave(article);
+    }
+  };
+
+  const heroImageUrl = article?.imageUrl || article?.enclosure?.url;
+  const activeHeroSrc = useProxy && heroImageUrl
+    ? `/api/image-proxy?url=${encodeURIComponent(heroImageUrl)}`
+    : heroImageUrl;
+
+  const hasHeroImage = !imageError && !!activeHeroSrc;
+
+  // Memoize body content and deduplicate hero image
   const bodyContent = useMemo(() => {
     if (!article) return '';
-    return fullContent || article.content || article.description || article.excerpt || '';
-  }, [fullContent, article]);
+    const raw = fullContent || article.content || article.description || article.excerpt || '';
+    return deduplicateHeroImage(raw, heroImageUrl);
+  }, [fullContent, article, heroImageUrl]);
 
-  const sanitized = useMemo(() => {
+  const sanitizedBody = useMemo(() => {
     if (!bodyContent) return '';
     return DOMPurify.sanitize(bodyContent, {
       USE_PROFILES: { html: true },
@@ -249,253 +402,489 @@ export const ReadingModal = ({ isOpen, onClose, article, onSave }: ReadingModalP
     });
   }, [bodyContent]);
 
-  const readTime = useMemo(() => {
+  const readTimeLabel = useMemo(() => {
     if (!article) return '';
-    return fullContent ? calculateReadTime(bodyContent) : (article.readTime || '3 min');
+    return fullContent ? calculateReadTime(bodyContent) : (article.readTime || '3 MIN READ').toUpperCase();
   }, [fullContent, bodyContent, article]);
 
   if (!article) return null;
-
-  // Ultra-refined themes
-  const themeStyles = {
-    dark: { bg: '#111317', text: '#E5E7EB', header: '#1A1D23', accent: '#EA580C', border: 'rgba(255,255,255,0.08)' },
-    sepia: { bg: '#F5EFE6', text: '#3C2F2F', header: '#EBE2D5', accent: '#C25E00', border: 'rgba(60,47,47,0.12)' },
-    light: { bg: '#FAF9F6', text: '#141518', header: '#FFFFFF', accent: '#EA580C', border: '#E5E2DA' },
-  };
-  const currentTheme = themeStyles[theme];
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Backdrop (clicking outside closes the reader) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => { stopSpeaking(); onClose(); }}
+            onClick={() => {
+              stopSpeaking();
+              onClose();
+            }}
             style={{ zIndex: 9998 }}
-            className="fixed inset-0 bg-black/65 backdrop-blur-md z-modal-backdrop"
+            className="fixed inset-0 bg-black/65 backdrop-blur-sm"
           />
 
+          {/* Modal Container */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
+            exit={{ opacity: 0, y: 30 }}
             transition={{ type: 'spring', damping: 28, stiffness: 240 }}
-            data-lenis-prevent="true"
-            data-lenis-prevent
-            style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, zIndex: 9999 }}
-            className="fixed inset-0 top-2 md:top-6 md:inset-x-8 md:bottom-3 rounded-t-3xl md:rounded-3xl shadow-2xl z-modal overflow-hidden flex flex-col transition-colors duration-300"
+            style={{
+              backgroundColor: currentTheme.bg,
+              color: currentTheme.text,
+              zIndex: 9999,
+            }}
+            className="fixed inset-0 md:top-4 md:bottom-4 md:inset-x-8 lg:inset-x-16 xl:inset-x-32 rounded-none md:rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-colors duration-200"
           >
-            {/* Top Linear Reading Progress Meter (Clean indicator at the top of the article) */}
-            <div className="w-full h-1 z-50 bg-black/10 shrink-0 relative overflow-hidden">
-              <div 
-                className="h-full transition-[width] duration-100 ease-out" 
-                style={{ width: `${scrollProgress}%`, backgroundColor: currentTheme.accent }}
+            {/* 2px Orange Reading Progress Line Fixed to the Very Top */}
+            <div className="w-full h-[2px] bg-transparent absolute top-0 left-0 right-0 z-50 pointer-events-none">
+              <div
+                style={{
+                  width: `${scrollProgress}%`,
+                  height: '2px',
+                  backgroundColor: '#FF6B4A',
+                  transition: 'width 100ms ease-out',
+                }}
               />
             </div>
 
-            {/* Header / Toolbar */}
-            <div 
-              className="flex items-center justify-between px-4 py-3 md:px-6 md:py-3.5 z-10 shrink-0 transition-colors duration-300"
-              style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${currentTheme.border}` }}
+            {/* Sticky Editorial Header (56-60px tall) */}
+            <header
+              style={{
+                height: '58px',
+                minHeight: '58px',
+                backgroundColor: currentTheme.headerBg,
+                borderBottom: `1px solid ${currentTheme.border}`,
+              }}
+              className="sticky top-0 z-40 w-full px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0 select-none transition-colors duration-200"
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <button onClick={() => { stopSpeaking(); onClose(); }} className="p-2 rounded-full hover:bg-black/5 transition-colors shrink-0" title="Close reader">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
-                </button>
-                <span className="font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-60 truncate">
-                  {article.source}
-                </span>
-                {isLoading && (
-                  <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest animate-pulse font-mono" style={{ color: currentTheme.accent }}>
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: currentTheme.accent }} /> Purifying Prose
-                  </span>
-                )}
-                {sessionCredited ? (
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-                    ✓ Progress Saved
-                  </span>
-                ) : multiplier.isBonusActive ? (
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#EA580C]/20 text-[#EA580C]">
-                    <span>✦</span>
-                    <span>{multiplier.multiplier}x Active</span>
-                  </span>
-                ) : null}
-              </div>
+              {/* Left: Back button + "BACK" label (no duplicated source name) */}
+              <button
+                type="button"
+                onClick={() => {
+                  stopSpeaking();
+                  onClose();
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  fontSize: '11px',
+                  letterSpacing: '0.08em',
+                  lineHeight: 1,
+                  borderRadius: '999px',
+                  overflow: 'visible',
+                  border: `1px solid ${currentTheme.border}`,
+                  backgroundColor: currentTheme.buttonBg,
+                  color: currentTheme.text,
+                }}
+                className="font-mono uppercase font-bold cursor-pointer hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF6B4A]"
+                title="Back (Esc)"
+                aria-label="Back"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0">
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                <span>BACK</span>
+              </button>
 
-              {/* Reader Controls */}
-              <div className="flex items-center gap-1 md:gap-3 shrink-0 ml-2">
+              {/* Right: Grouped controls: LISTEN, Theme Dots, SAVE, ORIGINAL ↗ */}
+              <div className="flex items-center gap-[12px] shrink-0">
                 
-                {/* TTS Play/Pause */}
-                <button onClick={toggleSpeak} className="p-2 rounded-full hover:bg-black/5 transition-colors opacity-70 hover:opacity-100" title="Read Aloud">
+                {/* 1. LISTEN (icon + label) */}
+                <button
+                  type="button"
+                  onClick={toggleSpeak}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 16px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    fontSize: '11px',
+                    letterSpacing: '0.08em',
+                    lineHeight: 1,
+                    borderRadius: '999px',
+                    overflow: 'visible',
+                    border: `1px solid ${currentTheme.border}`,
+                    backgroundColor: currentTheme.buttonBg,
+                    color: currentTheme.text,
+                  }}
+                  className="font-mono uppercase font-bold cursor-pointer hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF6B4A]"
+                  title={isPlaying ? 'Pause audio' : 'Listen to article'}
+                  aria-label="Listen"
+                >
                   {isPlaying ? (
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" className="shrink-0">
+                      <rect x="6" y="4" width="4" height="16" />
+                      <rect x="14" y="4" width="4" height="16" />
+                    </svg>
                   ) : (
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" className="shrink-0">
+                      <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
                   )}
+                  <span className="hidden sm:inline">{isPlaying ? 'PLAYING' : 'LISTEN'}</span>
                 </button>
 
-                <div className="w-px h-5 mx-1" style={{ backgroundColor: currentTheme.border }} />
+                {/* 2. Three Theme Dots (18px each, 10px gap, no overlapping) */}
+                <div
+                  className="inline-flex items-center gap-[10px] shrink-0"
+                  role="group"
+                  aria-label="Theme selector"
+                >
+                  {/* Paper Theme Dot (Cream #FFFDD0) */}
+                  <button
+                    type="button"
+                    onClick={() => handleThemeChange('paper')}
+                    aria-label="Paper theme"
+                    title="Paper theme"
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      minWidth: '18px',
+                      minHeight: '18px',
+                      backgroundColor: THEMES.paper.dotBg,
+                      border: `1px solid ${THEMES.paper.dotBorder}`,
+                    }}
+                    className={`rounded-full cursor-pointer transition-all shrink-0 ${
+                      theme === 'paper'
+                        ? 'ring-2 ring-offset-2 ring-[#5D8246]'
+                        : 'opacity-70 hover:opacity-100 hover:scale-110'
+                    }`}
+                  />
 
-                {/* Font Size */}
-                <div className="flex items-center hidden sm:flex">
-                  <button onClick={() => setFontSize(Math.max(14, fontSize - 2))} className="p-2 rounded-full hover:bg-black/5 transition-colors font-serif font-bold text-sm opacity-70 hover:opacity-100">A-</button>
-                  <button onClick={() => setFontSize(Math.min(28, fontSize + 2))} className="p-2 rounded-full hover:bg-black/5 transition-colors font-serif font-bold text-lg opacity-70 hover:opacity-100">A+</button>
+                  {/* Olive Theme Dot (#5D8246) */}
+                  <button
+                    type="button"
+                    onClick={() => handleThemeChange('olive')}
+                    aria-label="Olive theme"
+                    title="Olive theme"
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      minWidth: '18px',
+                      minHeight: '18px',
+                      backgroundColor: THEMES.olive.dotBg,
+                      border: `1px solid ${THEMES.olive.dotBorder}`,
+                    }}
+                    className={`rounded-full cursor-pointer transition-all shrink-0 ${
+                      theme === 'olive'
+                        ? 'ring-2 ring-offset-2 ring-[#FF6B4A]'
+                        : 'opacity-70 hover:opacity-100 hover:scale-110'
+                    }`}
+                  />
+
+                  {/* Dark Theme Dot (#111317) */}
+                  <button
+                    type="button"
+                    onClick={() => handleThemeChange('dark')}
+                    aria-label="Dark theme"
+                    title="Dark theme"
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      minWidth: '18px',
+                      minHeight: '18px',
+                      backgroundColor: THEMES.dark.dotBg,
+                      border: `1px solid ${THEMES.dark.dotBorder}`,
+                    }}
+                    className={`rounded-full cursor-pointer transition-all shrink-0 ${
+                      theme === 'dark'
+                        ? 'ring-2 ring-offset-2 ring-[#FF6B4A]'
+                        : 'opacity-70 hover:opacity-100 hover:scale-110'
+                    }`}
+                  />
                 </div>
 
-                <div className="w-px h-5 mx-1 hidden sm:block" style={{ backgroundColor: currentTheme.border }} />
+                {/* 3. SAVE (icon + label) */}
+                <button
+                  type="button"
+                  onClick={handleSaveToggle}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 16px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    fontSize: '11px',
+                    letterSpacing: '0.08em',
+                    lineHeight: 1,
+                    borderRadius: '999px',
+                    overflow: 'visible',
+                    border: `1px solid ${currentTheme.border}`,
+                    backgroundColor: currentTheme.buttonBg,
+                    color: currentTheme.text,
+                  }}
+                  className="font-mono uppercase font-bold cursor-pointer hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF6B4A]"
+                  title="Save article"
+                  aria-label="Save"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    fill={isArticleSaved ? 'currentColor' : 'none'}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    className="shrink-0"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                    />
+                  </svg>
+                  <span className="hidden sm:inline">{isArticleSaved ? 'SAVED' : 'SAVE'}</span>
+                </button>
 
-                {/* Theme Toggle */}
-                <div className="flex items-center gap-1 bg-black/5 p-1 rounded-full">
-                  <button onClick={() => setTheme('light')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'light' ? 'scale-110 ring-2 ring-offset-1 ring-gray-400' : 'hover:scale-105'}`} style={{ backgroundColor: '#FAF9F6' }} title="Light mode" />
-                  <button onClick={() => setTheme('sepia')} className={`w-6 h-6 rounded-full border border-black/10 transition-transform ${theme === 'sepia' ? 'scale-110 ring-2 ring-offset-1 ring-[#C25E00]' : 'hover:scale-105'}`} style={{ backgroundColor: '#F5EFE6' }} title="Sepia mode" />
-                  <button onClick={() => setTheme('dark')} className={`w-6 h-6 rounded-full border border-white/10 transition-transform ${theme === 'dark' ? 'scale-110 ring-2 ring-offset-1 ring-gray-500' : 'hover:scale-105'}`} style={{ backgroundColor: '#111317' }} title="Dark mode" />
-                </div>
-
-                <div className="w-px h-5 mx-1" style={{ backgroundColor: currentTheme.border }} />
-
-                {/* Clean Linear Reading Percentage */}
-                <div className="hidden sm:flex items-center gap-1 font-mono text-xs font-bold opacity-75" title={`${Math.round(scrollProgress)}% read`}>
-                  <span>{Math.round(scrollProgress)}%</span>
-                  <span className="text-[9px] opacity-50 uppercase">read</span>
-                </div>
-
-                {onSave && (
-                  <button onClick={() => onSave(article)} className="p-2 rounded-full hover:bg-black/5 transition-colors opacity-70 hover:opacity-100" title="Save Article">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
-                  </button>
-                )}
-                <a href={article.link} target="_blank" rel="noopener noreferrer" className="ml-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors hover:opacity-85 font-mono shrink-0 whitespace-nowrap" style={{ backgroundColor: currentTheme.accent, color: '#fff' }}>
-                  Original ↗
+                {/* 4. ORIGINAL ↗ (Orange pill, cream text, 12px bold) */}
+                <a
+                  href={article.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    lineHeight: 1,
+                    borderRadius: '999px',
+                    overflow: 'visible',
+                    backgroundColor: '#FF6B4A',
+                    color: '#FFFDD0',
+                  }}
+                  className="font-mono uppercase cursor-pointer hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF6B4A]"
+                  title="Open original article"
+                >
+                  <span>ORIGINAL</span>
+                  <span className="text-[13px] leading-none">↗</span>
                 </a>
-              </div>
-            </div>
 
-            {/* Scrollable Article Body (Isolated native scroll) */}
-            <div 
-              ref={scrollContainerRef} 
-              onScroll={handleScroll} 
-              onWheel={(e) => e.stopPropagation()}
-              onTouchMove={(e) => e.stopPropagation()}
+              </div>
+            </header>
+
+            {/* Scrollable Article Body */}
+            <div
+              ref={scrollContainerRef}
+              onScroll={handleScroll}
               data-lenis-prevent="true"
-              data-lenis-prevent
               tabIndex={0}
               className="flex-1 overflow-y-auto overscroll-contain select-text outline-none focus:outline-none"
             >
-              <div className="max-w-2xl mx-auto px-5 py-8 md:px-0 md:py-14 pb-24" ref={contentRef}>
+              {/* Content Column: Max-width 680px, Centered, Generous Padding */}
+              <div
+                ref={contentRef}
+                className="max-w-[680px] w-full mx-auto px-5 sm:px-8 py-8 md:py-12"
+              >
+                {/* 1. Meta Line: SOURCE • date • readTime */}
+                <div
+                  style={{ marginTop: '32px', marginBottom: '16px' }}
+                  className="font-mono text-[11px] uppercase tracking-[0.1em] opacity-60 flex flex-wrap items-center gap-2"
+                >
+                  <span className="font-bold text-[#FF6B4A]">{decodeHtmlEntities(article.source || 'DISPATCH')}</span>
+                  <span>•</span>
+                  <span>{article.date || 'RECENT'}</span>
+                  {readTimeLabel && (
+                    <>
+                      <span>•</span>
+                      <span>{readTimeLabel}</span>
+                    </>
+                  )}
+                </div>
 
-                {/* Title & meta */}
-                <header className="mb-10 text-center">
-                  <div className="flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-widest mb-4 opacity-60">
-                    <span className="font-bold text-[#EA580C]">{decodeHtmlEntities(article.source)}</span>
-                    <span>•</span>
-                    <span>{article.date}</span>
-                    {readTime && (<><span>•</span><span>{readTime} read</span></>)}
-                  </div>
-                  <h1 className="font-serif font-bold leading-tight mb-4 tracking-tight" style={{ fontSize: `clamp(22px, 5.5vw, ${fontSize * 2.1}px)` }}>
-                    {decodeHtmlEntities(article.title)}
-                  </h1>
-                </header>
+                {/* 2. Headline: Authoritative editorial type */}
+                <h1
+                  style={{
+                    fontSize: 'clamp(32px, 4vw, 52px)',
+                    lineHeight: 1.05,
+                    letterSpacing: '-0.025em',
+                  }}
+                  className="font-sans font-black text-left mb-6"
+                >
+                  {decodeHtmlEntities(article.title)}
+                </h1>
 
-                {/* Hero image with resilient edge proxy retry */}
-                {(article.imageUrl || article.enclosure?.url) && !imageError && (
-                  <figure className="mb-12 rounded-2xl overflow-hidden shadow-xl" style={{ border: `1px solid ${currentTheme.border}` }}>
-                    <img 
-                      src={useProxy 
-                        ? `/api/image-proxy?url=${encodeURIComponent(article.imageUrl || article.enclosure?.url)}`
-                        : (article.imageUrl || article.enclosure?.url)} 
-                      alt="" 
-                      onError={() => {
-                        const rawUrl = article.imageUrl || article.enclosure?.url;
-                        if (!useProxy && rawUrl && !rawUrl.startsWith('/api/image-proxy')) {
-                          setUseProxy(true);
-                        } else {
-                          setImageError(true);
-                        }
-                      }}
-                      className="w-full h-auto max-h-[500px] object-cover" 
-                    />
+                {/* 3. Thin hairline rule across the 680px column */}
+                <hr
+                  style={{ borderColor: currentTheme.border }}
+                  className="my-6 border-t"
+                />
+
+                {/* 4. Hero image: 16:10 or 4:3, border-radius 8px */}
+                {hasHeroImage && (
+                  <figure className="my-6 rounded-lg overflow-hidden" style={{ border: `1px solid ${currentTheme.border}` }}>
+                    <div style={{ aspectRatio: '16/10', maxHeight: '440px' }} className="w-full overflow-hidden">
+                      <img
+                        src={activeHeroSrc}
+                        alt={article.title}
+                        onError={() => {
+                          if (!useProxy && heroImageUrl && !heroImageUrl.startsWith('/api/image-proxy')) {
+                            setUseProxy(true);
+                          } else {
+                            setImageError(true);
+                          }
+                        }}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   </figure>
                 )}
 
-                {/* Content area */}
+                {/* 5. Article body typography */}
                 {isLoading ? (
-                  <div className="space-y-5 animate-pulse opacity-40 mt-8">
-                    {[100, 90, 80, 95, 70, 85].map((w, i) => (
-                      <div key={i} className="h-4 rounded" style={{ width: `${w}%`, backgroundColor: currentTheme.text }} />
+                  <div className="space-y-4 animate-pulse opacity-40 mt-8">
+                    {[100, 92, 85, 96, 75, 88].map((w, i) => (
+                      <div
+                        key={i}
+                        className="h-4 rounded"
+                        style={{ width: `${w}%`, backgroundColor: currentTheme.text }}
+                      />
                     ))}
                   </div>
                 ) : previewOnly ? (
-                  <div className="space-y-8 mt-8">
+                  <div className="space-y-6 mt-8">
                     {bodyContent && (
-                      <div className="font-serif opacity-85 space-y-4" style={{ fontSize: `${fontSize}px`, lineHeight: 1.8 }}>
+                      <div
+                        className="rm-body font-serif opacity-90 space-y-4"
+                        style={{ fontSize: '19px', lineHeight: 1.7 }}
+                      >
                         {decodeHtmlEntities(bodyContent)
                           .replace(/<[^>]*>/g, '')
                           .split(/\n+/)
-                          .map((para: string, idx: number) => para.trim() ? (
-                            <p key={idx}>{para.trim()}</p>
-                          ) : null)}
+                          .map((para: string, idx: number) =>
+                            para.trim() ? <p key={idx}>{para.trim()}</p> : null
+                          )}
                       </div>
                     )}
-                    <div className="rounded-2xl overflow-hidden shadow-lg" style={{ border: `1px solid ${currentTheme.border}`, backgroundColor: currentTheme.header }}>
-                      <div className="p-8 text-center space-y-5">
-                        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto" style={{ backgroundColor: `${currentTheme.accent}20` }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: currentTheme.accent }}>
-                            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-                            <polyline points="15 3 21 3 21 9" />
-                            <line x1="10" y1="14" x2="21" y2="3" />
-                          </svg>
-                        </div>
-                        <div>
-                          <p className="text-sm mb-1 opacity-60">Full article available on</p>
-                          <p className="font-bold text-xl">{decodeHtmlEntities(article.source)}</p>
-                        </div>
-                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3.5 text-white font-bold text-sm uppercase tracking-widest rounded-full hover:scale-105 active:scale-95 transition-transform shadow-lg font-mono" style={{ backgroundColor: currentTheme.accent }}>
-                          Read Full Article →
-                        </a>
-                      </div>
+                    <div
+                      className="rounded-xl p-8 text-center space-y-4 my-8"
+                      style={{
+                        border: `1px solid ${currentTheme.border}`,
+                        backgroundColor: currentTheme.buttonBg,
+                      }}
+                    >
+                      <p className="text-xs uppercase font-mono tracking-widest opacity-60">
+                        Full story available on
+                      </p>
+                      <p className="font-bold text-xl">{decodeHtmlEntities(article.source || 'Original Publication')}</p>
+                      <a
+                        href={article.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          backgroundColor: '#FF6B4A',
+                          color: '#FFFDD0',
+                        }}
+                        className="inline-block px-7 py-3 font-mono font-bold text-xs uppercase tracking-wider rounded-full hover:opacity-90 transition-opacity"
+                      >
+                        Read Full Story →
+                      </a>
                     </div>
                   </div>
                 ) : (
                   <>
                     <style jsx global>{`
-                      .rm-prose { font-family: Georgia, 'Times New Roman', serif; }
-                      .rm-prose h1,.rm-prose h2,.rm-prose h3,.rm-prose h4 { font-weight: 700; margin: 2em 0 1em; line-height: 1.3; color: inherit; }
-                      .rm-prose h1 { font-size: 1.8em; }
-                      .rm-prose h2 { font-size: 1.5em; }
-                      .rm-prose h3 { font-size: 1.25em; }
-                      .rm-prose p { margin-bottom: 1.5em; line-height: 1.9; }
-                      .rm-prose strong,.rm-prose b { font-weight: 700; color: inherit; }
-                      .rm-prose em,.rm-prose i { font-style: italic; }
-                      .rm-prose a { color: ${currentTheme.accent}; text-decoration: none; font-weight: 600; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
-                      .rm-prose a:hover { border-color: ${currentTheme.accent}; }
-                      .rm-prose blockquote { border-left: 4px solid ${currentTheme.accent}; padding-left: 1.5em; margin: 2em 0; font-style: italic; opacity: 0.85; }
-                      .rm-prose ul,.rm-prose ol { padding-left: 1.5em; margin-bottom: 1.5em; line-height: 1.8; }
-                      .rm-prose li { margin-bottom: 0.5em; }
-                      .rm-prose img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 2.5rem auto; display: block; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-                      .rm-prose figure { margin: 2.5rem 0; }
-                      .rm-prose figcaption { text-align: center; font-size: 0.85em; opacity: 0.7; margin-top: 0.75rem; font-style: italic; font-family: system-ui, sans-serif; }
-                      .rm-prose hr { border: none; border-top: 1px solid ${currentTheme.border}; margin: 2.5rem 0; }
-                      .rm-prose code { background: ${currentTheme.header}; padding: 0.2em 0.4em; border-radius: 0.25em; font-size: 0.85em; font-family: ui-monospace, monospace; border: 1px solid ${currentTheme.border}; }
-                      .rm-prose pre { background: ${currentTheme.header}; border: 1px solid ${currentTheme.border}; padding: 1.25em; border-radius: 0.75rem; overflow-x: auto; margin: 1.5em 0; }
-                      .rm-prose pre code { background: transparent; border: none; padding: 0; }
+                      .rm-body {
+                        font-family: Georgia, Cambria, 'Times New Roman', serif;
+                        font-size: 19px;
+                        line-height: 1.7;
+                        font-weight: 500;
+                        color: inherit;
+                      }
+                      .rm-body p {
+                        margin-bottom: 1.1em;
+                      }
+                      .rm-body > p:first-of-type::first-letter {
+                        float: left;
+                        font-size: 3.2em;
+                        line-height: 0.85;
+                        padding-right: 8px;
+                        padding-top: 4px;
+                        color: #FF6B4A;
+                        font-weight: 700;
+                        font-family: Georgia, Cambria, 'Times New Roman', serif;
+                      }
+                      .rm-body h1, .rm-body h2, .rm-body h3, .rm-body h4 {
+                        font-family: var(--font-sans), system-ui, sans-serif;
+                        font-weight: 800;
+                        margin: 1.8em 0 0.8em;
+                        line-height: 1.2;
+                        color: inherit;
+                      }
+                      .rm-body h1 { font-size: 1.8em; }
+                      .rm-body h2 { font-size: 1.45em; }
+                      .rm-body h3 { font-size: 1.25em; }
+                      .rm-body a {
+                        color: ${currentTheme.link};
+                        text-decoration: underline;
+                        text-decoration-color: #FF6B4A;
+                        text-decoration-thickness: 2px;
+                        text-underline-offset: 4px;
+                        transition: opacity 0.2s;
+                      }
+                      .rm-body a:hover {
+                        opacity: 0.8;
+                      }
+                      .rm-body blockquote {
+                        font-style: italic;
+                        font-size: 20px;
+                        line-height: 1.6;
+                        border-left: 3px solid #FF6B4A;
+                        padding-left: 16px;
+                        margin: 1.6em 0;
+                        opacity: 0.9;
+                      }
+                      .rm-body img {
+                        max-width: 100%;
+                        max-height: 70vh;
+                        margin: 2rem auto;
+                        border-radius: 6px;
+                        display: block;
+                        object-fit: contain;
+                      }
+                      .rm-body figure {
+                        margin: 2rem auto;
+                      }
+                      .rm-body figcaption {
+                        text-align: center;
+                        font-size: 12px;
+                        font-style: italic;
+                        font-family: ui-monospace, monospace;
+                        opacity: 0.7;
+                        margin-top: 8px;
+                      }
+                      .rm-body hr {
+                        border: none;
+                        border-top: 1px solid ${currentTheme.border};
+                        margin: 2rem 0;
+                      }
+                      .rm-body ul, .rm-body ol {
+                        padding-left: 1.5em;
+                        margin-bottom: 1.1em;
+                      }
+                      .rm-body li {
+                        margin-bottom: 0.4em;
+                      }
                     `}</style>
 
                     <div
-                      className="rm-prose transition-all duration-300"
-                      style={{ fontSize: `${fontSize}px` }}
-                      dangerouslySetInnerHTML={{ __html: sanitized }}
+                      className="rm-body transition-colors duration-200"
+                      dangerouslySetInnerHTML={{ __html: sanitizedBody }}
                     />
-
-                    {!fullContent && bodyContent.length < 600 && (
-                      <div className="mt-12 pt-8 flex flex-col items-center gap-4 text-center" style={{ borderTop: `1px solid ${currentTheme.border}` }}>
-                        <p className="text-sm opacity-60">Continue reading on {decodeHtmlEntities(article.source)}</p>
-                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="px-7 py-3 text-white font-bold text-sm uppercase tracking-widest rounded-full hover:scale-105 transition-transform font-mono" style={{ backgroundColor: currentTheme.accent }}>
-                          Read Full Article →
-                        </a>
-                      </div>
-                    )}
                   </>
                 )}
               </div>
