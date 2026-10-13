@@ -156,16 +156,26 @@ export const FeaturedImageGallery: React.FC<FeaturedImageGalleryProps> = ({
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
             onClick={() => onSelectStory(currentStory)}
-            className="group relative w-full aspect-[16/9] max-h-[520px] rounded-2xl overflow-hidden bg-[#385227]/40 cursor-pointer shadow-xl select-none"
+            className="group relative w-full aspect-[16/9] max-h-[520px] rounded-2xl overflow-hidden bg-[#243619]/50 cursor-pointer shadow-xl select-none flex items-center justify-center"
           >
             {hasImage ? (
-              <img
-                key={currentStory.id || currentStory.link || currentIndex}
-                src={activeSrc}
-                alt={currentStory.title}
-                onError={handleImageError}
-                className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.015]"
-              />
+              <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+                {/* Ambient soft blur to gracefully fill letterboxing */}
+                <img
+                  src={activeSrc}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-25 scale-110 pointer-events-none"
+                />
+                {/* Fully visible, natural aspect ratio image with object-contain */}
+                <img
+                  key={currentStory.id || currentStory.link || currentIndex}
+                  src={activeSrc}
+                  alt={currentStory.title}
+                  onError={handleImageError}
+                  className="relative z-10 w-full h-full object-contain object-center transition-transform duration-500 ease-out group-hover:scale-[1.01]"
+                />
+              </div>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center bg-[#385227]/30 text-[#FFFDD0]/30 p-4">
                 <span className={`${playfair.className} italic text-5xl sm:text-6xl`}>O</span>
@@ -181,7 +191,7 @@ export const FeaturedImageGallery: React.FC<FeaturedImageGalleryProps> = ({
                 type="button"
                 onClick={handlePrev}
                 aria-label="Previous story"
-                className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#243619]/65 hover:bg-[#FFFDD0] text-[#FFFDD0] hover:text-[#243619] backdrop-blur-md border border-[#FFFDD0]/20 flex items-center justify-center transition-all duration-200 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 shadow-md cursor-pointer z-20"
+                className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#243619]/70 hover:bg-[#FFFDD0] text-[#FFFDD0] hover:text-[#243619] backdrop-blur-md border border-[#FFFDD0]/25 flex items-center justify-center transition-all duration-200 opacity-80 hover:opacity-100 focus:opacity-100 shadow-md cursor-pointer z-20"
               >
                 <svg 
                   width="16" 
@@ -204,7 +214,7 @@ export const FeaturedImageGallery: React.FC<FeaturedImageGalleryProps> = ({
                 type="button"
                 onClick={handleNext}
                 aria-label="Next story"
-                className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#243619]/65 hover:bg-[#FFFDD0] text-[#FFFDD0] hover:text-[#243619] backdrop-blur-md border border-[#FFFDD0]/20 flex items-center justify-center transition-all duration-200 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 shadow-md cursor-pointer z-20"
+                className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#243619]/70 hover:bg-[#FFFDD0] text-[#FFFDD0] hover:text-[#243619] backdrop-blur-md border border-[#FFFDD0]/25 flex items-center justify-center transition-all duration-200 opacity-80 hover:opacity-100 focus:opacity-100 shadow-md cursor-pointer z-20"
               >
                 <svg 
                   width="16" 

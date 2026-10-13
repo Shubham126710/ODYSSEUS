@@ -23,7 +23,7 @@ export const TheLatestList: React.FC<TheLatestListProps> = ({
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
         
         {/* Section Heading */}
-        <div className="flex items-center justify-between pb-3 mb-6 border-b border-[#FFFDD0]/10">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#FF694F]" />
             <h2 className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-[#FFFDD0]/90 font-bold">

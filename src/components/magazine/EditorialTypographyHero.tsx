@@ -55,17 +55,21 @@ export const EditorialTypographyHero: React.FC<EditorialTypographyHeroProps> = (
         <div className="py-2 sm:py-4">
           <h1 
             style={{ 
-              fontSize: 'clamp(2.85rem, 7.8vw, 8.2rem)',
-              lineHeight: 0.94,
+              fontSize: 'clamp(2.75rem, 8.2vw, 8.8rem)',
+              lineHeight: 0.92,
               letterSpacing: '-0.035em'
             }}
-            className="font-sans font-black uppercase text-[#FFFDD0] select-none break-words"
+            className="font-sans font-black uppercase text-[#FFFDD0] select-none tracking-tight"
           >
-            STORIES{' '}
-            <span className={`${playfair.className} italic font-normal tracking-normal text-[#FFFDD0]`}>
-              WORTH
-            </span>{' '}
-            YOUR TIME.
+            <span className="block">
+              STORIES{' '}
+              <span className={`${playfair.className} italic font-normal tracking-normal text-[#FFFDD0]`}>
+                WORTH
+              </span>
+            </span>
+            <span className="block">
+              YOUR TIME.
+            </span>
           </h1>
 
           {/* Short Supporting Copy & Edition Descriptor */}
