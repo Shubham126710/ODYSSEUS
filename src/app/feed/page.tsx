@@ -9,13 +9,11 @@ import { AppHeader } from "@/components/AppHeader";
 import { Toast } from "@/components/Toast";
 import { ReadingModal } from "@/components/ReadingModal";
 import { AddFeedModal } from "@/components/AddFeedModal";
-import { TrendingTicker } from "@/components/magazine/TrendingTicker";
-import { EditorialMasthead } from "@/components/magazine/EditorialMasthead";
-import { FeaturedStoryCarousel } from "@/components/magazine/FeaturedStoryCarousel";
-import { EditorialStoryGrid } from "@/components/magazine/EditorialStoryGrid";
-import { EditorialCategoryBand } from "@/components/magazine/EditorialCategoryBand";
-import { OdysseusDeskShelf } from "@/components/magazine/OdysseusDeskShelf";
-import { ScrollRail, RailSection } from "@/components/ScrollRail";
+import { EditorialTypographyHero } from "@/components/magazine/EditorialTypographyHero";
+import { FeaturedImageGallery } from "@/components/magazine/FeaturedImageGallery";
+import { TheLatestList } from "@/components/magazine/TheLatestList";
+import { DailyDispatchFeed } from "@/components/magazine/DailyDispatchFeed";
+import { CategoryEditorialSection } from "@/components/magazine/CategoryEditorialSection";
 import { isPlaceholderOrLogoUrl, isSmallThumbnailUrl, upgradeThumbnailResolution } from "@/lib/textUtils";
 
 function matchesCategory(story: any, targetCategory: string): boolean {
@@ -24,7 +22,7 @@ function matchesCategory(story: any, targetCategory: string): boolean {
   const desk = (story.desk || '').toLowerCase();
   const src = (story.source || '').toLowerCase();
 
-  // Financial / markets feeds must NEVER appear under culture, tech, design, science, sports
+  // Financial / markets feeds must NEVER bleed into culture, tech, design, science, sports
   if (
     cat === 'chronicle' ||
     desk === 'chronicle' ||
@@ -73,7 +71,7 @@ export default function FeedPage() {
   const [toast, setToast] = useState({ message: '', isVisible: false });
   const [headlines, setHeadlines] = useState<any[]>([]);
 
-  // Fetch breaking trending headlines for the ticker
+  // Fetch breaking trending headlines for "The Latest" section
   useEffect(() => {
     const fetchTrending = async () => {
       try {
@@ -89,27 +87,25 @@ export default function FeedPage() {
     fetchTrending();
   }, []);
 
-  // Rigorous Editorial Content Curation & Deduplication
+  // Strict Editorial Story Budget & Deduplication
   const { 
-    carouselStories, 
+    featuredStories, 
     dailyDispatchStories, 
-    bands, 
-    deskStories 
+    bands 
   } = useMemo(() => {
     if (!stories || stories.length === 0) {
       return {
-        carouselStories: [],
+        featuredStories: [],
         dailyDispatchStories: [],
         bands: { tech: [], design: [], culture: [], science: [], sports: [] },
-        deskStories: [],
       };
     }
 
     const getStoryKey = (s: any) => String(s.id || s.link || s.title);
     const seenKeys = new Set<string>();
 
-    // 1. Featured Cover Carousel: 3 to 5 stories with high-res photography
-    const carouselCandidates = stories.filter(s => {
+    // 1. Featured Image Gallery: top 3 stories with high-res photography
+    const galleryCandidates = stories.filter(s => {
       const img = s.imageUrl ? (upgradeThumbnailResolution(s.imageUrl) || s.imageUrl) : null;
       return img && 
         img.length > 10 && 
@@ -117,23 +113,23 @@ export default function FeedPage() {
         !isSmallThumbnailUrl(img);
     });
 
-    const carouselSelected = carouselCandidates.slice(0, 5);
+    const gallerySelected = galleryCandidates.slice(0, 3);
     // If fewer than 3 high-res stories, supplement with available stories
-    if (carouselSelected.length < 3) {
+    if (gallerySelected.length < 3) {
       for (const s of stories) {
-        if (carouselSelected.length >= 3) break;
+        if (gallerySelected.length >= 3) break;
         const key = getStoryKey(s);
-        if (!carouselSelected.some(c => getStoryKey(c) === key)) {
-          carouselSelected.push(s);
+        if (!gallerySelected.some(g => getStoryKey(g) === key)) {
+          gallerySelected.push(s);
         }
       }
     }
 
-    for (const s of carouselSelected) {
+    for (const s of gallerySelected) {
       seenKeys.add(getStoryKey(s));
     }
 
-    // 2. Category Bands: pick top 3 stories per category (preserving image priority)
+    // 2. Category Bands: pick top 3 stories per category
     const pickBand = (categoryName: string) => {
       const candidates: any[] = [];
       for (const s of stories) {
@@ -161,7 +157,7 @@ export default function FeedPage() {
     const science = pickBand('science');
     const sports = pickBand('sports');
 
-    // 3. Daily Dispatch Grid (01 / THE DAILY DISPATCH): up to 6 stories (1 lead + 2 medium + 3 compact)
+    // 3. Daily Dispatch: up to 6 stories (1 lead + 2 secondary + 3 compact)
     const dispatchCandidates: any[] = [];
     for (const s of stories) {
       if (dispatchCandidates.length >= 6) break;
@@ -172,22 +168,10 @@ export default function FeedPage() {
       }
     }
 
-    // 4. From the Odysseus Desk (Curated Discovery): up to 4 remaining stories
-    const deskCandidates: any[] = [];
-    for (const s of stories) {
-      if (deskCandidates.length >= 4) break;
-      const key = getStoryKey(s);
-      if (!seenKeys.has(key)) {
-        seenKeys.add(key);
-        deskCandidates.push(s);
-      }
-    }
-
     return {
-      carouselStories: carouselSelected,
+      featuredStories: gallerySelected,
       dailyDispatchStories: dispatchCandidates,
       bands: { tech, design, culture, science, sports },
-      deskStories: deskCandidates,
     };
   }, [stories]);
 
@@ -216,35 +200,6 @@ export default function FeedPage() {
     return list;
   }, [bands]);
 
-  // Rail sections for desktop ScrollRail tracking
-  const railSections: RailSection[] = useMemo(() => {
-    const list: RailSection[] = [
-      { id: 'for-you', label: 'COVER', index: '✦' },
-    ];
-    if (dailyDispatchStories.length > 0) {
-      list.push({ id: 'dispatch', label: 'DISPATCH', index: '01' });
-    }
-    if (bands.tech.length >= 2) {
-      list.push({ id: 'tech', label: 'TECH', index: '02' });
-    }
-    if (bands.design.length >= 2) {
-      list.push({ id: 'design', label: 'DESIGN', index: '03' });
-    }
-    if (bands.culture.length >= 2) {
-      list.push({ id: 'culture', label: 'CULTURE', index: '04' });
-    }
-    if (bands.science.length >= 2) {
-      list.push({ id: 'science', label: 'SCIENCE', index: '05' });
-    }
-    if (bands.sports.length >= 2) {
-      list.push({ id: 'sports', label: 'SPORTS', index: '06' });
-    }
-    if (deskStories.length > 0) {
-      list.push({ id: 'desk', label: 'DESK', index: '✦' });
-    }
-    return list;
-  }, [dailyDispatchStories, bands, deskStories]);
-
   const handleToggleSave = async (story: any) => {
     if (!profile) return;
     try {
@@ -265,162 +220,133 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#5D8246] text-[#FFFDD0] font-sans selection:bg-[#FF6B4A] selection:text-[#FFFDD0] relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#5D8246] text-[#FFFDD0] font-sans selection:bg-[#FF694F] selection:text-[#FFFDD0] relative overflow-x-hidden">
       
-      {/* Fixed Header with 6 section links and brand logo */}
+      {/* 1. NAVIGATION: Fixed Header with brand logo & category navigation */}
       <AppHeader sections={renderedNavSections} />
 
-      {/* Desktop Vertical Scroll Navigation Rail */}
-      <ScrollRail sections={railSections} />
-
-      {/* Main Editorial Container */}
+      {/* Main Content Area */}
       <main className="w-full relative z-10 hub-main">
         
-        {/* === SECTION 1: #for-you (Olive Background, Cream Typography) === */}
-        <section id="for-you" className="w-full bg-[#5D8246] text-[#FFFDD0] hub-for-you">
-          
-          {/* Slim Orange Ticker (Constant px/sec speed, pause-on-hover) */}
-          <TrendingTicker
-            headlines={headlines.length > 0 ? headlines : stories.slice(0, 10)}
-            onSelectStory={(item) => setReadingArticle({
-              title: item.title,
-              link: item.link,
-              source: item.source || 'Trending Wire',
-              excerpt: item.excerpt || '',
-              date: 'Trending Wire',
-              readTime: item.readTime || '3 min',
-            })}
+        {/* 2. OVERSIZED TYPOGRAPHY & INTRODUCTORY SECTION (Offscreen Canvas Inspired) */}
+        <div id="for-you" className="w-full scroll-mt-24">
+          <EditorialTypographyHero />
+        </div>
+
+        {/* 3. A ROW OF FEATURED ARTICLE THUMBNAILS (Image strip, not a carousel) */}
+        {featuredStories.length > 0 && (
+          <FeaturedImageGallery
+            stories={featuredStories}
+            onSelectStory={setReadingArticle}
+            onToggleSave={handleToggleSave}
+            isSaved={isSaved}
           />
+        )}
 
-          <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-            
-            {/* Editorial Masthead */}
-            <EditorialMasthead
-              userName={profile?.first_name}
-              issueNumber="VOL. IV — NO. 108"
-            />
+        {/* 4. THE LATEST / DEVELOPING STORIES (Restrained Editorial Wire, Replacing Marquee) */}
+        <TheLatestList
+          headlines={headlines.length > 0 ? headlines : stories.slice(0, 6)}
+          onSelectStory={setReadingArticle}
+        />
 
-            {/* Featured Cover Story Carousel */}
-            {carouselStories.length > 0 && (
-              <FeaturedStoryCarousel
-                stories={carouselStories}
-                onSelectStory={setReadingArticle}
-                onToggleSave={handleToggleSave}
-                isSaved={isSaved}
-              />
-            )}
+        {/* 5. THE DAILY DISPATCH (2/3 Lead Article + 1/3 Secondary Column + 3 Text Dispatches) */}
+        {dailyDispatchStories.length > 0 && (
+          <DailyDispatchFeed
+            stories={dailyDispatchStories}
+            onSelectStory={setReadingArticle}
+            onToggleSave={handleToggleSave}
+            isSaved={isSaved}
+          />
+        )}
 
-            {/* 01 / THE DAILY DISPATCH Asymmetrical Grid */}
-            {dailyDispatchStories.length > 0 && (
-              <EditorialStoryGrid
-                stories={dailyDispatchStories}
-                onSelectStory={setReadingArticle}
-                onToggleSave={handleToggleSave}
-                isSaved={isSaved}
-              />
-            )}
-
-          </div>
-        </section>
-
-        {/* === SECTION 2: 02 / TECHNOLOGY (Cream Background, Olive Text) === */}
+        {/* 6. CATEGORY SECTIONS (Preserving consistent forest-green identity & subtle layout variations) */}
         {bands.tech.length >= 2 && (
-          <EditorialCategoryBand
+          <CategoryEditorialSection
             id="tech"
-            sectionIndex="02 /"
+            sectionIndex="02"
             title="TECHNOLOGY"
             stories={bands.tech}
             totalCount={totalCategoryCounts['tech']}
-            theme="cream"
-            layoutVariant="grid"
+            layoutVariant="grid-3"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
             isSaved={isSaved}
           />
         )}
 
-        {/* === SECTION 3: 03 / DESIGN (Olive Background, Cream Text, Feature Split Layout) === */}
         {bands.design.length >= 2 && (
-          <EditorialCategoryBand
+          <CategoryEditorialSection
             id="design"
-            sectionIndex="03 /"
+            sectionIndex="03"
             title="DESIGN"
             stories={bands.design}
             totalCount={totalCategoryCounts['design']}
-            theme="olive"
-            layoutVariant="feature-split"
+            layoutVariant="feature-2"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
             isSaved={isSaved}
           />
         )}
 
-        {/* === SECTION 4: 04 / CULTURE (Cream Background, Olive Text) === */}
         {bands.culture.length >= 2 && (
-          <EditorialCategoryBand
+          <CategoryEditorialSection
             id="culture"
-            sectionIndex="04 /"
+            sectionIndex="04"
             title="CULTURE"
             stories={bands.culture}
             totalCount={totalCategoryCounts['culture']}
-            theme="cream"
-            layoutVariant="grid"
+            layoutVariant="grid-3"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
             isSaved={isSaved}
           />
         )}
 
-        {/* === SECTION 5: 05 / SCIENCE (Olive Background, Cream Text, Feature Split Layout) === */}
         {bands.science.length >= 2 && (
-          <EditorialCategoryBand
+          <CategoryEditorialSection
             id="science"
-            sectionIndex="05 /"
+            sectionIndex="05"
             title="SCIENCE"
             stories={bands.science}
             totalCount={totalCategoryCounts['science']}
-            theme="olive"
-            layoutVariant="feature-split"
+            layoutVariant="feature-2"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
             isSaved={isSaved}
           />
         )}
 
-        {/* === SECTION 6: 06 / SPORTS (Cream Background, Olive Text) === */}
         {bands.sports.length >= 2 && (
-          <EditorialCategoryBand
+          <CategoryEditorialSection
             id="sports"
-            sectionIndex="06 /"
+            sectionIndex="06"
             title="SPORTS"
             stories={bands.sports}
             totalCount={totalCategoryCounts['sports']}
-            theme="cream"
-            layoutVariant="grid"
+            layoutVariant="grid-3"
             onSelectStory={setReadingArticle}
             onToggleSave={handleToggleSave}
             isSaved={isSaved}
           />
         )}
 
-        {/* === SECTION 7: FROM THE ODYSSEUS DESK (Curated Discovery Shelf) === */}
-        {deskStories.length > 0 && (
-          <OdysseusDeskShelf
-            stories={deskStories}
-            onSelectStory={setReadingArticle}
-            onToggleSave={handleToggleSave}
-            isSaved={isSaved}
-          />
-        )}
+        {/* 7. EDITORIAL COLOPHON & FOOTER */}
+        <footer className="w-full py-16 text-center text-[#FFFDD0]/50 font-mono text-[10px] sm:text-xs uppercase tracking-widest bg-[#5D8246]">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF694F]" />
+              <span className="font-bold text-[#FFFDD0]">ODYSSEUS</span>
+              <span className="text-[#FFFDD0]/30">·</span>
+              <span>SLOW JOURNALISM FOR THE CURIOUS</span>
+            </div>
 
-        {/* Editorial Colophon & Footer */}
-        <footer className="border-t border-[#FFFDD0]/15 py-14 text-center text-[#FFFDD0]/60 font-mono text-[10px] sm:text-xs uppercase tracking-widest bg-[#5D8246]">
-          <div className="max-w-[1240px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>ODYSSEUS · SLOW JOURNALISM FOR THE CURIOUS</div>
-            <div className="text-[#FFFDD0]/40">VOL. IV — NO. 108 · ALL DISPATCHES RESPECT THEIR ORIGINAL CREATORS</div>
+            <div className="text-[#FFFDD0]/40">
+              VOL. IV — NO. 108 · ALL RIGHTS TO ORIGINAL SOURCES
+            </div>
+
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="text-[#FF6B4A] hover:text-[#FFFDD0] transition-colors font-bold"
+              className="text-[#FF694F] hover:text-[#FFFDD0] transition-colors font-bold"
             >
               BACK TO TOP ↑
             </button>

@@ -3813,6 +3813,20 @@ body {
   object-fit: cover !important;
 }
 
+.editorial-feature-img {
+  width: 100% !important;
+  height: 240px !important;
+  max-height: 240px !important;
+  overflow: hidden !important;
+  border-radius: 0.75rem !important;
+}
+.editorial-feature-img img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+
 /* Category Feature Split Grid */
 .category-split-row {
   display: flex !important;
