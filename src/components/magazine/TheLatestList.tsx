@@ -61,7 +61,7 @@ export const TheLatestList: React.FC<TheLatestListProps> = ({
                   </h3>
                 </div>
 
-                <div className="mt-3 pt-2 border-t border-[#FFFDD0]/10 flex items-center justify-between text-[9px] font-mono uppercase tracking-wider text-[#FFFDD0]/40">
+                <div className="mt-3 flex items-center justify-between text-[9px] font-mono uppercase tracking-wider text-[#FFFDD0]/50">
                   <span>{displayReadTime || '2 MIN'}</span>
                   <span className="group-hover:translate-x-1 transition-transform text-[#FF694F]">→</span>
                 </div>

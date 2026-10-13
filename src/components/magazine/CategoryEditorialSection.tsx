@@ -189,7 +189,7 @@ const EditorialCategoryItem: React.FC<{
       )}
 
       {/* Footer Details */}
-      <div className="mt-auto pt-2 border-t border-[#FFFDD0]/10 flex items-center justify-between text-xs font-mono">
+      <div className="mt-auto flex items-center justify-between text-xs font-mono">
         <button
           onClick={() => onSelectStory(story)}
           className="text-[#FF694F] hover:underline uppercase text-[10px] tracking-wider font-bold flex items-center gap-1"

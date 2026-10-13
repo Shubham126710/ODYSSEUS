@@ -111,7 +111,7 @@ export default function FeedPage() {
     const getStoryKey = (s: any) => String(s.id || s.link || s.title);
     const seenKeys = new Set<string>();
 
-    // 1. Featured Image Gallery: top 3 stories with high-res photography
+    // 1. Featured Image Showcase: top 5 stories with high-res photography
     const galleryCandidates = stories.filter(s => {
       const img = s.imageUrl ? (upgradeThumbnailResolution(s.imageUrl) || s.imageUrl) : null;
       return img && 
@@ -120,11 +120,11 @@ export default function FeedPage() {
         !isSmallThumbnailUrl(img);
     });
 
-    const gallerySelected = galleryCandidates.slice(0, 3);
-    // If fewer than 3 high-res stories, supplement with available stories
-    if (gallerySelected.length < 3) {
+    const gallerySelected = galleryCandidates.slice(0, 5);
+    // If fewer than 5 high-res stories, supplement with available stories
+    if (gallerySelected.length < 5) {
       for (const s of stories) {
-        if (gallerySelected.length >= 3) break;
+        if (gallerySelected.length >= 5) break;
         const key = getStoryKey(s);
         if (!gallerySelected.some(g => getStoryKey(g) === key)) {
           gallerySelected.push(s);

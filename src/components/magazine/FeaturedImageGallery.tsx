@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Playfair_Display } from 'next/font/google';
 import { 
   sanitizeText, 
@@ -29,64 +29,47 @@ export const FeaturedImageGallery: React.FC<FeaturedImageGalleryProps> = ({
   onToggleSave,
   isSaved,
 }) => {
-  // Take top 3 featured stories
-  const featured = (stories || []).slice(0, 3);
-  if (featured.length === 0) return null;
-
-  return (
-    <section 
-      aria-label="Featured Story Gallery" 
-      className="w-full py-10 sm:py-14 border-b border-[#FFFDD0]/15"
-    >
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
-        
-        {/* Subtle Section Label */}
-        <div className="flex items-center justify-between text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[#FFFDD0]/50 mb-6">
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FF694F]" />
-            <span className="font-bold text-[#FFFDD0]/80">FEATURED REPORTING</span>
-          </div>
-          <span>ISSUE 108</span>
-        </div>
-
-        {/* 3-Column Image Gallery Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
-          {featured.map((story, idx) => (
-            <GalleryItem
-              key={story.id || story.link || idx}
-              story={story}
-              onSelectStory={onSelectStory}
-              onToggleSave={onToggleSave}
-              isSaved={isSaved}
-            />
-          ))}
-        </div>
-
-      </div>
-    </section>
-  );
-};
-
-const GalleryItem: React.FC<{
-  story: any;
-  onSelectStory: (story: any) => void;
-  onToggleSave?: (story: any) => void;
-  isSaved?: (story: any) => boolean;
-}> = ({ story, onSelectStory, onToggleSave, isSaved }) => {
+  const featured = (stories || []).slice(0, 5);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [useProxy, setUseProxy] = useState(false);
-  const rawImageUrl = story?.imageUrl ? upgradeThumbnailResolution(story.imageUrl) : null;
-  const isBadInitialUrl = !rawImageUrl || isPlaceholderOrLogoUrl(rawImageUrl);
-  const [imageError, setImageError] = useState(isBadInitialUrl);
+  const [imageError, setImageError] = useState(false);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const totalStories = featured.length;
+  const currentStory = featured[currentIndex] || featured[0];
+
+  const handlePrev = useCallback((e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (totalStories <= 1) return;
+    setCurrentIndex(prev => (prev === 0 ? totalStories - 1 : prev - 1));
+  }, [totalStories]);
+
+  const handleNext = useCallback((e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (totalStories <= 1) return;
+    setCurrentIndex(prev => (prev === totalStories - 1 ? 0 : prev + 1));
+  }, [totalStories]);
+
+  // Image error and proxy handling for the active story
+  const rawImageUrl = currentStory?.imageUrl 
+    ? upgradeThumbnailResolution(currentStory.imageUrl) 
+    : null;
 
   useEffect(() => {
-    const upgraded = story?.imageUrl ? upgradeThumbnailResolution(story.imageUrl) : null;
+    if (!currentStory) return;
+    const upgraded = currentStory.imageUrl 
+      ? upgradeThumbnailResolution(currentStory.imageUrl) 
+      : null;
     setImageError(!upgraded || isPlaceholderOrLogoUrl(upgraded));
     setUseProxy(false);
-  }, [story?.id, story?.link, story?.imageUrl]);
+  }, [currentStory?.id, currentStory?.link, currentStory?.imageUrl, currentIndex]);
 
   const handleImageError = () => {
-    if (!useProxy && rawImageUrl) setUseProxy(true);
-    else setImageError(true);
+    if (!useProxy && rawImageUrl) {
+      setUseProxy(true);
+    } else {
+      setImageError(true);
+    }
   };
 
   const activeSrc = useProxy && rawImageUrl
@@ -95,76 +78,202 @@ const GalleryItem: React.FC<{
 
   const hasImage = !imageError && !!activeSrc && !isPlaceholderOrLogoUrl(activeSrc);
 
-  const displaySource = cleanSource(story.source);
-  const displayCategory = cleanCategory(story.category);
-  const displayReadTime = computeReadTime(story);
-  const savedState = isSaved ? isSaved(story) : false;
+  // Keyboard navigation (ArrowLeft & ArrowRight)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeTag = document.activeElement?.tagName;
+      if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
+
+      if (e.key === 'ArrowRight') {
+        handleNext();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrev();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleNext, handlePrev]);
+
+  // Touch gesture handling without breaking vertical scrolling
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
+    const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
+    touchStartRef.current = null;
+
+    // Only swipe when horizontal delta is substantial and clearly exceeds vertical movement
+    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+      if (deltaX < 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+    }
+  };
+
+  if (!currentStory || totalStories === 0) return null;
+
+  const displaySource = cleanSource(currentStory.source);
+  const displayCategory = cleanCategory(currentStory.category);
+  const displayReadTime = computeReadTime(currentStory);
+  const savedState = isSaved ? isSaved(currentStory) : false;
 
   return (
-    <article className="group flex flex-col justify-start">
-      {/* 16:10 Image Thumbnail Box (No heavy enclosing card or border) */}
-      <div 
-        onClick={() => onSelectStory(story)}
-        className="w-full aspect-[16/10] overflow-hidden rounded-xl bg-[#385227]/40 cursor-pointer relative mb-4"
-      >
-        {hasImage ? (
-          <img
-            src={activeSrc}
-            alt={story.title}
-            onError={handleImageError}
-            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500 ease-out"
-          />
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-[#385227]/30 text-[#FFFDD0]/30 p-4">
-            <span className={`${playfair.className} italic text-4xl`}>O</span>
+    <section 
+      aria-label="Featured Story Showcase" 
+      className="w-full py-10 sm:py-14 md:py-16 border-b border-[#FFFDD0]/15"
+    >
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="max-w-[1040px] mx-auto">
+          
+          {/* Top Folio Bar: Section Title + Minimal Slide Progress Indicator */}
+          <div className="flex items-center justify-between text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[#FFFDD0]/50 mb-5">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF694F]" />
+              <span className="font-bold text-[#FFFDD0]/80">FEATURED REPORTING</span>
+            </div>
+
+            <div className="flex items-center gap-2 text-[11px] sm:text-xs font-mono">
+              <span className="text-[#FFFDD0] font-bold">
+                {String(currentIndex + 1).padStart(2, '0')}
+              </span>
+              <span className="text-[#FFFDD0]/30">/</span>
+              <span className="text-[#FFFDD0]/50">
+                {String(totalStories).padStart(2, '0')}
+              </span>
+            </div>
           </div>
-        )}
-      </div>
 
-      {/* Typography: Category Label */}
-      <div className="flex items-center gap-2 font-mono text-[10px] sm:text-[11px] uppercase tracking-widest mb-2 text-[#FF694F] font-bold">
-        <span>{displayCategory || 'REPORT'}</span>
-      </div>
-
-      {/* Headline */}
-      <h3
-        onClick={() => onSelectStory(story)}
-        className="text-lg sm:text-xl font-sans font-bold text-[#FFFDD0] leading-snug cursor-pointer group-hover:text-[#FFFDD0]/85 transition-colors line-clamp-3 mb-3"
-      >
-        {sanitizeText(story.title)}
-      </h3>
-
-      {/* Publication name and estimated reading time */}
-      <div className="flex items-center justify-between text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[#FFFDD0]/60 mt-auto pt-2 border-t border-[#FFFDD0]/10">
-        <div className="flex items-center gap-1.5">
-          <span className="font-semibold text-[#FFFDD0]/80">{displaySource}</span>
-          {displayReadTime && (
-            <>
-              <span className="text-[#FFFDD0]/30">·</span>
-              <span>{displayReadTime}</span>
-            </>
-          )}
-        </div>
-
-        {onToggleSave && (
-          <button
-            onClick={() => onToggleSave(story)}
-            aria-label={savedState ? "Remove from saved library" : "Save story"}
-            className="text-[#FFFDD0]/40 hover:text-[#FF694F] transition-colors p-1"
+          {/* Single Prominent, Centered Image Showcase */}
+          <div 
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onClick={() => onSelectStory(currentStory)}
+            className="group relative w-full aspect-[16/9] max-h-[520px] rounded-2xl overflow-hidden bg-[#385227]/40 cursor-pointer shadow-xl select-none"
           >
-            <svg 
-              width="13" 
-              height="13" 
-              viewBox="0 0 24 24" 
-              fill={savedState ? "currentColor" : "none"} 
-              stroke="currentColor" 
-              strokeWidth="2"
+            {hasImage ? (
+              <img
+                key={currentStory.id || currentStory.link || currentIndex}
+                src={activeSrc}
+                alt={currentStory.title}
+                onError={handleImageError}
+                className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.015]"
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center bg-[#385227]/30 text-[#FFFDD0]/30 p-4">
+                <span className={`${playfair.className} italic text-5xl sm:text-6xl`}>O</span>
+                <span className="font-mono text-xs uppercase tracking-widest text-[#FFFDD0]/40 mt-3">
+                  THE ODYSSEUS JOURNAL
+                </span>
+              </div>
+            )}
+
+            {/* Subtle Previous Story Button */}
+            {totalStories > 1 && (
+              <button
+                type="button"
+                onClick={handlePrev}
+                aria-label="Previous story"
+                className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#243619]/65 hover:bg-[#FFFDD0] text-[#FFFDD0] hover:text-[#243619] backdrop-blur-md border border-[#FFFDD0]/20 flex items-center justify-center transition-all duration-200 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 shadow-md cursor-pointer z-20"
+              >
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+            )}
+
+            {/* Subtle Next Story Button */}
+            {totalStories > 1 && (
+              <button
+                type="button"
+                onClick={handleNext}
+                aria-label="Next story"
+                className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#243619]/65 hover:bg-[#FFFDD0] text-[#FFFDD0] hover:text-[#243619] backdrop-blur-md border border-[#FFFDD0]/20 flex items-center justify-center transition-all duration-200 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 shadow-md cursor-pointer z-20"
+              >
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* Clean Article Metadata & Headline Beneath Image (No redundant box borders) */}
+          <div className="mt-6 sm:mt-7 flex flex-col gap-2.5">
+            <div className="flex items-center gap-2 font-mono text-[10px] sm:text-xs uppercase tracking-widest text-[#FF694F] font-bold">
+              <span>{displayCategory || 'REPORT'}</span>
+            </div>
+
+            <h3
+              onClick={() => onSelectStory(currentStory)}
+              className="text-2xl sm:text-3xl md:text-4xl font-sans font-bold text-[#FFFDD0] leading-snug cursor-pointer hover:text-[#FFFDD0]/85 transition-colors line-clamp-3"
             >
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-            </svg>
-          </button>
-        )}
+              {sanitizeText(currentStory.title)}
+            </h3>
+
+            {/* Publication Source, Reading Time, and Bookmark */}
+            <div className="flex items-center justify-between text-xs sm:text-sm font-mono uppercase tracking-widest text-[#FFFDD0]/60 mt-1">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-[#FFFDD0]/85">{displaySource}</span>
+                {displayReadTime && (
+                  <>
+                    <span className="text-[#FFFDD0]/30">·</span>
+                    <span>{displayReadTime}</span>
+                  </>
+                )}
+              </div>
+
+              {onToggleSave && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleSave(currentStory);
+                  }}
+                  aria-label={savedState ? "Remove from saved library" : "Save story"}
+                  className="text-[#FFFDD0]/50 hover:text-[#FF694F] transition-colors p-1.5 rounded-full hover:bg-[#FFFDD0]/5 cursor-pointer"
+                >
+                  <svg 
+                    width="15" 
+                    height="15" 
+                    viewBox="0 0 24 24" 
+                    fill={savedState ? "currentColor" : "none"} 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                  >
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+
+        </div>
       </div>
-    </article>
+    </section>
   );
 };

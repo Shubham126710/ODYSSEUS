@@ -55,9 +55,9 @@ export const EditorialTypographyHero: React.FC<EditorialTypographyHeroProps> = (
         <div className="py-2 sm:py-4">
           <h1 
             style={{ 
-              fontSize: 'clamp(3.2rem, 8.8vw, 9.2rem)',
-              lineHeight: 0.92,
-              letterSpacing: '-0.04em'
+              fontSize: 'clamp(2.85rem, 7.8vw, 8.2rem)',
+              lineHeight: 0.94,
+              letterSpacing: '-0.035em'
             }}
             className="font-sans font-black uppercase text-[#FFFDD0] select-none break-words"
           >
@@ -69,7 +69,7 @@ export const EditorialTypographyHero: React.FC<EditorialTypographyHeroProps> = (
           </h1>
 
           {/* Short Supporting Copy & Edition Descriptor */}
-          <div className="mt-5 sm:mt-8 pt-4 sm:pt-6 border-t border-[#FFFDD0]/10 flex flex-col md:flex-row md:items-baseline justify-between gap-4">
+          <div className="mt-6 sm:mt-8 flex flex-col md:flex-row md:items-baseline justify-between gap-4">
             <p className="text-sm sm:text-base md:text-lg text-[#FFFDD0]/80 font-sans max-w-2xl leading-relaxed">
               Independent journalism, thoughtfully gathered. Selected for depth, perspective, and lasting relevance.
             </p>

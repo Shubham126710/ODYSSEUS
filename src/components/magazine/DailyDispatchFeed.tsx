@@ -189,7 +189,7 @@ const PrimaryLeadItem: React.FC<{
       )}
 
       {/* Action */}
-      <div className="flex items-center justify-between pt-3 border-t border-[#FFFDD0]/10">
+      <div className="flex items-center justify-between pt-1">
         <button
           onClick={() => onSelectStory(story)}
           className="text-xs font-mono uppercase tracking-wider font-bold text-[#FF694F] hover:underline flex items-center gap-1.5"
@@ -337,7 +337,7 @@ const CompactTextDispatch: React.FC<{
         </h5>
       </div>
 
-      <div className="mt-4 pt-2 border-t border-[#FFFDD0]/10 flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#FFFDD0]/40">
+      <div className="mt-4 flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#FFFDD0]/40">
         <button
           onClick={() => onSelectStory(story)}
           className="hover:text-[#FFFDD0] transition-colors flex items-center gap-1"
