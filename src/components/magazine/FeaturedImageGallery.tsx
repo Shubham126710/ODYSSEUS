@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { Playfair_Display } from 'next/font/google';
 import { 
   sanitizeText, 
   cleanSource, 
@@ -9,6 +10,11 @@ import {
   isPlaceholderOrLogoUrl, 
   upgradeThumbnailResolution,
 } from '@/lib/textUtils';
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+});
 
 interface FeaturedImageGalleryProps {
   stories: any[];
@@ -110,7 +116,7 @@ const GalleryItem: React.FC<{
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-[#385227]/30 text-[#FFFDD0]/30 p-4">
-            <span className="font-serif italic text-4xl">O</span>
+            <span className={`${playfair.className} italic text-4xl`}>O</span>
           </div>
         )}
       </div>

@@ -1,6 +1,12 @@
 "use client";
 
 import React, { useMemo } from 'react';
+import { Playfair_Display } from 'next/font/google';
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+});
 
 interface EditorialTypographyHeroProps {
   dateStr?: string;
@@ -56,7 +62,7 @@ export const EditorialTypographyHero: React.FC<EditorialTypographyHeroProps> = (
             className="font-sans font-black uppercase text-[#FFFDD0] select-none break-words"
           >
             STORIES{' '}
-            <span className="font-serif italic font-normal tracking-normal text-[#FFFDD0]">
+            <span className={`${playfair.className} italic font-normal tracking-normal text-[#FFFDD0]`}>
               WORTH
             </span>{' '}
             YOUR TIME.

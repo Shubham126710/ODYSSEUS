@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { Playfair_Display } from "next/font/google";
 import { useFeedFetcher } from "@/hooks/useFeedFetcher";
 import { useProfile } from "@/hooks/useProfile";
 import { useSavedStories } from "@/hooks/useSavedStories";
@@ -15,6 +16,12 @@ import { TheLatestList } from "@/components/magazine/TheLatestList";
 import { DailyDispatchFeed } from "@/components/magazine/DailyDispatchFeed";
 import { CategoryEditorialSection } from "@/components/magazine/CategoryEditorialSection";
 import { isPlaceholderOrLogoUrl, isSmallThumbnailUrl, upgradeThumbnailResolution } from "@/lib/textUtils";
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+});
 
 function matchesCategory(story: any, targetCategory: string): boolean {
   if (!story) return false;
@@ -226,7 +233,7 @@ export default function FeedPage() {
       <AppHeader sections={renderedNavSections} />
 
       {/* Main Content Area */}
-      <main className="w-full relative z-10 hub-main">
+      <main className={`w-full relative z-10 hub-main ${playfair.variable}`}>
         
         {/* 2. OVERSIZED TYPOGRAPHY & INTRODUCTORY SECTION (Offscreen Canvas Inspired) */}
         <div id="for-you" className="w-full scroll-mt-24">

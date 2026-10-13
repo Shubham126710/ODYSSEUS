@@ -1,5 +1,11 @@
 import React from 'react';
+import { Playfair_Display } from 'next/font/google';
 import { sanitizeText } from './textUtils';
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+});
 
 /**
  * Renders the lead story headline in the hero's heavy grotesk,
@@ -51,7 +57,7 @@ export function LeadHeadline({
         if (idx === targetIndex) {
           return (
             <React.Fragment key={idx}>
-              <span className="font-serif italic font-normal tracking-normal text-juice-cream inline-block">
+              <span className={`${playfair.className} italic font-normal tracking-normal text-juice-cream inline-block`}>
                 {word}
               </span>{' '}
             </React.Fragment>
