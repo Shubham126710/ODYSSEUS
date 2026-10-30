@@ -380,6 +380,18 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
     }
   };
 
+  // Close on Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        stopSpeaking();
+        onClose();
+      }
+    };
+    if (isOpen) window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   const rawHero = article?.imageUrl || article?.enclosure?.url;
   const heroImageUrl = rawHero ? (upgradeThumbnailResolution(rawHero) || rawHero) : null;
   const activeHeroSrc = useProxy && heroImageUrl
@@ -427,18 +439,18 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
             className="fixed inset-0 bg-black/65 backdrop-blur-sm"
           />
 
-          {/* Modal Container */}
+          {/* Modal Container: Fullscreen Tranquil Reading Sanctuary */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 30 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 240 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             style={{
               backgroundColor: currentTheme.bg,
               color: currentTheme.text,
               zIndex: 9999,
             }}
-            className="fixed inset-0 md:top-4 md:bottom-4 md:inset-x-8 lg:inset-x-16 xl:inset-x-32 rounded-none md:rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-colors duration-200"
+            className="fixed inset-0 overflow-hidden flex flex-col transition-colors duration-200"
           >
             {/* 2px Orange Reading Progress Line Fixed to the Very Top */}
             <div className="w-full h-[2px] bg-transparent absolute top-0 left-0 right-0 z-50 pointer-events-none">
@@ -446,98 +458,66 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                 style={{
                   width: `${scrollProgress}%`,
                   height: '2px',
-                  backgroundColor: '#FF6B4A',
+                  backgroundColor: '#FF694F',
                   transition: 'width 100ms ease-out',
                 }}
               />
             </div>
 
-            {/* Sticky Editorial Header (56-60px tall) */}
+            {/* Sticky Editorial Header */}
             <header
               style={{
-                height: '58px',
-                minHeight: '58px',
+                height: '60px',
+                minHeight: '60px',
                 backgroundColor: currentTheme.headerBg,
                 borderBottom: `1px solid ${currentTheme.border}`,
               }}
-              className="sticky top-0 z-40 w-full px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0 select-none transition-colors duration-200"
+              className="sticky top-0 z-40 w-full px-4 sm:px-8 flex items-center justify-between gap-3 shrink-0 select-none transition-colors duration-200"
             >
-              {/* Left: Back button + "BACK" label (no duplicated source name) */}
+              {/* Left: Minimal Back Action */}
               <button
                 type="button"
                 onClick={() => {
                   stopSpeaking();
                   onClose();
                 }}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 16px',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  fontSize: '11px',
-                  letterSpacing: '0.08em',
-                  lineHeight: 1,
-                  borderRadius: '999px',
-                  overflow: 'visible',
-                  border: `1px solid ${currentTheme.border}`,
-                  backgroundColor: currentTheme.buttonBg,
-                  color: currentTheme.text,
-                }}
-                className="font-mono uppercase font-bold cursor-pointer hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF6B4A]"
-                title="Back (Esc)"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-current/8 font-mono text-xs uppercase font-bold tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF694F]"
+                title="Back to feed (Esc)"
                 aria-label="Back"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="shrink-0">
                   <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
-                <span>BACK</span>
+                <span>Back</span>
               </button>
 
               {/* Right: Grouped controls: LISTEN, Theme Dots, SAVE, ORIGINAL ↗ */}
-              <div className="flex items-center gap-[12px] shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 
                 {/* 1. LISTEN (icon + label) */}
                 <button
                   type="button"
                   onClick={toggleSpeak}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px 16px',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
-                    fontSize: '11px',
-                    letterSpacing: '0.08em',
-                    lineHeight: 1,
-                    borderRadius: '999px',
-                    overflow: 'visible',
-                    border: `1px solid ${currentTheme.border}`,
-                    backgroundColor: currentTheme.buttonBg,
-                    color: currentTheme.text,
-                  }}
-                  className="font-mono uppercase font-bold cursor-pointer hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF6B4A]"
-                  title={isPlaying ? 'Pause audio' : 'Listen to article'}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-current/8 font-mono text-xs uppercase font-bold tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF694F]"
+                  title={isPlaying ? 'Pause reading' : 'Read aloud'}
                   aria-label="Listen"
                 >
                   {isPlaying ? (
-                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" className="shrink-0">
+                    <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24" className="shrink-0">
                       <rect x="6" y="4" width="4" height="16" />
                       <rect x="14" y="4" width="4" height="16" />
                     </svg>
                   ) : (
-                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" className="shrink-0">
+                    <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24" className="shrink-0">
                       <polygon points="5 3 19 12 5 21 5 3" />
                     </svg>
                   )}
                   <span className="hidden sm:inline">{isPlaying ? 'PLAYING' : 'LISTEN'}</span>
                 </button>
 
-                {/* 2. Three Theme Dots (18px each, 10px gap, no overlapping) */}
+                {/* 2. Three Theme Dots (16px each, 10px gap, no overlapping) */}
                 <div
-                  className="inline-flex items-center gap-[10px] shrink-0"
+                  className="inline-flex items-center gap-2.5 px-1 shrink-0"
                   role="group"
                   aria-label="Theme selector"
                 >
@@ -548,17 +528,15 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                     aria-label="Paper theme"
                     title="Paper theme"
                     style={{
-                      width: '18px',
-                      height: '18px',
-                      minWidth: '18px',
-                      minHeight: '18px',
+                      width: '16px',
+                      height: '16px',
                       backgroundColor: THEMES.paper.dotBg,
                       border: `1px solid ${THEMES.paper.dotBorder}`,
                     }}
                     className={`rounded-full cursor-pointer transition-all shrink-0 ${
                       theme === 'paper'
                         ? 'ring-2 ring-offset-2 ring-[#5D8246]'
-                        : 'opacity-70 hover:opacity-100 hover:scale-110'
+                        : 'opacity-50 hover:opacity-100'
                     }`}
                   />
 
@@ -569,17 +547,15 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                     aria-label="Olive theme"
                     title="Olive theme"
                     style={{
-                      width: '18px',
-                      height: '18px',
-                      minWidth: '18px',
-                      minHeight: '18px',
+                      width: '16px',
+                      height: '16px',
                       backgroundColor: THEMES.olive.dotBg,
                       border: `1px solid ${THEMES.olive.dotBorder}`,
                     }}
                     className={`rounded-full cursor-pointer transition-all shrink-0 ${
                       theme === 'olive'
-                        ? 'ring-2 ring-offset-2 ring-[#FF6B4A]'
-                        : 'opacity-70 hover:opacity-100 hover:scale-110'
+                        ? 'ring-2 ring-offset-2 ring-[#FF694F]'
+                        : 'opacity-50 hover:opacity-100'
                     }`}
                   />
 
@@ -590,17 +566,15 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                     aria-label="Dark theme"
                     title="Dark theme"
                     style={{
-                      width: '18px',
-                      height: '18px',
-                      minWidth: '18px',
-                      minHeight: '18px',
+                      width: '16px',
+                      height: '16px',
                       backgroundColor: THEMES.dark.dotBg,
                       border: `1px solid ${THEMES.dark.dotBorder}`,
                     }}
                     className={`rounded-full cursor-pointer transition-all shrink-0 ${
                       theme === 'dark'
-                        ? 'ring-2 ring-offset-2 ring-[#FF6B4A]'
-                        : 'opacity-70 hover:opacity-100 hover:scale-110'
+                        ? 'ring-2 ring-offset-2 ring-[#FF694F]'
+                        : 'opacity-50 hover:opacity-100'
                     }`}
                   />
                 </div>
@@ -609,29 +583,13 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                 <button
                   type="button"
                   onClick={handleSaveToggle}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px 16px',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
-                    fontSize: '11px',
-                    letterSpacing: '0.08em',
-                    lineHeight: 1,
-                    borderRadius: '999px',
-                    overflow: 'visible',
-                    border: `1px solid ${currentTheme.border}`,
-                    backgroundColor: currentTheme.buttonBg,
-                    color: currentTheme.text,
-                  }}
-                  className="font-mono uppercase font-bold cursor-pointer hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF6B4A]"
-                  title="Save article"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-current/8 font-mono text-xs uppercase font-bold tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF694F]"
+                  title="Save story"
                   aria-label="Save"
                 >
                   <svg
-                    width="14"
-                    height="14"
+                    width="13"
+                    height="13"
                     fill={isArticleSaved ? 'currentColor' : 'none'}
                     stroke="currentColor"
                     strokeWidth="2"
@@ -647,32 +605,16 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                   <span className="hidden sm:inline">{isArticleSaved ? 'SAVED' : 'SAVE'}</span>
                 </button>
 
-                {/* 4. ORIGINAL ↗ (Orange pill, cream text, 12px bold) */}
+                {/* 4. ORIGINAL ↗ (Subtle editorial link) */}
                 <a
                   href={article.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 16px',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    letterSpacing: '0.08em',
-                    lineHeight: 1,
-                    borderRadius: '999px',
-                    overflow: 'visible',
-                    backgroundColor: '#FF6B4A',
-                    color: '#FFFDD0',
-                  }}
-                  className="font-mono uppercase cursor-pointer hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF6B4A]"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-current/8 hover:bg-current/15 font-mono text-xs uppercase font-bold tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF694F]"
                   title="Open original article"
                 >
                   <span>ORIGINAL</span>
-                  <span className="text-[13px] leading-none">↗</span>
+                  <span className="text-[11px] leading-none">↗</span>
                 </a>
 
               </div>
@@ -788,10 +730,10 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
-                          backgroundColor: '#FF6B4A',
+                          backgroundColor: '#FF694F',
                           color: '#FFFDD0',
                         }}
-                        className="inline-block px-7 py-3 font-mono font-bold text-xs uppercase tracking-wider rounded-full hover:opacity-90 transition-opacity"
+                        className="inline-block px-7 py-3 font-mono font-bold text-xs uppercase tracking-wider rounded-xl hover:opacity-90 transition-opacity"
                       >
                         Read Full Story →
                       </a>
@@ -803,20 +745,20 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                       .rm-body {
                         font-family: Georgia, Cambria, 'Times New Roman', serif;
                         font-size: 19px;
-                        line-height: 1.7;
-                        font-weight: 500;
+                        line-height: 1.75;
+                        font-weight: 400;
                         color: inherit;
                       }
                       .rm-body p {
-                        margin-bottom: 1.1em;
+                        margin-bottom: 1.3em;
                       }
                       .rm-body > p:first-of-type::first-letter {
                         float: left;
-                        font-size: 3.2em;
-                        line-height: 0.85;
-                        padding-right: 8px;
-                        padding-top: 4px;
-                        color: #FF6B4A;
+                        font-size: 3.4em;
+                        line-height: 0.78;
+                        margin-right: 0.14em;
+                        margin-top: 0.06em;
+                        color: inherit;
                         font-weight: 700;
                         font-family: Georgia, Cambria, 'Times New Roman', serif;
                       }
@@ -831,23 +773,25 @@ export const ReadingModal: React.FC<ReadingModalProps> = ({
                       .rm-body h2 { font-size: 1.45em; }
                       .rm-body h3 { font-size: 1.25em; }
                       .rm-body a {
-                        color: ${currentTheme.link};
+                        color: inherit;
                         text-decoration: underline;
-                        text-decoration-color: #FF6B4A;
-                        text-decoration-thickness: 2px;
-                        text-underline-offset: 4px;
-                        transition: opacity 0.2s;
+                        text-decoration-color: currentColor;
+                        text-decoration-thickness: 1px;
+                        text-underline-offset: 3px;
+                        opacity: 0.85;
+                        transition: opacity 0.2s, text-decoration-color 0.2s;
                       }
                       .rm-body a:hover {
-                        opacity: 0.8;
+                        opacity: 1;
+                        text-decoration-color: #FF694F;
                       }
                       .rm-body blockquote {
                         font-style: italic;
                         font-size: 20px;
                         line-height: 1.6;
-                        border-left: 3px solid #FF6B4A;
-                        padding-left: 16px;
-                        margin: 1.6em 0;
+                        border-left: 2px solid #FF694F;
+                        padding-left: 20px;
+                        margin: 2em 0;
                         opacity: 0.9;
                       }
                       .rm-body img {

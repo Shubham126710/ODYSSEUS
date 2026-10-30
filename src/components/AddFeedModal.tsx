@@ -146,10 +146,10 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
               {/* Header */}
               <div className="p-6 sm:p-8 pb-0 flex justify-between items-start">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#EA580C] font-bold block mb-1">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#FF694F] font-bold block mb-1">
                     ODYSSEUS ARCHIVE REPOSITORY
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 tracking-tight">
+                  <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#1A2814] tracking-tight">
                     Add Publication Source
                   </h2>
                   <p className="text-stone-500 text-xs sm:text-sm mt-1">

@@ -23,6 +23,15 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
   const [extractedArticle, setExtractedArticle] = useState<any | null>(null);
   const [isSaved, setIsSaved] = useState(false);
 
+  // Close on Escape
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   const handleExtract = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
@@ -103,34 +112,36 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
       {isOpen && (
         <div 
           style={{ zIndex: 9999 }}
-          className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md"
+          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+          className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md cursor-pointer"
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 15 }}
+            initial={{ opacity: 0, scale: 0.97, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 15 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            style={{ backgroundColor: '#FAF9F6', color: '#141518' }}
-            className="relative w-full max-w-xl rounded-2xl sm:rounded-3xl border border-stone-200/90 shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
+            exit={{ opacity: 0, scale: 0.97, y: 12 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            onClick={(e) => e.stopPropagation()}
+            style={{ backgroundColor: '#FAF7EE', color: '#1A2814', maxWidth: '580px', width: '100%' }}
+            className="relative rounded-2xl sm:rounded-3xl border border-stone-300/70 shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] cursor-default"
           >
             {/* Header */}
-            <div className="px-6 py-5 border-b border-stone-100 flex items-center justify-between bg-stone-50/70">
+            <div className="px-6 py-5 border-b border-stone-200/80 flex items-center justify-between bg-stone-100/40">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-[#EA580C] flex items-center justify-center font-serif font-bold text-base shadow-2xs">
+                <div className="w-8 h-8 rounded-lg bg-[#5D8246]/10 text-[#FF6B4A] flex items-center justify-center font-serif font-bold text-base">
                   ✦
                 </div>
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-stone-400 block font-bold">
-                    CLEAN READER PROTOCOL
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-stone-500 block font-bold">
+                    PROSE PURIFICATION
                   </span>
-                  <h3 className="font-serif text-lg font-bold text-stone-900">
+                  <h3 className="font-serif text-lg font-bold text-[#1A2814]">
                     Import Web Article
                   </h3>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors font-mono text-sm cursor-pointer"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-stone-400 hover:text-[#1A2814] hover:bg-stone-200/50 transition-colors font-mono text-sm cursor-pointer"
                 title="Close"
               >
                 ✕
@@ -140,7 +151,7 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
             {/* Body */}
             <div className="p-6 sm:p-7 overflow-y-auto flex-1 font-sans space-y-6">
               <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Paste any article link from the web. Odysseus strips out ads, trackers, social widgets, and clutter, isolating pure story text into our focused reading chamber.
+                Paste any article URL from the web. Odysseus strips out ad networks, tracker telemetry, and social sidebars, isolating pure narrative prose into our quiet reading chamber.
               </p>
 
               {/* Input Form with Clean Side-by-Side Button */}
@@ -151,13 +162,17 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://example.com/essay-or-article..."
-                    className="flex-1 bg-white border border-stone-300 focus:border-[#EA580C] focus:bg-white rounded-xl px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none transition-all shadow-2xs"
+                    className="flex-1 bg-white border border-stone-300/80 focus:border-[#FF6B4A] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#1A2814] placeholder:text-stone-400 focus:outline-none transition-all shadow-2xs"
                     autoFocus
                   />
                   <button
                     type="submit"
                     disabled={isLoading || !url.trim()}
-                    className="px-6 py-3 rounded-xl bg-[#EA580C] hover:bg-[#C2410C] disabled:opacity-50 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                    style={{
+                      backgroundColor: url.trim() ? '#FF6B4A' : '#E8A392',
+                      color: '#FFFDD0',
+                    }}
+                    className="px-5 py-3 rounded-xl font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 shrink-0 cursor-pointer"
                   >
                     {isLoading ? (
                       <>
@@ -171,7 +186,7 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
                 </div>
 
                 {error && (
-                  <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 leading-snug">
+                  <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 leading-snug">
                     {error}
                   </div>
                 )}
@@ -180,30 +195,32 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
               {/* Sample Links */}
               {!extractedArticle && !isLoading && (
                 <div className="pt-1">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400 block mb-2.5 font-bold">
-                    TRY SAMPLE LONGFORM ARTICLES:
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500 block mb-2.5 font-bold">
+                    SAMPLE LONGFORM DISPATCHES:
                   </span>
                   <div className="flex flex-col gap-2 text-xs">
                     <button
                       onClick={() => setSampleUrl('https://paulgraham.com/foundermode.html')}
-                      className="text-left px-4 py-3 rounded-xl bg-white hover:bg-stone-50 border border-stone-200/90 hover:border-[#EA580C] text-stone-800 transition-all flex items-center justify-between group shadow-2xs cursor-pointer"
+                      style={{ backgroundColor: 'rgba(93, 130, 70, 0.08)' }}
+                      className="text-left px-4 py-3 rounded-xl text-[#1A2814] hover:bg-[#5D8246]/15 transition-all flex items-center justify-between group cursor-pointer"
                     >
-                      <span className="font-serif font-bold text-stone-900 group-hover:text-[#EA580C] transition-colors">
+                      <span className="font-serif font-bold text-[#1A2814] group-hover:text-[#FF6B4A] transition-colors">
                         Paul Graham • Founder Mode
                       </span>
-                      <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider">
-                        Essay
+                      <span className="text-[10px] font-mono text-stone-500 group-hover:text-[#FF6B4A] uppercase tracking-wider">
+                        Essay ↗
                       </span>
                     </button>
                     <button
                       onClick={() => setSampleUrl('https://ciechanow.ski/mechanical-watch/')}
-                      className="text-left px-4 py-3 rounded-xl bg-white hover:bg-stone-50 border border-stone-200/90 hover:border-[#EA580C] text-stone-800 transition-all flex items-center justify-between group shadow-2xs cursor-pointer"
+                      style={{ backgroundColor: 'rgba(93, 130, 70, 0.08)' }}
+                      className="text-left px-4 py-3 rounded-xl text-[#1A2814] hover:bg-[#5D8246]/15 transition-all flex items-center justify-between group cursor-pointer"
                     >
-                      <span className="font-serif font-bold text-stone-900 group-hover:text-[#EA580C] transition-colors">
+                      <span className="font-serif font-bold text-[#1A2814] group-hover:text-[#FF6B4A] transition-colors">
                         Bartosz Ciechanowski • Mechanical Watch
                       </span>
-                      <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider">
-                        Engineering
+                      <span className="text-[10px] font-mono text-stone-500 group-hover:text-[#FF6B4A] uppercase tracking-wider">
+                        Engineering ↗
                       </span>
                     </button>
                   </div>
@@ -213,9 +230,9 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
               {/* Loading Animation */}
               {isLoading && (
                 <div className="py-8 text-center space-y-3">
-                  <div className="inline-block w-8 h-8 border-3 border-[#EA580C]/20 border-t-[#EA580C] rounded-full animate-spin" />
+                  <div className="inline-block w-7 h-7 border-2 border-[#FF694F]/20 border-t-[#FF694F] rounded-full animate-spin" />
                   <p className="text-xs font-mono uppercase tracking-widest text-stone-500">
-                    Parsing DOM & Purifying clean prose...
+                    Purifying DOM & Isolating Clean Prose...
                   </p>
                 </div>
               )}
@@ -225,15 +242,15 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-5 rounded-2xl bg-white border border-stone-200/90 space-y-4 shadow-xs"
+                  className="p-5 rounded-2xl bg-white border border-stone-200/80 space-y-4 shadow-xs"
                 >
-                  <div className="flex items-center justify-between text-[10px] font-mono text-stone-400 uppercase tracking-widest">
-                    <span className="font-bold text-[#EA580C]">{extractedArticle.source}</span>
+                  <div className="flex items-center justify-between text-[10px] font-mono text-stone-500 uppercase tracking-widest">
+                    <span className="font-bold text-[#FF694F]">{extractedArticle.source}</span>
                     <span>{extractedArticle.readTime}</span>
                   </div>
 
                   <div>
-                    <h4 className="font-serif text-lg font-bold text-stone-900 leading-snug">
+                    <h4 className="font-serif text-lg font-bold text-[#1A2814] leading-snug">
                       {extractedArticle.title}
                     </h4>
                     <p className="text-xs text-stone-600 line-clamp-3 mt-2 leading-relaxed">
@@ -244,7 +261,7 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
                   <div className="pt-2 flex flex-wrap gap-2.5">
                     <button
                       onClick={handleOpenReader}
-                      className="px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-xs cursor-pointer"
+                      className="px-5 py-2.5 rounded-xl bg-[#1A2814] hover:bg-[#2F4522] text-[#FFFDD0] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-xs cursor-pointer"
                     >
                       Read in Chamber →
                     </button>
@@ -253,10 +270,10 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
                       <button
                         onClick={handleSaveToLibrary}
                         disabled={isSaved}
-                        className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all border cursor-pointer ${
+                        className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
                           isSaved
-                            ? 'bg-amber-50 text-[#EA580C] border-amber-300'
-                            : 'bg-white hover:bg-stone-100 text-stone-700 border-stone-300'
+                            ? 'bg-[#5D8246]/10 text-[#5D8246]'
+                            : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
                         }`}
                       >
                         {isSaved ? '✓ Saved to Library' : 'Save for Later'}
@@ -268,9 +285,9 @@ export const ImportArticleModal: React.FC<ImportArticleModalProps> = ({
             </div>
 
             {/* Footer Bar */}
-            <div className="px-6 py-3.5 border-t border-stone-100 bg-stone-50/70 flex items-center justify-between text-[10px] font-mono text-stone-400 uppercase tracking-wider">
-              <span>Isolated Clean Prose</span>
-              <span className="text-[#EA580C] font-bold">100% Distraction Free</span>
+            <div className="px-6 py-3 border-t border-stone-200/80 bg-stone-100/40 flex items-center justify-between text-[10px] font-mono text-stone-500 uppercase tracking-wider">
+              <span>Pure Narrative Prose</span>
+              <span className="text-[#5D8246] font-bold">Zero Tracking Pixels</span>
             </div>
           </motion.div>
         </div>

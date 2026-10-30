@@ -218,14 +218,19 @@ Odysseus features an aggressive, distraction-free prose extraction pipeline that
 
 ### 2. The Zen Chamber Reading Interface (`ReadingModal.tsx`)
 Designed to feel like reading in a quiet private library:
+* **Full-Screen Tranquil Sanctuary**: Full-bleed immersive reading environment replacing floating cutout windows, eliminating awkward backdrop gaps.
+* **Minimalist Editorial Header**:
+  - Discreet `← Back` navigation (with `Escape` keycap shortcut).
+  - Built-in text-to-speech audio reader (`▶ Listen`).
+  - Three quiet theme lighting dots: **Parchment Cream** (`#FFFDD0`), **Editorial Forest Olive** (`#5D8246`), and **Deep Charcoal** (`#111317`).
+  - Tactile `Save` bookmarking and unobtrusive `Original ↗` source link.
+* **Prose Typographic Serenity**:
+  - Golden-ratio reading measure (`680px` max-width content column) with generous line-height (`1.75`).
+  - Classical 3-line drop cap on the opening paragraph.
+  - Quiet, color-harmonized 1px link underlines (`currentColor`), eliminating distracting 2px neon underline clutter.
 * **Dual Reading Progress Indicators**:
   - **Header Meter**: Elegant slim reading progress bar tracking exact percentage down the story.
   - **Floating Tactical HUD**: A tactile floating pill showing live percentage read, elapsed reading minutes, and celebratory completion stamp (`Completed ✦`). Clicking the HUD smoothly scrolls back to the top of the story.
-* **Typography & Theme Switcher**:
-  - **Zen Night** (`#0f1117`), **Parchment Sepia** (`#f4ecd8`), and **Gallery Light** (`#ffffff`).
-  - Fluid font sizing (`A-` / `A+`) and typography with generous line heights and pull quotes.
-* **Speech Synthesis (TTS Read Aloud)**:
-  - Built-in text-to-speech player controls allowing you to listen to any purified article hands-free.
 
 ---
 
@@ -249,19 +254,29 @@ All secondary surfaces across Odysseus have been elevated into the unified, ultr
 * **Interactive Daily Commitment Slider**: Calibrate your daily reading goal from 5 to 60 minutes with instant database sync.
 
 ### 3. Archive Search Overlay (`SearchModal.tsx`)
-* **Editorial Search Palette**: Unified luxury modal styled with dark forest green, warm cream, and subtle stone borders.
-* **Instantaneous Live Filtering**: Real-time multi-field search across titles, excerpts, sources, categories, and article content.
-* **Live Archive Statistics**: Shows live count of indexed dispatches.
-* **Fast Navigation**: Suggested topic pills (`Tech`, `Design`, `Culture`, `Science`, `AI`), auto-focus on open, and keyboard shortcut support (`Escape`).
+* **Editorial Search Salon**: Unified luxury modal styled with warm cream `#FAF7EE` parchment, 640px bounded width, and hairline stone borders (`border-stone-300/70`).
+* **Tinted Editorial Dispatches**: Replaced crude wireframe pill outlines with softly tinted chips (`Tech`, `Design`, `Culture`, `Science`, `Sports`, `AI`, `Architecture`) in subtle olive tones with coral hover states.
+* **Instantaneous Live Filtering**: Real-time multi-field search across titles, excerpts, sources, categories, and article content with rounded thumbnails.
+* **Refined Folio Status**: Clean status header showing live indexed dispatches and an elegant `<kbd>ESC</kbd>` keycap.
 
 ### 4. Cinematic Onboarding Orientation (`OnboardingModal.tsx`)
+* **Warm Editorial Harmony**: Replaced harsh jet-black vs white cards and orange sticker pills with harmonious olive-tinted parchment cards (`rgba(93, 130, 70, 0.12)`), inline `✓ Selected` typography, and tactile coral continue actions.
 * **4-Step Traveler Calibration**:
-  1. *Orient Your Curiosity*: Topic interests selection (Tech, Design, Culture, Science, Chronicle).
-  2. *Curate Publications*: Custom vector logos for *Wired*, *The Verge*, *The Atlantic*, *The New York Times*, *TechCrunch*, *Bloomberg*, *Dezeen*, and *Quanta*.
+  1. *Orient Your Curiosity*: Topic interests selection (Tech, Design, Culture, Science, Chronicle, Ecology).
+  2. *Curate Publications*: Custom vector logos for *Wired*, *The Verge*, *The Atlantic*, *The New York Times*, *TechCrunch*, *Bloomberg*, *Dezeen*, and *Quanta* with minted stamped seals.
   3. *Define Daily Reading Pace*: Select commitment level (Casual Voyager 10m, Dedicated Scholar 20m, Grand Master 35m).
-  4. *Traveler's Passport*: Initializing reader profile and explorer rank.
+  4. *Traveler's Passport*: Initializing reader profile, minted wax seal stamp, and inaugural rank.
 
-### 5. Configuration Atelier (`/settings`)
+### 5. Import Web Article Chamber (`ImportArticleModal.tsx`)
+* **Prose Purification Docket**: Focused URL extractor in a warm cream card with 580px max-width, `Escape` key close, and backdrop dismissal.
+* **Literary Dispatches**: Replaced harsh wireframe boxes with refined reading slips for longform essays (*Paul Graham*, *Bartosz Ciechanowski*).
+* **Tactile Coral Trigger**: Prominent `#FF6B4A` purification button and live extraction progress feedback.
+
+### 6. Traveler Dossier & Clean Navbar (`AppHeader.tsx`)
+* **Outline-Free Navbar Chrome**: Stripped all harsh circular wireframe borders (`border-white/15`, `ring`) from right-utility buttons (Search, Import, Guide, Streak, Avatar).
+* **Dossier Popover**: Removed nested double borders, presenting streak days, 7-day habit spread, and a daily pace slider with `accentColor: #FF6B4A` to eliminate browser-native blue thumbs.
+
+### 7. Configuration Atelier (`/settings`)
 * **Reading Cadence Card**: Calibrate daily goals (`10m`, `15m`, `30m`, `45m`).
 * **Prose Isolation Protocol**: Toggles for aggressive noise filters and multiplier hour notifications.
 * **Visual Chamber Themes**: Choose default lighting environments (*Zen Night*, *Parchment*, *Gallery*).
