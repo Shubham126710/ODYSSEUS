@@ -139,26 +139,26 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
             className="fixed inset-0 m-auto w-full max-w-3xl h-fit max-h-[90vh] z-modal px-4"
           >
             <div 
-              style={{ backgroundColor: '#FAF7EE', color: '#131E15' }}
-              className="rounded-3xl shadow-2xl overflow-hidden border border-[#131E15]/15"
+              style={{ backgroundColor: '#1E2D18', color: '#FFFDD0' }}
+              className="rounded-3xl shadow-2xl overflow-hidden border border-[#FFFDD0]/15"
             >
               
               {/* Header */}
               <div className="p-6 sm:p-8 pb-0 flex justify-between items-start">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#FF694F] font-bold block mb-1">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#FF6B4A] font-bold block mb-1">
                     ODYSSEUS ARCHIVE REPOSITORY
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#1A2814] tracking-tight">
+                  <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#FFFDD0] tracking-tight">
                     Add Publication Source
                   </h2>
-                  <p className="text-stone-500 text-xs sm:text-sm mt-1">
+                  <p className="text-[#FFFDD0]/60 text-xs sm:text-sm mt-1">
                     Paste any custom RSS feed URL or subscribe to prestige desks below.
                   </p>
                 </div>
                 <button 
                   onClick={onClose}
-                  className="p-2 rounded-full hover:bg-stone-100 text-stone-400 hover:text-stone-900 transition-colors"
+                  className="p-2 rounded-full hover:bg-white/10 text-[#FFFDD0]/50 hover:text-[#FFFDD0] transition-colors"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
@@ -169,7 +169,7 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
                 <form onSubmit={handleSubmit} className="mb-8 relative group">
                   <div className="flex flex-col sm:flex-row gap-2.5">
                     <div className="relative flex-1">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#FFFDD0]/40">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                       </div>
                       <input
@@ -177,14 +177,15 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
                         placeholder="https://publication.com/feed.xml"
-                        className="w-full bg-stone-50 hover:bg-stone-100/70 focus:bg-white border border-stone-200/90 focus:border-[#EA580C] rounded-xl pl-11 pr-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none transition-all"
+                        className="w-full bg-[#162211] border border-[#FFFDD0]/20 focus:border-[#FF6B4A] rounded-xl pl-11 pr-4 py-3 text-sm text-[#FFFDD0] placeholder:text-[#FFFDD0]/40 focus:outline-none transition-all"
                         autoFocus
                       />
                     </div>
                     <button
                       type="submit"
                       disabled={loading || !url}
-                      className="bg-[#131E15] hover:bg-black text-white px-6 py-3 rounded-xl font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xs shrink-0"
+                      style={{ backgroundColor: '#FF6B4A', color: '#FFFDD0' }}
+                      className="hover:opacity-90 px-6 py-3 rounded-xl font-mono font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xs shrink-0 cursor-pointer"
                     >
                       {loading ? (
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -196,12 +197,12 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
                   
                   {/* Status Messages */}
                   {error && (
-                    <p className="text-red-500 text-xs font-mono font-bold mt-2">
+                    <p className="text-red-400 text-xs font-mono font-bold mt-2">
                       {error}
                     </p>
                   )}
                   {success && (
-                    <p className="text-emerald-700 text-xs font-mono font-bold mt-2">
+                    <p className="text-[#FF6B4A] text-xs font-mono font-bold mt-2">
                       ✓ Publication source connected successfully
                     </p>
                   )}
@@ -210,7 +211,7 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
                 {/* Editorial Desks Filter & Prestige Sources */}
                 <div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                    <h3 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest font-mono">
+                    <h3 className="text-[10px] font-bold text-[#FFFDD0]/60 uppercase tracking-widest font-mono">
                       Curated Editorial Desks
                     </h3>
                     
@@ -218,10 +219,10 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
                     <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                       <button
                         onClick={() => setSelectedDesk('all')}
-                        className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all shrink-0 ${
+                        className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all shrink-0 cursor-pointer ${
                           selectedDesk === 'all'
-                            ? 'bg-[#131E15] text-white shadow-xs'
-                            : 'bg-stone-100 text-stone-600 hover:text-stone-900 hover:bg-stone-200'
+                            ? 'bg-[#FF6B4A] text-[#FFFDD0] shadow-xs'
+                            : 'bg-white/10 text-[#FFFDD0]/70 hover:text-[#FFFDD0] hover:bg-white/20'
                         }`}
                       >
                         All Desks
@@ -230,10 +231,10 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
                         <button
                           key={d.id}
                           onClick={() => setSelectedDesk(d.id)}
-                          className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all shrink-0 ${
+                          className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all shrink-0 cursor-pointer ${
                             selectedDesk === d.id
-                              ? 'bg-[#131E15] text-white shadow-xs'
-                              : 'bg-stone-100 text-stone-600 hover:text-stone-900 hover:bg-stone-200'
+                              ? 'bg-[#FF6B4A] text-[#FFFDD0] shadow-xs'
+                              : 'bg-white/10 text-[#FFFDD0]/70 hover:text-[#FFFDD0] hover:bg-white/20'
                           }`}
                         >
                           {d.label}
@@ -252,32 +253,32 @@ export const AddFeedModal = ({ isOpen, onClose, userId, onSuccess }: AddFeedModa
                             key={feed.id}
                             onClick={() => !isSubscribed && handleAddFeed(feed.feedUrl)}
                             disabled={loading || isSubscribed}
-                            className={`group flex items-start gap-3 p-3.5 rounded-xl border transition-all text-left relative ${
+                            className={`group flex items-start gap-3 p-3.5 rounded-xl border transition-all text-left relative cursor-pointer ${
                               isSubscribed
-                                ? 'bg-stone-50 border-stone-200/60 opacity-60 cursor-default'
-                                : 'bg-white hover:bg-stone-50 border-stone-200/80 hover:border-stone-300 shadow-xs'
+                                ? 'bg-white/5 border-white/10 opacity-60 cursor-default'
+                                : 'bg-[#162211] hover:bg-[#1C2A16] border-[#FFFDD0]/15 hover:border-[#FF6B4A]/50 shadow-xs'
                             }`}
                           >
                             <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-serif font-bold text-xs shrink-0 ${
-                              isSubscribed ? 'bg-[#131E15] text-white' : 'bg-stone-100 text-stone-800 group-hover:bg-[#EA580C] group-hover:text-white transition-colors'
+                              isSubscribed ? 'bg-white/10 text-white' : 'bg-white/10 text-[#FFFDD0] group-hover:bg-[#FF6B4A] group-hover:text-[#FFFDD0] transition-colors'
                             }`}>
                               {feed.monogram}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between">
-                                <span className={`font-serif text-sm font-bold truncate ${isSubscribed ? 'text-stone-700' : 'text-stone-900 group-hover:text-[#EA580C]'}`}>
+                                <span className={`font-serif text-sm font-bold truncate ${isSubscribed ? 'text-[#FFFDD0]/60' : 'text-[#FFFDD0] group-hover:text-[#FF6B4A]'}`}>
                                   {feed.name}
                                 </span>
                                 {isSubscribed ? (
-                                  <span className="text-[10px] font-mono font-bold text-stone-500">✓ Added</span>
+                                  <span className="text-[10px] font-mono font-bold text-[#FFFDD0]/50">✓ Added</span>
                                 ) : (
-                                  <span className="text-[10px] text-stone-400 group-hover:text-[#EA580C] font-bold font-mono">+ Add</span>
+                                  <span className="text-[10px] text-[#FFFDD0]/40 group-hover:text-[#FF6B4A] font-bold font-mono">+ Add</span>
                                 )}
                               </div>
-                              <span className="text-[9px] font-mono text-stone-400 uppercase tracking-wider block mt-0.5">
+                              <span className="text-[9px] font-mono text-[#FFFDD0]/50 uppercase tracking-wider block mt-0.5">
                                 {feed.category}
                               </span>
-                              <p className="text-[11px] text-stone-500 leading-snug line-clamp-1 mt-1">
+                              <p className="text-[11px] text-[#FFFDD0]/60 leading-snug line-clamp-1 mt-1">
                                 {feed.tagline}
                               </p>
                             </div>

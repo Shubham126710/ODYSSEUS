@@ -207,27 +207,27 @@ export const AppHeader = ({
                 <span>{profile?.streak_count || 1}D</span>
               </button>
 
-              {/* Sleek Floating Chamber Popover in Editorial Warm Palette */}
+              {/* Sleek Floating Chamber Popover in Editorial Forest Palette */}
               {isStatsOpen && (
                 <div 
-                  style={{ zIndex: 9999, backgroundColor: '#FAF7EE', color: '#1B2A15' }}
-                  className="absolute right-0 top-full mt-3 w-80 rounded-2xl p-5 shadow-2xl border border-stone-300/60 z-modal origin-top-right animate-in fade-in zoom-in-95 duration-150"
+                  style={{ zIndex: 9999, backgroundColor: '#1E2D18', color: '#FFFDD0' }}
+                  className="absolute right-0 top-full mt-3 w-80 rounded-2xl p-5 shadow-2xl border border-[#FFFDD0]/15 z-modal origin-top-right animate-in fade-in zoom-in-95 duration-150"
                 >
                   
                   {/* Header */}
-                  <div className="flex items-center justify-between pb-3 border-b border-stone-200/80 mb-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#FFFDD0]/10 mb-4">
                     <div>
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500 font-bold block">
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#FFFDD0]/60 font-bold block">
                         TRAVELER DOSSIER
                       </span>
-                      <h4 className="font-sans font-black text-base text-[#1B2A15]">
+                      <h4 className="font-sans font-black text-base text-[#FFFDD0]">
                         {rank.title}
                       </h4>
                     </div>
                     <Link 
                       href="/profile" 
                       onClick={() => setIsStatsOpen(false)}
-                      className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FF694F] hover:text-[#FF694F]/80 transition-colors"
+                      className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FF6B4A] hover:text-[#FF6B4A]/80 transition-colors"
                     >
                       Ledger →
                     </Link>
@@ -235,43 +235,52 @@ export const AppHeader = ({
 
                   {/* Stats Grid */}
                   <div className="grid grid-cols-2 gap-2.5 mb-4">
-                    <div className="bg-[#5D8246]/8 rounded-xl p-3 text-center">
-                      <span className="font-sans font-black text-2xl text-[#FF694F] block">
+                    <div 
+                      style={{ backgroundColor: 'rgba(255, 253, 208, 0.08)' }}
+                      className="rounded-xl p-3 text-center border border-[#FFFDD0]/10"
+                    >
+                      <span className="font-sans font-black text-2xl text-[#FF6B4A] block">
                         {profile?.streak_count || 1}
                       </span>
-                      <span className="text-[10px] font-mono text-stone-600 uppercase tracking-wider font-bold">
+                      <span className="text-[10px] font-mono text-[#FFFDD0]/60 uppercase tracking-wider font-bold">
                         Day Streak
                       </span>
                     </div>
-                    <div className="bg-[#5D8246]/8 rounded-xl p-3 text-center">
-                      <span className="font-sans font-black text-2xl text-[#1B2A15] block">
+                    <div 
+                      style={{ backgroundColor: 'rgba(255, 253, 208, 0.08)' }}
+                      className="rounded-xl p-3 text-center border border-[#FFFDD0]/10"
+                    >
+                      <span className="font-sans font-black text-2xl text-[#FFFDD0] block">
                         {minutesToday}m
                       </span>
-                      <span className="text-[10px] font-mono text-stone-600 uppercase tracking-wider font-bold">
+                      <span className="text-[10px] font-mono text-[#FFFDD0]/60 uppercase tracking-wider font-bold">
                         Today ({tempGoal}m goal)
                       </span>
                     </div>
                   </div>
 
                   {/* 7-Day Habit Ledger */}
-                  <div className="bg-[#5D8246]/8 p-3 rounded-xl mb-4">
-                    <div className="flex items-center justify-between text-[10px] font-mono uppercase text-stone-600 mb-2 font-bold">
+                  <div 
+                    style={{ backgroundColor: 'rgba(255, 253, 208, 0.08)' }}
+                    className="p-3 rounded-xl mb-4 border border-[#FFFDD0]/10"
+                  >
+                    <div className="flex items-center justify-between text-[10px] font-mono uppercase text-[#FFFDD0]/60 mb-2 font-bold">
                       <span>7-Day Spread</span>
                       <span>Mon – Sun</span>
                     </div>
                     <div className="grid grid-cols-7 gap-1">
                       {habitSpread.map((day, idx) => (
                         <div key={idx} className="flex flex-col items-center">
-                          <span className="text-[9px] font-mono text-stone-500 mb-1">{day.dayShort}</span>
+                          <span className="text-[9px] font-mono text-[#FFFDD0]/50 mb-1">{day.dayShort}</span>
                           <div 
                             className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-mono font-bold transition-all ${
                               day.status === 'completed' || day.status === 'today-done'
-                                ? 'bg-[#FF694F] text-[#FFFDD0] shadow-xs'
+                                ? 'bg-[#FF6B4A] text-[#FFFDD0] shadow-xs'
                                 : day.status === 'shielded'
-                                ? 'bg-[#5D8246]/25 text-[#1B2A15]'
+                                ? 'bg-[#5D8246]/40 text-[#FFFDD0]'
                                 : day.isToday
-                                ? 'border-2 border-[#FF694F] text-[#FF694F] bg-[#FAF7EE] font-bold'
-                                : 'bg-stone-200/50 text-stone-400'
+                                ? 'border-2 border-[#FF6B4A] text-[#FF6B4A] bg-[#1E2D18] font-bold'
+                                : 'bg-white/10 text-[#FFFDD0]/40'
                             }`}
                           >
                             {day.status === 'completed' || day.status === 'today-done' ? '✓' : '•'}
@@ -283,9 +292,9 @@ export const AppHeader = ({
 
                   {/* Daily Goal Adjuster */}
                   <div className="pt-1">
-                    <div className="flex items-center justify-between text-[10px] font-mono uppercase text-stone-700 mb-1.5 font-bold">
+                    <div className="flex items-center justify-between text-[10px] font-mono uppercase text-[#FFFDD0]/70 mb-1.5 font-bold">
                       <span>Daily Pace</span>
-                      <span className="text-[#FF694F] font-bold font-mono">{tempGoal} min / day</span>
+                      <span className="text-[#FF6B4A] font-bold font-mono">{tempGoal} min / day</span>
                     </div>
                     <input 
                       type="range" 
@@ -295,7 +304,7 @@ export const AppHeader = ({
                       value={tempGoal}
                       onChange={(e) => updateGoal(parseInt(e.target.value))}
                       style={{ accentColor: '#FF6B4A' }}
-                      className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-stone-200 accent-[#FF6B4A] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF6B4A] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-xs [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#FF6B4A] [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
+                      className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-white/20 accent-[#FF6B4A] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF6B4A] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-xs [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#FF6B4A] [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
                     />
                   </div>
 
@@ -322,31 +331,31 @@ export const AppHeader = ({
               </button>
               
               <div 
-                style={{ backgroundColor: '#FAF7EE', color: '#1B2A15', zIndex: 9999, width: '220px', minWidth: '220px' }}
-                className="absolute right-0 top-full mt-3 w-56 rounded-2xl shadow-2xl border border-stone-300/60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 overflow-hidden"
+                style={{ backgroundColor: '#1E2D18', color: '#FFFDD0', zIndex: 9999, width: '220px', minWidth: '220px' }}
+                className="absolute right-0 top-full mt-3 w-56 rounded-2xl shadow-2xl border border-[#FFFDD0]/15 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 overflow-hidden"
               >
                 {profile && (
-                  <div className="p-4 border-b border-stone-200/80 bg-[#5D8246]/8">
-                    <p className="font-bold text-[#1B2A15] text-sm truncate font-sans">{profile.first_name} {profile.last_name}</p>
-                    <p className="text-[11px] text-stone-500 font-mono mt-0.5">@{profile.username}</p>
+                  <div className="p-4 border-b border-[#FFFDD0]/10 bg-[#162211]/80">
+                    <p className="font-bold text-[#FFFDD0] text-sm truncate font-sans">{profile.first_name} {profile.last_name}</p>
+                    <p className="text-[11px] text-[#FFFDD0]/50 font-mono mt-0.5">@{profile.username}</p>
                   </div>
                 )}
                 <div className="p-1.5 text-xs font-mono">
-                  <Link href="/profile" className="flex items-center gap-2.5 px-3.5 py-2.5 text-[#1B2A15] hover:bg-[#5D8246]/10 rounded-xl transition-colors">
-                    <UserIcon className="w-4 h-4 text-[#5D8246]" />
+                  <Link href="/profile" className="flex items-center gap-2.5 px-3.5 py-2.5 text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-white/10 rounded-xl transition-colors">
+                    <UserIcon className="w-4 h-4 text-[#FF6B4A]" />
                     <span>Traveler Profile</span>
                   </Link>
-                  <Link href="/saved" className="flex items-center gap-2.5 px-3.5 py-2.5 text-[#1B2A15] hover:bg-[#5D8246]/10 rounded-xl transition-colors">
-                    <BookmarkIcon className="w-4 h-4 text-[#5D8246]" />
+                  <Link href="/saved" className="flex items-center gap-2.5 px-3.5 py-2.5 text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-white/10 rounded-xl transition-colors">
+                    <BookmarkIcon className="w-4 h-4 text-[#FF6B4A]" />
                     <span>Saved Library</span>
                   </Link>
-                  <Link href="/settings" className="flex items-center gap-2.5 px-3.5 py-2.5 text-[#1B2A15] hover:bg-[#5D8246]/10 rounded-xl transition-colors">
-                    <SettingsIcon className="w-4 h-4 text-[#5D8246]" />
+                  <Link href="/settings" className="flex items-center gap-2.5 px-3.5 py-2.5 text-[#FFFDD0]/80 hover:text-[#FFFDD0] hover:bg-white/10 rounded-xl transition-colors">
+                    <SettingsIcon className="w-4 h-4 text-[#FF6B4A]" />
                     <span>Preferences</span>
                   </Link>
-                  <div className="h-px bg-stone-200/80 my-1" />
-                  <button onClick={handleSignOut} className="w-full text-left flex items-center gap-2.5 px-3.5 py-2.5 text-[#FF694F] hover:bg-[#FF694F]/10 rounded-xl transition-colors cursor-pointer">
-                    <LogOutIcon className="w-4 h-4 text-[#FF694F]" />
+                  <div className="h-px bg-[#FFFDD0]/10 my-1" />
+                  <button onClick={handleSignOut} className="w-full text-left flex items-center gap-2.5 px-3.5 py-2.5 text-[#FF6B4A] hover:bg-red-500/15 rounded-xl transition-colors cursor-pointer">
+                    <LogOutIcon className="w-4 h-4 text-[#FF6B4A]" />
                     <span>Sign Out</span>
                   </button>
                 </div>

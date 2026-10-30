@@ -201,20 +201,20 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           exit={{ opacity: 0, scale: 0.97, y: 12 }}
           transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           onClick={(e) => e.stopPropagation()}
-          style={{ backgroundColor: '#FAF7EE', color: '#1A2814' }}
-          className="relative w-full max-w-2xl rounded-2xl sm:rounded-3xl border border-stone-300/60 shadow-2xl overflow-hidden flex flex-col max-h-[88vh] cursor-default"
+          style={{ backgroundColor: '#1E2D18', color: '#FFFDD0' }}
+          className="relative w-full max-w-2xl rounded-2xl sm:rounded-3xl border border-[#FFFDD0]/15 shadow-2xl overflow-hidden flex flex-col max-h-[88vh] cursor-default"
         >
           {/* Top Editorial Bar */}
-          <div className="px-6 py-4 border-b border-stone-200/80 flex items-center justify-between bg-stone-100/40 shrink-0">
+          <div className="px-6 py-4 border-b border-[#FFFDD0]/10 flex items-center justify-between bg-[#162211]/80 shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-6 h-6 shrink-0">
                 <StaticOrangeCompass className="w-full h-full" />
               </div>
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#FF694F] font-bold block">
+                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#FF6B4A] font-bold block">
                   SALON ORIENTATION
                 </span>
-                <h4 className="font-serif text-sm sm:text-base font-bold text-[#1A2814]">
+                <h4 className="font-serif text-sm sm:text-base font-bold text-[#FFFDD0]">
                   {step === 1 && 'Step 1: Orient Your Curiosity'}
                   {step === 2 && 'Step 2: Curate Authoritative Desks'}
                   {step === 3 && 'Step 3: Define Daily Reading Pace'}
@@ -234,7 +234,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                         ? { backgroundColor: '#FF6B4A', width: '24px' }
                         : s < step
                         ? { backgroundColor: '#5D8246', width: '10px' }
-                        : { backgroundColor: '#D6D3D1', width: '8px' }
+                        : { backgroundColor: 'rgba(255, 253, 208, 0.2)', width: '8px' }
                     }
                     className="h-1.5 rounded-full transition-all duration-300"
                   />
@@ -242,7 +242,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </div>
               <button
                 onClick={onClose}
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-stone-400 hover:text-[#1A2814] hover:bg-stone-200/50 transition-colors ml-1 font-mono text-xs cursor-pointer"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-[#FFFDD0]/50 hover:text-[#FFFDD0] hover:bg-white/10 transition-colors ml-1 font-mono text-xs cursor-pointer"
                 title="Close Guide"
               >
                 ✕
@@ -262,13 +262,13 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 className="space-y-5"
               >
                 <div className="text-center max-w-lg mx-auto">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF694F] font-bold">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF6B4A] font-bold">
                     TERRITORY ORIENTATION
                   </span>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#1A2814] mt-0.5 mb-1.5">
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#FFFDD0] mt-0.5 mb-1.5">
                     Orient Your Curiosity
                   </h3>
-                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#FFFDD0]/75 leading-relaxed">
                     Select the intellectual territories you wish to explore. Odysseus shapes your daily broadside around your choices.
                   </p>
                 </div>
@@ -282,16 +282,16 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                         onClick={() => toggleTopic(topic.id)}
                         style={
                           isSelected
-                            ? { backgroundColor: 'rgba(93, 130, 70, 0.12)', borderColor: '#5D8246' }
-                            : { backgroundColor: '#FFFFFF', borderColor: 'rgba(214, 211, 209, 0.8)' }
+                            ? { backgroundColor: 'rgba(93, 130, 70, 0.35)', borderColor: '#FF6B4A' }
+                            : { backgroundColor: 'rgba(22, 34, 17, 0.65)', borderColor: 'rgba(255, 253, 208, 0.15)' }
                         }
-                        className="text-left p-3.5 rounded-xl border transition-all duration-200 flex items-start gap-3 cursor-pointer shadow-2xs"
+                        className="text-left p-3.5 rounded-xl border transition-all duration-200 flex items-start gap-3 cursor-pointer shadow-2xs hover:border-[#FF6B4A]/50"
                       >
                         <span 
                           style={
                             isSelected 
-                              ? { backgroundColor: '#5D8246', color: '#FFFDD0' } 
-                              : { backgroundColor: '#F5F5F4', color: '#57534E' }
+                              ? { backgroundColor: '#FF6B4A', color: '#FFFDD0' } 
+                              : { backgroundColor: 'rgba(255, 253, 208, 0.08)', color: '#FFFDD0' }
                           }
                           className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 transition-colors"
                         >
@@ -299,17 +299,17 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                         </span>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className="font-serif font-bold text-sm truncate text-[#1A2814]">{topic.label}</span>
+                            <span className="font-serif font-bold text-sm truncate text-[#FFFDD0]">{topic.label}</span>
                             {isSelected && (
                               <span 
-                                style={{ backgroundColor: 'rgba(93, 130, 70, 0.18)', color: '#5D8246' }}
+                                style={{ backgroundColor: 'rgba(255, 107, 74, 0.25)', color: '#FF6B4A' }}
                                 className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shrink-0 ml-1"
                               >
                                 ✓ Selected
                               </span>
                             )}
                           </div>
-                          <p className="text-[11px] mt-0.5 leading-snug line-clamp-1 text-stone-500">
+                          <p className="text-[11px] mt-0.5 leading-snug line-clamp-1 text-[#FFFDD0]/60">
                             {topic.desc}
                           </p>
                         </div>
@@ -329,13 +329,13 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 className="space-y-5"
               >
                 <div className="text-center max-w-lg mx-auto">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF694F] font-bold">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF6B4A] font-bold">
                     PRESTIGE REPOSITORY
                   </span>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#1A2814] mt-0.5 mb-1.5">
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#FFFDD0] mt-0.5 mb-1.5">
                     Curate Your Library
                   </h3>
-                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#FFFDD0]/75 leading-relaxed">
                     Select authoritative global publications to inaugurate your library. Tap to stamp with a verified salon seal.
                   </p>
                 </div>
@@ -350,34 +350,34 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                         onClick={() => togglePub(pub.id)}
                         style={
                           isSelected
-                            ? { backgroundColor: 'rgba(93, 130, 70, 0.12)', borderColor: '#5D8246' }
-                            : { backgroundColor: '#FFFFFF', borderColor: 'rgba(214, 211, 209, 0.8)' }
+                            ? { backgroundColor: 'rgba(93, 130, 70, 0.35)', borderColor: '#FF6B4A' }
+                            : { backgroundColor: 'rgba(22, 34, 17, 0.65)', borderColor: 'rgba(255, 253, 208, 0.15)' }
                         }
-                        className="p-3.5 rounded-xl border text-center transition-all duration-200 flex flex-col items-center justify-between relative group cursor-pointer shadow-2xs"
+                        className="p-3.5 rounded-xl border text-center transition-all duration-200 flex flex-col items-center justify-between relative group cursor-pointer shadow-2xs hover:border-[#FF6B4A]/50"
                       >
                         <div 
                           style={
                             isSelected
-                              ? { backgroundColor: '#5D8246', color: '#FFFDD0' }
-                              : { backgroundColor: '#F5F5F4', color: '#44403C' }
+                              ? { backgroundColor: '#FF6B4A', color: '#FFFDD0' }
+                              : { backgroundColor: 'rgba(255, 253, 208, 0.08)', color: '#FFFDD0' }
                           }
                           className="w-11 h-11 rounded-lg flex items-center justify-center mb-2 transition-all"
                         >
                           <Logo className="w-6 h-6 object-contain" />
                         </div>
-                        <span className="font-serif font-bold text-xs text-[#1A2814] line-clamp-1">{pub.name}</span>
-                        <span className="text-[9px] font-mono text-stone-500 uppercase tracking-wider mt-0.5">{pub.category}</span>
+                        <span className="font-serif font-bold text-xs text-[#FFFDD0] line-clamp-1">{pub.name}</span>
+                        <span className="text-[9px] font-mono text-[#FFFDD0]/60 uppercase tracking-wider mt-0.5">{pub.category}</span>
 
                         {isSelected ? (
                           <div 
-                            style={{ backgroundColor: 'rgba(93, 130, 70, 0.18)', color: '#5D8246' }}
+                            style={{ backgroundColor: 'rgba(255, 107, 74, 0.25)', color: '#FF6B4A' }}
                             className="mt-2 text-[8px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1"
                           >
                             <span>✦</span>
                             <span>Stamped</span>
                           </div>
                         ) : (
-                          <div className="mt-2 text-[8px] font-mono text-stone-400 uppercase tracking-wider px-2 py-0.5">
+                          <div className="mt-2 text-[8px] font-mono text-[#FFFDD0]/40 uppercase tracking-wider px-2 py-0.5">
                             Select
                           </div>
                         )}
@@ -397,13 +397,13 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 className="space-y-5"
               >
                 <div className="text-center max-w-lg mx-auto">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF694F] font-bold">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF6B4A] font-bold">
                     HABIT COMMITMENT
                   </span>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#1A2814] mt-0.5 mb-1.5">
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#FFFDD0] mt-0.5 mb-1.5">
                     Define Your Daily Pace
                   </h3>
-                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#FFFDD0]/75 leading-relaxed">
                     Reading habits form through steady, intentional ritual. Choose a daily commitment that suits your contemplative rhythm.
                   </p>
                 </div>
@@ -417,17 +417,17 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                         onClick={() => setSelectedGoal(pace.minutes)}
                         style={
                           isSelected
-                            ? { backgroundColor: 'rgba(93, 130, 70, 0.12)', borderColor: '#5D8246' }
-                            : { backgroundColor: '#FFFFFF', borderColor: 'rgba(214, 211, 209, 0.8)' }
+                            ? { backgroundColor: 'rgba(93, 130, 70, 0.35)', borderColor: '#FF6B4A' }
+                            : { backgroundColor: 'rgba(22, 34, 17, 0.65)', borderColor: 'rgba(255, 253, 208, 0.15)' }
                         }
-                        className="text-left p-4 sm:p-5 rounded-xl border transition-all duration-200 flex flex-col justify-between relative cursor-pointer shadow-2xs"
+                        className="text-left p-4 sm:p-5 rounded-xl border transition-all duration-200 flex flex-col justify-between relative cursor-pointer shadow-2xs hover:border-[#FF6B4A]/50"
                       >
                         {pace.badge && (
                           <div 
                             style={
                               isSelected 
-                                ? { backgroundColor: '#5D8246', color: '#FFFDD0' } 
-                                : { backgroundColor: '#E7E5E4', color: '#44403C' }
+                                ? { backgroundColor: '#FF6B4A', color: '#FFFDD0' } 
+                                : { backgroundColor: 'rgba(255, 253, 208, 0.12)', color: '#FFFDD0' }
                             }
                             className="text-[9px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded-md inline-block w-fit mb-2 font-bold"
                           >
@@ -435,17 +435,17 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                           </div>
                         )}
                         <div>
-                          <div className="font-serif text-lg font-bold mb-0.5 text-[#1A2814]">{pace.title}</div>
+                          <div className="font-serif text-lg font-bold mb-0.5 text-[#FFFDD0]">{pace.title}</div>
                           <div className="font-mono text-xs mb-2 font-bold text-[#FF6B4A]">
                             {pace.subtitle}
                           </div>
-                          <p className="text-xs leading-relaxed text-stone-600">
+                          <p className="text-xs leading-relaxed text-[#FFFDD0]/70">
                             {pace.description}
                           </p>
                         </div>
 
-                        <div className="mt-4 pt-2.5 border-t border-stone-200/80 flex items-center justify-between text-[11px] font-mono font-bold">
-                          <span className="text-stone-500">Bonus Hours</span>
+                        <div className="mt-4 pt-2.5 border-t border-[#FFFDD0]/10 flex items-center justify-between text-[11px] font-mono font-bold">
+                          <span className="text-[#FFFDD0]/60">Bonus Hours</span>
                           <span className="text-[#FF6B4A]">1.5x Boost</span>
                         </div>
                       </button>
@@ -464,47 +464,55 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 className="space-y-5 text-center"
               >
                 <div className="max-w-md mx-auto">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF694F] font-bold">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#FF6B4A] font-bold">
                     CREDENTIAL INAUGURATION
                   </span>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#1A2814] mt-0.5 mb-1">
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#FFFDD0] mt-0.5 mb-1">
                     Your Odyssey Begins
                   </h3>
-                  <p className="text-xs sm:text-sm text-stone-600">
+                  <p className="text-xs sm:text-sm text-[#FFFDD0]/75">
                     Your salon credentials and inaugural rank have been minted.
                   </p>
                 </div>
 
                 {/* Minted Passport Card */}
-                <div className="relative max-w-md mx-auto bg-stone-100/60 p-5 sm:p-6 rounded-2xl border border-stone-200/80 shadow-sm text-left overflow-hidden">
-                  
+                <div 
+                  style={{ backgroundColor: 'rgba(22, 34, 17, 0.85)', borderColor: 'rgba(255, 253, 208, 0.2)' }}
+                  className="relative max-w-md mx-auto p-5 sm:p-6 rounded-2xl border shadow-sm text-left overflow-hidden"
+                >
                   {/* Header Dateline */}
-                  <div className="flex items-center justify-between border-b border-stone-200/80 pb-3 mb-3">
+                  <div className="flex items-center justify-between border-b border-[#FFFDD0]/10 pb-3 mb-3">
                     <div>
-                      <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-stone-500 block">
+                      <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#FFFDD0]/60 block">
                         OFFICIAL TRAVELER’S PASSPORT
                       </span>
-                      <h4 className="font-serif text-lg font-bold text-[#1A2814]">{userName}</h4>
+                      <h4 className="font-serif text-lg font-bold text-[#FFFDD0]">{userName}</h4>
                     </div>
                     <div className="text-right">
-                      <span className="text-[9px] font-mono uppercase tracking-widest text-stone-400 block">COMMITTED</span>
-                      <div className="font-mono text-xs sm:text-sm font-bold text-[#FF694F]">{selectedGoal} MIN / DAY</div>
+                      <span className="text-[9px] font-mono uppercase tracking-widest text-[#FFFDD0]/40 block">COMMITTED</span>
+                      <div className="font-mono text-xs sm:text-sm font-bold text-[#FF6B4A]">{selectedGoal} MIN / DAY</div>
                     </div>
                   </div>
 
                   {/* Badges Grid */}
                   <div className="grid grid-cols-2 gap-2.5 text-xs mb-4">
-                    <div className="bg-white p-3 rounded-xl border border-stone-200/80">
-                      <span className="text-[9px] font-mono uppercase tracking-wider text-stone-500 block mb-0.5">Assigned Rank</span>
-                      <span className="font-serif font-bold text-[#1A2814] text-sm flex items-center gap-1.5">
-                        <span className="text-[#FF694F] font-mono">✦</span>
+                    <div 
+                      style={{ backgroundColor: 'rgba(255, 253, 208, 0.08)', borderColor: 'rgba(255, 253, 208, 0.12)' }}
+                      className="p-3 rounded-xl border"
+                    >
+                      <span className="text-[9px] font-mono uppercase tracking-wider text-[#FFFDD0]/60 block mb-0.5">Assigned Rank</span>
+                      <span className="font-serif font-bold text-[#FFFDD0] text-sm flex items-center gap-1.5">
+                        <span className="text-[#FF6B4A] font-mono">✦</span>
                         <span>Novice Wanderer</span>
                       </span>
                     </div>
-                    <div className="bg-white p-3 rounded-xl border border-stone-200/80">
-                      <span className="text-[9px] font-mono uppercase tracking-wider text-stone-500 block mb-0.5">Shield Inventory</span>
-                      <span className="font-serif font-bold text-[#1A2814] text-sm flex items-center gap-1.5">
-                        <span className="text-[#FF694F] font-mono">◈</span>
+                    <div 
+                      style={{ backgroundColor: 'rgba(255, 253, 208, 0.08)', borderColor: 'rgba(255, 253, 208, 0.12)' }}
+                      className="p-3 rounded-xl border"
+                    >
+                      <span className="text-[9px] font-mono uppercase tracking-wider text-[#FFFDD0]/60 block mb-0.5">Shield Inventory</span>
+                      <span className="font-serif font-bold text-[#FFFDD0] text-sm flex items-center gap-1.5">
+                        <span className="text-[#FF6B4A] font-mono">◈</span>
                         <span>1 Active Shield</span>
                       </span>
                     </div>
@@ -512,7 +520,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
                   {/* Minted Wax Seal Stamp */}
                   <div className="flex items-center justify-center pt-2">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FF694F] to-[#E05338] text-white flex flex-col items-center justify-center shadow-md select-none shrink-0">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B4A] to-[#E05338] text-white flex flex-col items-center justify-center shadow-md select-none shrink-0">
                       <span className="text-[8px] font-mono tracking-widest uppercase opacity-80">ODYSSEUS</span>
                       <span className="font-serif font-black text-xs tracking-widest text-white">MINTED</span>
                       <span className="text-[7px] font-mono tracking-wider opacity-90 uppercase">SALON PASS</span>
@@ -524,18 +532,18 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           </div>
 
           {/* Modal Footer Controls */}
-          <div className="px-6 py-4 border-t border-stone-200/80 flex items-center justify-between bg-stone-100/40 shrink-0">
+          <div className="px-6 py-4 border-t border-[#FFFDD0]/10 flex items-center justify-between bg-[#162211]/80 shrink-0">
             {step > 1 ? (
               <button
                 onClick={() => setStep((s) => s - 1)}
-                className="px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider text-stone-600 hover:text-[#1A2814] hover:bg-stone-200/50 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider text-[#FFFDD0]/70 hover:text-[#FFFDD0] hover:bg-white/10 transition-colors cursor-pointer"
               >
                 ← Back
               </button>
             ) : (
               <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider text-stone-500 hover:text-[#1A2814] transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider text-[#FFFDD0]/50 hover:text-[#FFFDD0] transition-colors cursor-pointer"
               >
                 Skip Guide
               </button>
@@ -554,8 +562,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               <button
                 onClick={handleFinish}
                 disabled={isSubmitting}
-                style={{ backgroundColor: '#1A2814', color: '#FFFDD0' }}
-                className="px-7 py-2.5 rounded-xl hover:bg-[#2F4522] font-mono font-bold text-xs uppercase tracking-widest shadow-md transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                style={{ backgroundColor: '#5D8246', color: '#FFFDD0' }}
+                className="px-7 py-2.5 rounded-xl hover:opacity-90 font-mono font-bold text-xs uppercase tracking-widest shadow-md transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 <span>{isSubmitting ? 'Inaugurating...' : 'Enter Odysseus Salon'}</span>
                 <span>→</span>

@@ -98,23 +98,23 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
             className="fixed top-0 left-0 right-0 pt-8 sm:pt-14 px-4 flex justify-center pointer-events-none"
           >
             <div 
-              style={{ backgroundColor: '#FAF7EE', color: '#1A2814', maxWidth: '640px', width: '100%' }}
-              className="rounded-2xl sm:rounded-3xl border border-stone-300/70 shadow-2xl overflow-hidden pointer-events-auto flex flex-col max-h-[82vh]"
+              style={{ backgroundColor: '#1E2D18', color: '#FFFDD0', maxWidth: '640px', width: '100%' }}
+              className="rounded-2xl sm:rounded-3xl border border-[#FFFDD0]/15 shadow-2xl overflow-hidden pointer-events-auto flex flex-col max-h-[82vh]"
             >
               {/* Top Folio Label */}
-              <div className="px-6 pt-4 pb-2.5 border-b border-stone-200/80 flex items-center justify-between bg-stone-100/40">
-                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-stone-500 font-bold flex items-center gap-2">
-                  <span className="text-[#FF694F]">✦</span>
+              <div className="px-6 pt-4 pb-2.5 border-b border-[#FFFDD0]/10 flex items-center justify-between bg-[#162211]/80">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FFFDD0]/70 font-bold flex items-center gap-2">
+                  <span className="text-[#FF6B4A]">✦</span>
                   <span>ODYSSEUS ARCHIVE</span>
                 </span>
-                <span className="font-mono text-[10px] uppercase tracking-wider text-stone-500">
+                <span className="font-mono text-[10px] uppercase tracking-wider text-[#FFFDD0]/50">
                   {stories.length} Dispatches Indexed
                 </span>
               </div>
 
               {/* Search Input Row */}
-              <div className="flex items-center gap-3 px-6 py-4 border-b border-stone-200/80 bg-[#FAF7EE]">
-                <svg className="w-5 h-5 shrink-0 text-stone-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <div className="flex items-center gap-3 px-6 py-4 border-b border-[#FFFDD0]/10 bg-[#1E2D18]">
+                <svg className="w-5 h-5 shrink-0 text-[#FFFDD0]/60" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="7" />
                   <path strokeLinecap="round" d="M21 21l-5-5" />
                 </svg>
@@ -126,19 +126,19 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search dispatches, publications, topics..."
                   style={{ outline: 'none', boxShadow: 'none' }}
-                  className="flex-1 bg-transparent text-base sm:text-lg font-serif text-[#1A2814] placeholder:font-sans placeholder:text-stone-400 placeholder:text-sm sm:placeholder:text-base border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus:border-0 p-0"
+                  className="flex-1 bg-transparent text-base sm:text-lg font-serif text-[#FFFDD0] placeholder:font-sans placeholder:text-[#FFFDD0]/40 placeholder:text-sm sm:placeholder:text-base border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus:border-0 p-0"
                 />
 
                 {query && (
                   <button
                     onClick={() => setQuery('')}
-                    className="text-xs font-mono text-stone-400 hover:text-stone-700 px-2 py-1 rounded-md transition-colors cursor-pointer"
+                    className="text-xs font-mono text-[#FFFDD0]/60 hover:text-[#FFFDD0] px-2 py-1 rounded-md transition-colors cursor-pointer"
                   >
                     Clear
                   </button>
                 )}
 
-                <kbd className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-200/70 text-stone-600 border border-stone-300/80 select-none">
+                <kbd className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-[#FFFDD0]/90 border border-white/15 select-none">
                   ESC
                 </kbd>
               </div>
@@ -149,16 +149,16 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                 {query.trim().length <= 1 && (
                   <div className="py-8 px-6 text-center space-y-5">
                     <div>
-                      <p className="font-serif font-bold text-xl text-[#1A2814]">
+                      <p className="font-serif font-bold text-xl text-[#FFFDD0]">
                         Explore the Entire Broadside
                       </p>
-                      <p className="text-xs text-stone-600 mt-1.5 max-w-md mx-auto leading-relaxed">
+                      <p className="text-xs text-[#FFFDD0]/70 mt-1.5 max-w-md mx-auto leading-relaxed">
                         Search across real-time dispatches from Wired, The Verge, Dezeen, Quanta, BBC, and all curated desks.
                       </p>
                     </div>
 
                     <div className="pt-2">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-stone-500 block mb-3">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#FFFDD0]/60 block mb-3">
                         SUGGESTED DISPATCHES:
                       </span>
                       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -169,8 +169,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                               setQuery(tag);
                               inputRef.current?.focus();
                             }}
-                            style={{ backgroundColor: 'rgba(93, 130, 70, 0.09)' }}
-                            className="px-3.5 py-1.5 rounded-lg text-[#1A2814] hover:text-[#FF6B4A] hover:bg-[#5D8246]/20 font-mono text-xs font-semibold tracking-wider transition-all cursor-pointer"
+                            style={{ backgroundColor: 'rgba(255, 253, 208, 0.08)' }}
+                            className="px-3.5 py-1.5 rounded-lg text-[#FFFDD0] hover:text-[#FF6B4A] hover:bg-white/15 font-mono text-xs font-semibold tracking-wider transition-all cursor-pointer border border-[#FFFDD0]/10 hover:border-[#FF6B4A]/40"
                           >
                             {tag}
                           </button>
@@ -183,10 +183,10 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                 {/* No Results */}
                 {query.trim().length > 1 && results.length === 0 && (
                   <div className="py-12 px-6 text-center space-y-2">
-                    <p className="font-serif font-bold text-base text-[#1A2814]">
+                    <p className="font-serif font-bold text-base text-[#FFFDD0]">
                       No dispatches found for &ldquo;{query}&rdquo;
                     </p>
-                    <p className="text-xs font-mono text-stone-500">
+                    <p className="text-xs font-mono text-[#FFFDD0]/60">
                       Try searching by source (e.g. &ldquo;BBC&rdquo;, &ldquo;Wired&rdquo;) or general subject.
                     </p>
                   </div>
@@ -195,11 +195,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                 {/* Result Rows */}
                 {results.length > 0 && (
                   <div className="py-1 space-y-1">
-                    <div className="px-4 py-2 flex items-center justify-between border-b border-stone-200/80 mb-1">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-stone-500">
+                    <div className="px-4 py-2 flex items-center justify-between border-b border-[#FFFDD0]/10 mb-1">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#FFFDD0]/60">
                         [{results.length} DISPATCHES FOUND]
                       </span>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-[#FF694F] font-bold">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-[#FF6B4A] font-bold">
                         SELECT TO READ
                       </span>
                     </div>
@@ -216,12 +216,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
               </div>
 
               {/* Bottom Folio Footer */}
-              <div className="px-6 py-3 border-t border-stone-200/80 bg-stone-100/40 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-stone-500">
+              <div className="px-6 py-3 border-t border-[#FFFDD0]/10 bg-[#162211]/80 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-[#FFFDD0]/60">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#5D8246]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B4A]" />
                   <span>Curated Salon Archive</span>
                 </span>
-                <span className="text-stone-500">
+                <span className="text-[#FFFDD0]/60">
                   ↵ Enter to read
                 </span>
               </div>
@@ -243,11 +243,11 @@ function SearchResultRow({ story, onSelect }: { story: Story; onSelect: () => vo
   return (
     <div
       onClick={onSelect}
-      className="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl hover:bg-[#5D8246]/8 transition-colors group cursor-pointer"
+      className="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl hover:bg-white/10 transition-colors group cursor-pointer"
     >
       {/* Rounded Thumbnail */}
       {upgradedImg ? (
-        <div className="w-13 h-13 rounded-xl overflow-hidden shrink-0 bg-stone-200/50">
+        <div className="w-13 h-13 rounded-xl overflow-hidden shrink-0 bg-black/20">
           <img 
             src={upgradedImg} 
             alt={story.title} 
@@ -255,32 +255,32 @@ function SearchResultRow({ story, onSelect }: { story: Story; onSelect: () => vo
           />
         </div>
       ) : (
-        <div className="w-13 h-13 rounded-xl shrink-0 flex items-center justify-center bg-[#5D8246]/10 font-serif font-black text-lg text-[#5D8246]">
+        <div className="w-13 h-13 rounded-xl shrink-0 flex items-center justify-center bg-[#5D8246]/20 font-serif font-black text-lg text-[#FFFDD0]">
           {displaySource.charAt(0)}
         </div>
       )}
 
       {/* Title + Metadata */}
       <div className="flex-1 min-w-0">
-        <h4 className="font-serif font-bold text-sm sm:text-base text-[#1A2814] group-hover:text-[#FF694F] line-clamp-1 leading-snug transition-colors">
+        <h4 className="font-serif font-bold text-sm sm:text-base text-[#FFFDD0] group-hover:text-[#FF6B4A] line-clamp-1 leading-snug transition-colors">
           {capitalizeFirstLetter(sanitizeText(story.title))}
         </h4>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FF694F]">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FF6B4A]">
             {displaySource}
           </span>
           {displayCategory && (
             <>
-              <span className="text-stone-300 font-mono text-xs">•</span>
-              <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500">
+              <span className="text-white/20 font-mono text-xs">•</span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#FFFDD0]/60">
                 {displayCategory}
               </span>
             </>
           )}
           {displayReadTime && (
             <>
-              <span className="text-stone-300 font-mono text-xs">•</span>
-              <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400">
+              <span className="text-white/20 font-mono text-xs">•</span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#FFFDD0]/40">
                 {displayReadTime}
               </span>
             </>
@@ -289,7 +289,7 @@ function SearchResultRow({ story, onSelect }: { story: Story; onSelect: () => vo
       </div>
 
       {/* Arrow Indicator */}
-      <span className="text-base text-stone-300 group-hover:text-[#FF694F] group-hover:translate-x-1 transition-all shrink-0">
+      <span className="text-base text-[#FFFDD0]/40 group-hover:text-[#FF6B4A] group-hover:translate-x-1 transition-all shrink-0">
         →
       </span>
     </div>
